@@ -1,0 +1,13 @@
+{
+  "name": "diablo",
+  "version": "0.1.0",
+  "description": "웹 기반 디아블로 스타일 액션 RPG 프로토타입",
+  "scripts": {
+    "dev": "cd src && python -m http.server 8080",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "gh-pages -d src"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
+  }
+}
