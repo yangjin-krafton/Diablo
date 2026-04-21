@@ -1,15 +1,24 @@
-// Game orchestrator. Owns renderer, scene, camera, systems. Runs the update loop.
-// Add new systems by instantiating them here and calling their update() in _tick().
+// Game orchestrator. Owns renderer, scene, camera, surface, and systems.
+//
+// Visual model: camera is STATIC. A `worldRotator` group wraps the planet,
+// landmarks, and all entity meshes. Each frame we rotate the worldRotator so
+// that the player's planet-local position maps to world (0, R, 0) — anchoring
+// the player at the visible top of the sphere while the world rolls underneath.
+//
+// Extension path: instantiate new systems in the constructor, step them in _tick().
 
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { InputState } from './input.js';
-import { FollowCamera } from './camera.js';
+import { StaticCamera } from './camera.js';
 import { createScene } from './scene-setup.js';
+import { SphereSurface } from './world/surface.js';
 import { Player } from './entities/player.js';
 import { Spawner } from './systems/spawner.js';
 import { Hud } from './hud.js';
 import { preload } from './assets.js';
+
+const UP_WORLD = new THREE.Vector3(0, 1, 0);
 
 export class Game {
     constructor(canvas) {
@@ -18,23 +27,29 @@ export class Game {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-        this.scene = createScene();
+        this.surface = new SphereSurface(CONFIG.world.planetRadius);
+        const { scene, worldRotator } = createScene(this.surface);
+        this.scene = scene;
+        this.worldRotator = worldRotator;
+
         const aspect = this._sizePixels().w / this._sizePixels().h;
-        this.camera = new FollowCamera(aspect);
+        this.camera = new StaticCamera(aspect, this.surface);
         this.input = new InputState();
-        this.player = new Player();
-        this.spawner = new Spawner();
+        this.player = new Player(this.surface);
+        this.spawner = new Spawner(this.surface);
         this.hud = new Hud();
 
         this._last = 0;
+        this._posNorm = new THREE.Vector3();
+
         this._resize();
         window.addEventListener('resize', () => this._resize());
     }
 
     async start() {
-        // warm the GLB cache so the first spawn isn't a frame-hitch
         await preload([CONFIG.player.modelPath, CONFIG.enemy.modelPath]);
-        await this.player.init(this.scene);
+        await this.player.init(this.worldRotator);
+        this._alignWorld();
 
         const loading = document.getElementById('loading');
         if (loading) loading.classList.add('hidden');
@@ -47,14 +62,20 @@ export class Game {
         const dt = Math.min(0.05, (now - this._last) / 1000);
         this._last = now;
 
-        this.player.update(dt, this.input, this.spawner.enemies);
-        this.spawner.update(dt, this.scene, this.player);
-        this.camera.update(dt, this.player.position);
+        this.player.update(dt, this.input, this.worldRotator, this.spawner.enemies);
+        this.spawner.update(dt, this.worldRotator, this.player);
+        this._alignWorld();
         this.hud.update(this.player, this.spawner);
 
         this.renderer.render(this.scene, this.camera.camera);
         requestAnimationFrame(this._tick);
     };
+
+    /** Rotate the world so player.position maps to world (0, R, 0). */
+    _alignWorld() {
+        this._posNorm.copy(this.player.position).normalize();
+        this.worldRotator.quaternion.setFromUnitVectors(this._posNorm, UP_WORLD);
+    }
 
     _sizePixels() {
         const parent = this.canvas.parentElement;

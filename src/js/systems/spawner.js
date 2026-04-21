@@ -1,19 +1,22 @@
-// Enemy spawner. Periodically creates enemies around the player up to maxEnemies.
-// Also drives per-frame enemy updates and cleans up dead enemies.
+// Enemy spawner on spherical surface. Periodically spawns enemies at a random
+// great-circle direction from the player, between spawnArcMin and spawnArcMax
+// (arc distance along the surface).
 
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { Enemy } from '../entities/enemy.js';
 
 export class Spawner {
-    constructor() {
+    constructor(surface) {
+        this.surface = surface;
         this.enemies = [];
         this.kills = 0;
         this._timer = 0;
+        this._spawnPos = new THREE.Vector3();
     }
 
-    update(dt, scene, player) {
-        // cull dead
+    update(dt, parent, player) {
+        // cull dead, accumulate kill count
         let culled = 0;
         this.enemies = this.enemies.filter((e) => {
             if (e.alive) return true;
@@ -26,25 +29,19 @@ export class Spawner {
         this._timer -= dt;
         if (this._timer <= 0 && this.enemies.length < CONFIG.spawner.maxEnemies) {
             this._timer = CONFIG.spawner.interval;
-            this._spawn(scene, player);
+            this._spawn(parent, player);
         }
 
-        // drive enemies
         for (const e of this.enemies) e.update(dt, player);
     }
 
-    _spawn(scene, player) {
-        const angle = Math.random() * Math.PI * 2;
-        const r =
-            CONFIG.spawner.spawnRadiusMin +
-            Math.random() * (CONFIG.spawner.spawnRadiusMax - CONFIG.spawner.spawnRadiusMin);
-        const pos = new THREE.Vector3(
-            player.position.x + Math.cos(angle) * r,
-            0,
-            player.position.z + Math.sin(angle) * r,
-        );
-        const e = new Enemy(pos);
+    _spawn(parent, player) {
+        const arc =
+            CONFIG.spawner.spawnArcMin +
+            Math.random() * (CONFIG.spawner.spawnArcMax - CONFIG.spawner.spawnArcMin);
+        this.surface.randomPointAtArc(player.position, arc, this._spawnPos);
+        const e = new Enemy(this.surface, this._spawnPos);
         this.enemies.push(e);
-        e.init(scene); // fire-and-forget; mesh appears when loaded
+        e.init(parent); // fire-and-forget; mesh appears when loaded
     }
 }

@@ -1,43 +1,53 @@
-// Enemy entity. Chases the player; deals contact damage while touching.
+// Enemy entity on spherical surface. Chases the player along great-circle paths,
+// deals contact damage while touching.
 
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { loadGLB } from '../assets.js';
 
 export class Enemy {
-    constructor(position) {
+    constructor(surface, position) {
+        this.surface = surface;
         this.position = new THREE.Vector3().copy(position);
+        this.surface.snapToSurface(this.position);
+        this.forward = new THREE.Vector3(0, 0, 1);
+        // derive a valid initial tangent forward at our position
+        this.surface.projectToTangent(this.position, this.forward, this.forward);
+
         this.hp = CONFIG.enemy.maxHp;
         this.alive = true;
         this.mesh = null;
+
+        this._tangent = new THREE.Vector3();
     }
 
-    async init(scene) {
+    async init(parent) {
         this.mesh = await loadGLB(CONFIG.enemy.modelPath);
         this.mesh.scale.setScalar(CONFIG.enemy.modelScale);
-        this.mesh.position.copy(this.position);
-        scene.add(this.mesh);
+        parent.add(this.mesh);
+        this._orientMesh();
     }
 
     update(dt, player) {
         if (!this.alive) return;
 
-        const dx = player.position.x - this.position.x;
-        const dz = player.position.z - this.position.z;
-        const dist = Math.hypot(dx, dz);
+        const arcDist = this.surface.arcDistance(this.position, player.position);
 
-        if (dist > CONFIG.enemy.contactRange) {
-            const nx = dx / dist;
-            const nz = dz / dist;
-            this.position.x += nx * CONFIG.enemy.moveSpeed * dt;
-            this.position.z += nz * CONFIG.enemy.moveSpeed * dt;
-            if (this.mesh) this.mesh.rotation.y = Math.atan2(nx, nz) + CONFIG.enemy.modelYawOffset;
+        if (arcDist > CONFIG.enemy.contactRange) {
+            // chase — tangent toward player
+            this.surface.tangentTo(this.position, player.position, this._tangent);
+            if (this._tangent.lengthSq() > 1e-8) {
+                this.surface.moveAlong(this.position, this._tangent, CONFIG.enemy.moveSpeed * dt);
+                this.forward.copy(this._tangent);
+            }
         } else {
-            // touching player — deal contact damage
+            // touching player
             player.takeDamage(CONFIG.enemy.contactDamage * dt);
+            // still face player
+            this.surface.tangentTo(this.position, player.position, this.forward);
         }
 
-        if (this.mesh) this.mesh.position.copy(this.position);
+        if (this.mesh) this._orientMesh();
     }
 
     damage(amount) {
@@ -49,5 +59,9 @@ export class Enemy {
     kill() {
         this.alive = false;
         if (this.mesh && this.mesh.parent) this.mesh.parent.remove(this.mesh);
+    }
+
+    _orientMesh() {
+        this.surface.orient(this.mesh, this.position, this.forward, CONFIG.enemy.modelYawOffset);
     }
 }
