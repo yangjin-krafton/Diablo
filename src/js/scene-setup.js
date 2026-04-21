@@ -21,11 +21,14 @@ export function createScene(surface) {
     scene.background = new THREE.Color(CONFIG.world.bgColor);
 
     addLighting(scene);
-    addSun(scene);
 
-    // rotating world
+    // rotating world — everything that should spin when the player walks
+    // (planet, landmarks, player, enemies, sword arc, sun, directional light)
+    // goes under this group.
     const worldRotator = new THREE.Group();
     scene.add(worldRotator);
+
+    addSun(worldRotator);
 
     const planet = new THREE.Mesh(
         buildPaintedPlanetGeometry(
@@ -55,7 +58,10 @@ function addLighting(scene) {
     scene.add(new THREE.HemisphereLight(ambientSky, ambientGround, ambientIntensity));
 }
 
-function addSun(scene) {
+// The sun + its directional light live INSIDE the worldRotator group so that
+// when the planet rotates under the player, the light direction rotates with
+// it — the same biome on the planet keeps the same lighting angle.
+function addSun(worldRotator) {
     const cfg = CONFIG.world.sun;
     const sunPos = new THREE.Vector3(cfg.position.x, cfg.position.y, cfg.position.z);
     const sunDist = sunPos.length();
@@ -66,7 +72,7 @@ function addSun(scene) {
         new THREE.MeshBasicMaterial({ color: cfg.color, toneMapped: false }),
     );
     sun.position.copy(sunPos);
-    scene.add(sun);
+    worldRotator.add(sun);
 
     // --- soft halo shell (back-faced, additive-ish via low opacity) ---
     const halo = new THREE.Mesh(
@@ -81,18 +87,18 @@ function addSun(scene) {
         }),
     );
     halo.position.copy(sunPos);
-    scene.add(halo);
+    worldRotator.add(halo);
 
     // --- directional light originating at the sun, targeted at planet center ---
     const light = new THREE.DirectionalLight(cfg.lightColor, cfg.lightIntensity);
     light.position.copy(sunPos);
+    // target at worldRotator-local origin (= planet center); stays at (0,0,0)
+    // even after rotation since rotation preserves the origin
     light.target.position.set(0, 0, 0);
-    scene.add(light.target);
+    worldRotator.add(light.target);
 
     light.castShadow = true;
     light.shadow.mapSize.set(2048, 2048);
-    // Shadow camera frustum (orthographic) along the sun→planet axis.
-    // Tight bounds around the planet to maximize shadow resolution.
     light.shadow.camera.near = Math.max(1, sunDist - 40);
     light.shadow.camera.far  = sunDist + 40;
     light.shadow.camera.left   = -40;
@@ -103,7 +109,7 @@ function addSun(scene) {
     light.shadow.normalBias = 0.02;
     light.shadow.radius = 2;
 
-    scene.add(light);
+    worldRotator.add(light);
 }
 
 function scatterLandmarks(parent, surface) {

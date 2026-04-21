@@ -1,11 +1,23 @@
 // Game orchestrator. Owns renderer, scene, camera, surface, and systems.
 //
 // Visual model: camera is STATIC. A `worldRotator` group wraps the planet,
-// landmarks, and all entity meshes. Each frame we rotate the worldRotator so
-// that the player's planet-local position maps to world (0, R, 0) — anchoring
-// the player at the visible top of the sphere while the world rolls underneath.
+// landmarks, sun, directional light, and all entity meshes. Each frame we
+// ROLL the worldRotator by a small delta determined by input — accumulating
+// over time rather than recomputing from scratch. This keeps "up on screen"
+// mapped to a consistent world axis as you walk in any combination of
+// directions (no shortest-arc twist), and because the sun/light live inside
+// the rotator, the lighting rotates with the planet too.
 //
-// Extension path: instantiate new systems in the constructor, step them in _tick().
+// Player's planet-local position and forward are DERIVED each frame as
+// invQ * (0, R, 0) and invQ * worldForward respectively — the rotator is the
+// single source of truth.
+//
+// Input to delta axis mapping (axis = cross(moveDirWorld, worldUp)):
+//   W (input.z = -1, moveDir = (0,0,-1)) → axis = ( 1, 0, 0)
+//   S (input.z = +1)                     → axis = (-1, 0, 0)
+//   D (input.x = +1)                     → axis = ( 0, 0, 1)
+//   A (input.x = -1)                     → axis = ( 0, 0,-1)
+// Angle per frame = mag * speed * dt / R.
 
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
@@ -17,8 +29,6 @@ import { Player } from './entities/player.js';
 import { Spawner } from './systems/spawner.js';
 import { Hud } from './hud.js';
 import { preload } from './assets.js';
-
-const UP_WORLD = new THREE.Vector3(0, 1, 0);
 
 export class Game {
     constructor(canvas) {
@@ -44,7 +54,6 @@ export class Game {
         this.hud = new Hud();
 
         this._last = 0;
-        this._posNorm = new THREE.Vector3();
 
         this._resize();
         window.addEventListener('resize', () => this._resize());
@@ -53,7 +62,6 @@ export class Game {
     async start() {
         await preload([CONFIG.player.modelPath, CONFIG.enemy.modelPath]);
         await this.player.init(this.worldRotator);
-        this._alignWorld();
 
         const loading = document.getElementById('loading');
         if (loading) loading.classList.add('hidden');
@@ -66,19 +74,35 @@ export class Game {
         const dt = Math.min(0.05, (now - this._last) / 1000);
         this._last = now;
 
-        this.player.update(dt, this.input, this.worldRotator, this.spawner.enemies);
+        const worldForward = this._applyInputRotation(dt);
+        this.player.update(dt, this.worldRotator, this.spawner.enemies, worldForward);
         this.spawner.update(dt, this.worldRotator, this.player);
-        this._alignWorld();
         this.hud.update(this.player, this.spawner);
 
         this.renderer.render(this.scene, this.camera.camera);
         requestAnimationFrame(this._tick);
     };
 
-    /** Rotate the world so player.position maps to world (0, R, 0). */
-    _alignWorld() {
-        this._posNorm.copy(this.player.position).normalize();
-        this.worldRotator.quaternion.setFromUnitVectors(this._posNorm, UP_WORLD);
+    /** Apply a small delta rotation to worldRotator based on input.
+     *  Returns the world-space forward direction (unit vector) the player is
+     *  moving in, or null if idle.
+     */
+    _applyInputRotation(dt) {
+        const m = this.input.moveVector();
+        const mag = Math.hypot(m.x, m.z);
+        if (mag < 1e-6) return null;
+
+        const ux = m.x / mag;
+        const uz = m.z / mag;
+        // axis = cross((ux, 0, uz), (0, 1, 0)) = (-uz, 0, ux)
+        _axis.set(-uz, 0, ux);
+        const angle = (mag * CONFIG.player.moveSpeed * dt) / this.surface.radius;
+        _deltaQ.setFromAxisAngle(_axis, angle);
+        this.worldRotator.quaternion.premultiply(_deltaQ);
+        this.worldRotator.quaternion.normalize(); // guard against drift
+
+        _worldForward.set(ux, 0, uz);
+        return _worldForward;
     }
 
     _sizePixels() {
@@ -92,3 +116,7 @@ export class Game {
         this.camera.setAspect(w / h);
     }
 }
+
+const _axis = new THREE.Vector3();
+const _deltaQ = new THREE.Quaternion();
+const _worldForward = new THREE.Vector3();

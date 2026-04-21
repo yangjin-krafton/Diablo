@@ -1,17 +1,15 @@
-// Player entity on a spherical world viewed through a static camera.
+// Player entity. On a spherical world with a static camera and a rotating
+// worldRotator, the player's mesh lives INSIDE worldRotator with a planet-local
+// position — updated each frame so that after worldRotator's rotation the mesh
+// always lands at world (0, R, 0). Concretely:
 //
-// The trick: everything on the planet lives inside a `worldRotator` group whose
-// quaternion is adjusted each frame so the player's planet-local position maps
-// to world (0, R, 0). The player therefore appears fixed at the top of the
-// visible hemisphere; WASD input is interpreted in world/screen axes and mapped
-// to the tangent plane at the player's planet-local position via the inverse
-// of the worldRotator's quaternion.
+//   player.position (planet-local) = invQ * (0, R, 0)
+//   player.forward  (planet-local) = invQ * worldForward   (when moving)
 //
-// Input mapping (world-space, because the camera is static):
-//   W (input.z = -1) → move in world -Z (into the screen)
-//   S (input.z = +1) → move in world +Z
-//   A (input.x = -1) → move in world -X (left)
-//   D (input.x = +1) → move in world +X (right)
+// The worldRotator itself is driven by input (see Game._applyInputRotation).
+// Player does not update its own position — it derives it. The logic here is
+// limited to facing (derived or idle-toward-nearest-enemy), auto-attack, and
+// mesh orientation.
 
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
@@ -21,9 +19,7 @@ import { SwordSwing } from '../combat/sword-swing.js';
 export class Player {
     constructor(surface) {
         this.surface = surface;
-        // planet-local position on sphere surface
         this.position = new THREE.Vector3(0, surface.radius, 0);
-        // planet-local tangent forward; -Z so player's nose faces INTO the screen
         this.forward = new THREE.Vector3(0, 0, -1);
 
         this.hp = CONFIG.player.maxHp;
@@ -43,32 +39,21 @@ export class Player {
         this._orientMesh();
     }
 
-    update(dt, input, worldRotator, enemies) {
+    /** @param worldForward world-space unit tangent direction of movement, or null */
+    update(dt, worldRotator, enemies, worldForward) {
         if (!this.alive) return;
 
-        const m = input.moveVector();
-        _worldDir.set(m.x, 0, m.z);
+        // --- derive planet-local position from worldRotator ---
+        _invQ.copy(worldRotator.quaternion).invert();
+        this.position.set(0, this.surface.radius, 0).applyQuaternion(_invQ);
 
-        if (_worldDir.lengthSq() > 1e-8) {
-            _worldDir.normalize();
-            // worldRotator.quaternion maps planet-local player.position → (0, R, 0).
-            // Its inverse therefore maps world-space tangent directions (at the
-            // player's visual position) back to planet-local tangent directions
-            // at the player's actual position on the sphere.
-            _invQ.copy(worldRotator.quaternion).invert();
-            _localDir.copy(_worldDir).applyQuaternion(_invQ);
-            this.surface.projectToTangent(this.position, _localDir, _localDir);
-            if (_localDir.lengthSq() > 1e-8) {
-                this.surface.moveAlong(this.position, _localDir, CONFIG.player.moveSpeed * dt);
-                this.forward.copy(_localDir);
-            }
+        // --- derive forward ---
+        if (worldForward) {
+            this.forward.copy(worldForward).applyQuaternion(_invQ);
         } else {
-            // idle: face nearest enemy (in planet-local)
             const near = this._nearest(enemies);
             if (near) this.surface.tangentTo(this.position, near.position, this.forward);
         }
-
-        // keep forward numerically tangent
         this.surface.projectToTangent(this.position, this.forward, this.forward);
 
         if (this.mesh) this._orientMesh();
@@ -111,6 +96,4 @@ export class Player {
     }
 }
 
-const _worldDir = new THREE.Vector3();
-const _localDir = new THREE.Vector3();
 const _invQ = new THREE.Quaternion();
