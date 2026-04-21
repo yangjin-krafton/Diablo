@@ -7,82 +7,85 @@
     <title>Diablo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body {
+        html, body, #game-root {
             width: 100%;
             height: 100%;
             background: #0a0a0a;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+        }
+        body {
             color: #e6e6e6;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-            touch-action: none;
-            user-select: none;
         }
-        #game-root {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        #game-canvas {
-            display: block;
-            background: #111;
-            box-shadow: 0 0 40px rgba(180, 30, 30, 0.25);
-            image-rendering: pixelated;
-        }
+        #game-root { position: fixed; inset: 0; }
+        #game-canvas { display: block; width: 100%; height: 100%; }
         #hud {
-            position: fixed;
-            top: 12px;
-            left: 12px;
-            font-size: 14px;
-            color: #b0b0b0;
-            letter-spacing: 0.02em;
+            position: fixed; top: 12px; left: 12px;
+            font-size: 13px; color: #d8d8d8;
+            text-shadow: 0 1px 2px #000;
+            pointer-events: none;
+            line-height: 1.5;
+        }
+        #hud .label { color: #888; margin-right: 6px; }
+        #controls {
+            position: fixed; bottom: 12px; left: 12px;
+            font-size: 11px; color: #888;
+            text-shadow: 0 1px 2px #000;
             pointer-events: none;
         }
-        #title {
+        #loading {
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: #0a0a0a; color: #b82020;
+            font-size: 20px; letter-spacing: 0.2em;
+            transition: opacity 0.4s;
+        }
+        #loading.hidden { opacity: 0; pointer-events: none; }
+
+        /* virtual joystick (mobile) — positioned by input.js */
+        .joy {
             position: fixed;
-            bottom: 16px;
-            right: 16px;
-            font-size: 12px;
-            color: #5a5a5a;
+            border-radius: 50%;
             pointer-events: none;
+            display: none;
+            z-index: 10;
+        }
+        #joy-base {
+            width: 120px; height: 120px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.22);
+        }
+        #joy-stick {
+            width: 60px; height: 60px;
+            background: rgba(255, 90, 90, 0.28);
+            border: 2px solid rgba(255, 120, 120, 0.6);
+            z-index: 11;
         }
     </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
 </head>
 <body>
     <div id="game-root">
-        <canvas id="game-canvas" width="960" height="540"></canvas>
+        <canvas id="game-canvas"></canvas>
     </div>
-    <div id="hud">Diablo · prototype</div>
-    <div id="title">웹 기반 액션 RPG 프로토타입</div>
-
-    <script>
-        (() => {
-            const canvas = document.getElementById("game-canvas");
-            const ctx = canvas.getContext("2d");
-
-            function resize() {
-                const ratio = 16 / 9;
-                const maxW = Math.min(window.innerWidth * 0.96, 1280);
-                const maxH = Math.min(window.innerHeight * 0.92, maxW / ratio);
-                const w = Math.min(maxW, maxH * ratio);
-                canvas.style.width = w + "px";
-                canvas.style.height = (w / ratio) + "px";
-            }
-            window.addEventListener("resize", resize);
-            resize();
-
-            ctx.fillStyle = "#111";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#b82020";
-            ctx.font = "bold 36px -apple-system, sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("DIABLO", canvas.width / 2, canvas.height / 2 - 10);
-            ctx.fillStyle = "#777";
-            ctx.font = "14px sans-serif";
-            ctx.fillText("이동만 직접 조작 · 스킬 자동 시전", canvas.width / 2, canvas.height / 2 + 20);
-        })();
-    </script>
+    <div id="hud">
+        <div><span class="label">HP</span><span id="hud-hp">-</span></div>
+        <div><span class="label">KILLS</span><span id="hud-kills">0</span></div>
+        <div><span class="label">ENEMIES</span><span id="hud-enemies">0</span></div>
+    </div>
+    <div id="controls">WASD / 방향키 · 모바일: 화면 드래그 · 근접 시 자동 공격</div>
+    <div id="loading">LOADING</div>
+    <div id="joy-base" class="joy"></div>
+    <div id="joy-stick" class="joy"></div>
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>
