@@ -30,8 +30,11 @@ export async function loadGLB(path) {
     const clone = skeletonClone(source);
     clone.traverse((o) => {
         if (o.isMesh) {
-            o.castShadow = false;
-            o.receiveShadow = false;
+            // GLTFLoader already wired normalMap/roughnessMap/metalnessMap/aoMap/
+            // emissiveMap onto the material; we only need to opt each mesh into
+            // the shadow pipeline.
+            o.castShadow = true;
+            o.receiveShadow = true;
         }
     });
     return clone;

@@ -4,17 +4,31 @@
 export const CONFIG = {
     world: {
         planetRadius: 30,
-        bgColor: 0x060610,
-        planetColor: 0x2a2a36,
-        planetEmissive: 0x0a0a14,
-        starCount: 700,
-        starDistance: 220,
-        // scattered landmark props so rotation on the sphere is visible
+        bgColor: 0x050510,
+        starCount: 800,
+        starDistance: 260,
+        // biome tile painting (see world/terrain.js for biome list)
+        terrainDetail: 3,        // icosahedron subdivisions; faces = 20 * 4^detail
+        terrainSeeds: 42,        // Voronoi seeds — more = smaller biome patches
+        // scattered landmark props add 3D texture on top of the tiles
         landmarks: {
-            count: 60,
+            count: 40,
             minHeight: 0.8,
             maxHeight: 2.2,
-            color: 0x4a4a5a,
+            color: 0x3a3a48,
+        },
+        // distant sun — source of the directional light and visible glow
+        sun: {
+            position: { x: 90, y: 110, z: 70 },
+            size: 9,
+            color: 0xffe4a0,              // visible sphere
+            haloColor: 0xffc870,           // soft halo shell
+            haloScale: 1.9,
+            lightColor: 0xffeec0,
+            lightIntensity: 1.6,
+            ambientSky: 0x3a4766,
+            ambientGround: 0x0a0d18,
+            ambientIntensity: 0.28,
         },
     },
 
