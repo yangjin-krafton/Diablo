@@ -78,4 +78,21 @@ export const CONFIG = {
         spawnArcMin: 10,         // arc distance from player
         spawnArcMax: 18,
     },
+
+    home: {
+        modelPath: './asset/models/npc/home.glb',
+        modelScale: 1.0,
+        modelYawOffset: 0,
+        spawnArcOffset: 5.5,     // arc distance from player's spawn point
+        interactRange: 2.8,      // entering opens the skill tree panel
+    },
+
+    drops: {
+        shardChance: 0.6,        // 0..1, per-enemy-death
+        shardExp: 18,            // exp per shard pickup
+        pickupRange: 1.3,        // arc distance
+        shardSize: 0.28,
+        shardColor: 0xffd84f,
+        shardEmissive: 0xff7a1f,
+    },
 };

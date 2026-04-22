@@ -7,12 +7,12 @@
     <link rel="icon" type="image/svg+xml" href="./asset/icon.svg" />
     <title>Diablo</title>
     <link rel="stylesheet" href="./css/base.css" />
-    <link rel="stylesheet" href="./css/skill-bar.css" />
     <script type="importmap">
     {
         "imports": {
             "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+            "pixi.js": "https://cdn.jsdelivr.net/npm/pixi.js@8.6.6/dist/pixi.min.mjs"
         }
     }
     </script>
@@ -21,16 +21,11 @@
     <div id="game-root">
         <canvas id="game-canvas"></canvas>
     </div>
-    <div id="hud">
-        <div><span class="label">HP</span><span id="hud-hp">-</span></div>
-        <div><span class="label">KILLS</span><span id="hud-kills">0</span></div>
-        <div><span class="label">ENEMIES</span><span id="hud-enemies">0</span></div>
-    </div>
     <div id="controls">WASD / 방향키 · 모바일: 화면 드래그 · 근접 시 자동 공격</div>
     <div id="loading">LOADING</div>
     <div id="joy-base" class="joy"></div>
     <div id="joy-stick" class="joy"></div>
-    <div id="skill-bar" data-ui-layer="skill-bar"></div>
+    <!-- HUD / skill bar / skill tree panel are rendered by Pixi into #ui-canvas (appended by UIRoot). -->
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>

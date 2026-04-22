@@ -8,13 +8,12 @@
 //
 // The worldRotator itself is driven by input (see Game._applyInputRotation).
 // Player does not update its own position — it derives it. The logic here is
-// limited to facing (derived or idle-toward-nearest-enemy), auto-attack, and
-// mesh orientation.
+// limited to facing (derived or idle-toward-nearest-enemy), mesh orientation,
+// and hp. Combat lives in the skill subclasses (see src/js/skills/).
 
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { loadGLB } from '../assets.js';
-import { SwordSwing } from '../combat/sword-swing.js';
 
 export class Player {
     constructor(surface) {
@@ -27,16 +26,12 @@ export class Player {
         this.alive = true;
 
         this.mesh = null;
-        this.swing = new SwordSwing(surface);
-        this._attackTimer = 0;
-        this.autoAttack = true;   // toggled by the sword skill slot
     }
 
     async init(parent) {
         this.mesh = await loadGLB(CONFIG.player.modelPath);
         this.mesh.scale.setScalar(CONFIG.player.modelScale);
         parent.add(this.mesh);
-        this.swing.attach(parent);
         this._orientMesh();
     }
 
@@ -58,17 +53,6 @@ export class Player {
         this.surface.projectToTangent(this.position, this.forward, this.forward);
 
         if (this.mesh) this._orientMesh();
-
-        // --- auto-attack ---
-        this._attackTimer -= dt;
-        if (this.autoAttack) {
-            const target = this._nearest(enemies, CONFIG.sword.range + CONFIG.enemy.radius);
-            if (this._attackTimer <= 0 && target) {
-                this.swing.trigger(this.position, this.forward, enemies);
-                this._attackTimer = CONFIG.sword.swingCooldown;
-            }
-        }
-        this.swing.update(dt);
     }
 
     takeDamage(amount) {

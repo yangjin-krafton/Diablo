@@ -16,10 +16,11 @@ export class Spawner {
     }
 
     update(dt, parent, player) {
-        // cull dead, accumulate kill count
+        // cull dead, accumulate kill count, fire onDeath callback
         let culled = 0;
         this.enemies = this.enemies.filter((e) => {
             if (e.alive) return true;
+            this.onDeath?.(e.position);
             culled++;
             return false;
         });

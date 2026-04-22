@@ -1,61 +1,91 @@
-// Bottom skill bar. Mounts into #skill-bar, builds SkillSlots from a config
-// list, and pushes per-frame state into them via update(player).
+// Pixi skill bar. Lays out one SkillSlot per equipped skill at the bottom
+// center of the screen, and pushes SkillSystem state into them each frame.
 //
-// Each entry in the skills array binds one logical skill to its UI slot.
-// Add a new skill by appending an entry and implementing its probes + activate.
+// The bar doubles as the skill tree panel's tab row: when the panel is open,
+// tapping a slot switches which skill the panel is viewing instead of firing
+// the skill's activate(). A thin transparent hit-catcher around the slots
+// swallows stray pointerdowns so the panel's backdrop doesn't close the
+// panel when the user misses a slot.
 
-import { CONFIG } from '../config.js';
+import { Container, Graphics } from 'pixi.js';
 import { SkillSlot } from './skill-slot.js';
 
+const SLOT_SIZE = 68;
+const SLOT_GAP = 10;
+const BOTTOM_INSET = 22;
+
 export class SkillBar {
-    constructor(player) {
-        this.root = document.getElementById('skill-bar');
-        if (!this.root) throw new Error('SkillBar: #skill-bar not found');
-        this._player = player;
+    constructor(uiRoot, skillSystem, skillPanel = null) {
+        this.skillSystem = skillSystem;
+        this.skillPanel = skillPanel;
 
-        this.slots = [];
-        this._skills = [
-            {
-                id: 'sword',
-                icon: './asset/icon.svg',
-                cooldownDuration: CONFIG.sword.swingCooldown,
-                // per-frame probes
-                getCooldownRemaining: (p) => Math.max(0, p._attackTimer ?? 0),
-                isEmphasis: (p) => !!p.autoAttack,   // ring spins while auto-cast is on
-                isEnabled:  () => true,
-                isLocked:   () => false,
-                hasLevelUp: () => false,
-                // tap to toggle auto-cast
-                onActivate: (p) => { p.autoAttack = !p.autoAttack; },
-            },
-            { id: 'slot-2', icon: null, locked: true },
-            { id: 'slot-3', icon: null, locked: true },
-            { id: 'slot-4', icon: null, locked: true },
-        ];
+        this.root = new Container();
+        uiRoot.barLayer.addChild(this.root);
 
-        for (const s of this._skills) {
+        // transparent rect covering the bar region — swallows pointerdowns
+        // in the gaps between slots so they don't fall through to the
+        // panel's backdrop and close the panel.
+        this._catcher = new Graphics();
+        this._catcher.eventMode = 'static';
+        this._catcher.on('pointerdown', (e) => e.stopPropagation());
+        this.root.addChild(this._catcher);
+
+        this.slots = skillSystem.skills.map((skill, i) => {
             const slot = new SkillSlot({
-                id: s.id,
-                icon: s.icon,
-                onActivate: () => s.onActivate?.(this._player),
+                id: skill.id,
+                size: SLOT_SIZE,
+                onActivate: () => this._handleActivate(i, skill),
             });
-            if (s.locked) slot.setLocked(true);
-            this.slots.push(slot);
-            this.root.appendChild(slot.el);
+            slot.setIcon(skill.iconPath);
+            this.root.addChild(slot);
+            return slot;
+        });
+
+        this._unsubscribeResize = uiRoot.onResize((w, h) => this._layout(w, h));
+    }
+
+    /** Slot tapped. If the panel is open the tap behaves as a tab switch
+     *  (panel also clears its current node selection). Otherwise it triggers
+     *  the skill itself (e.g. toggle auto-cast). */
+    _handleActivate(i, skill) {
+        if (this.skillPanel?.isOpen()) {
+            this.skillPanel.selectSkill(i);
+            return;
+        }
+        if (skill.isEmpty) return;
+        skill.activate();
+    }
+
+    _layout(w, h) {
+        const n = this.slots.length;
+        const total = n * SLOT_SIZE + (n - 1) * SLOT_GAP;
+        const startX = Math.round((w - total) / 2);
+        const y = Math.round(h - SLOT_SIZE - BOTTOM_INSET);
+
+        this._catcher
+            .clear()
+            .rect(startX - 10, y - 10, total + 20, SLOT_SIZE + 20)
+            .fill({ color: 0x000000, alpha: 0.001 });
+
+        for (let i = 0; i < n; i++) {
+            this.slots[i].position.set(startX + i * (SLOT_SIZE + SLOT_GAP), y);
         }
     }
 
-    update(player) {
-        for (let i = 0; i < this._skills.length; i++) {
-            const s = this._skills[i];
+    update(dt) {
+        const skills = this.skillSystem.skills;
+        const panelOpen = this.skillPanel?.isOpen() ?? false;
+        const selected = this.skillSystem.selectedIndex;
+        for (let i = 0; i < skills.length; i++) {
+            const skill = skills[i];
             const slot = this.slots[i];
-            if (s.getCooldownRemaining) {
-                slot.setCooldown(s.getCooldownRemaining(player), s.cooldownDuration);
-            }
-            if (s.isEmphasis) slot.setEmphasis(s.isEmphasis(player));
-            if (s.isEnabled)  slot.setEnabled(s.isEnabled(player));
-            if (s.isLocked)   slot.setLocked(s.isLocked(player));
-            if (s.hasLevelUp) slot.setLevelUp(s.hasLevelUp(player));
+            slot.setLocked(skill.isEmpty);
+            slot.setEmphasis(skill.isEmphasis());
+            slot.setEnabled(!skill.isEmpty);
+            slot.setCooldown(skill.getCooldownRemaining(), skill.getCooldownDuration());
+            slot.setLevelUp(skill.hasUnspentPoints());
+            slot.setSelected(panelOpen && i === selected);
+            slot.update(dt);
         }
     }
 }

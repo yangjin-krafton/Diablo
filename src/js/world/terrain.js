@@ -33,8 +33,10 @@ export const BIOMES = [
 
 export function buildPaintedPlanetGeometry(radius, detail, seedCount) {
     const base = new THREE.IcosahedronGeometry(radius, detail);
-    const geo = base.toNonIndexed();
-    base.dispose();
+    // IcosahedronGeometry in newer three is already non-indexed — skip the
+    // conversion and the warning it produces.
+    const geo = base.index ? base.toNonIndexed() : base;
+    if (geo !== base) base.dispose();
 
     const seeds = scatterSeeds(seedCount);
 

@@ -3,21 +3,12 @@
 // Visual model: camera is STATIC. A `worldRotator` group wraps the planet,
 // landmarks, sun, directional light, and all entity meshes. Each frame we
 // ROLL the worldRotator by a small delta determined by input — accumulating
-// over time rather than recomputing from scratch. This keeps "up on screen"
-// mapped to a consistent world axis as you walk in any combination of
-// directions (no shortest-arc twist), and because the sun/light live inside
-// the rotator, the lighting rotates with the planet too.
+// over time rather than recomputing from scratch.
 //
-// Player's planet-local position and forward are DERIVED each frame as
-// invQ * (0, R, 0) and invQ * worldForward respectively — the rotator is the
-// single source of truth.
-//
-// Input to delta axis mapping (axis = cross(moveDirWorld, worldUp)):
-//   W (input.z = -1, moveDir = (0,0,-1)) → axis = ( 1, 0, 0)
-//   S (input.z = +1)                     → axis = (-1, 0, 0)
-//   D (input.x = +1)                     → axis = ( 0, 0, 1)
-//   A (input.x = -1)                     → axis = ( 0, 0,-1)
-// Angle per frame = mag * speed * dt / R.
+// Pause: when the player enters the home's interact range, the game pauses
+// (simulation frozen, rendering continues) and the skill-tree panel opens.
+// Closing the panel resumes. A hysteresis flag prevents re-opening while the
+// player stands inside the range after closing — they must leave and return.
 
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
@@ -26,9 +17,14 @@ import { StaticCamera } from './camera.js';
 import { createScene } from './scene-setup.js';
 import { SphereSurface } from './world/surface.js';
 import { Player } from './entities/player.js';
+import { Home } from './entities/home.js';
 import { Spawner } from './systems/spawner.js';
+import { DropSystem } from './systems/drop-system.js';
+import { SkillSystem } from './skills/skill-system.js';
+import { UIRoot } from './ui/ui-root.js';
 import { Hud } from './hud.js';
 import { SkillBar } from './ui/skill-bar.js';
+import { SkillTreePanel } from './ui/skill-tree-panel.js';
 import { preload } from './assets.js';
 
 export class Game {
@@ -51,9 +47,21 @@ export class Game {
         this.camera = new StaticCamera(aspect, this.surface);
         this.input = new InputState();
         this.player = new Player(this.surface);
+        this.home = new Home(this.surface);
         this.spawner = new Spawner(this.surface);
-        this.hud = new Hud();
-        this.skillBar = new SkillBar(this.player);
+
+        this.skillSystem = new SkillSystem(this.player, this);
+        this.drops = new DropSystem(this.surface, this.worldRotator, this.skillSystem);
+        this.spawner.onDeath = (pos) => this.drops.rollDrop(pos);
+
+        // UI is mounted after Pixi finishes initializing (async, see start()).
+        this.ui = new UIRoot();
+        this.hud = null;
+        this.skillBar = null;
+        this.skillPanel = null;
+
+        this.paused = false;
+        this._wasInHome = false;
 
         this._last = 0;
 
@@ -62,8 +70,21 @@ export class Game {
     }
 
     async start() {
-        await preload([CONFIG.player.modelPath, CONFIG.enemy.modelPath]);
+        await Promise.all([
+            preload([CONFIG.player.modelPath, CONFIG.enemy.modelPath, CONFIG.home.modelPath]),
+            this.ui.ready,
+        ]);
         await this.player.init(this.worldRotator);
+        await this.home.init(this.worldRotator);
+
+        // Pixi is ready → mount UI modules. Panel first so the SkillBar
+        // can receive a reference to it — the bar uses it to decide whether
+        // slot taps should switch tabs or activate the skill.
+        this.hud = new Hud(this.ui);
+        this.skillPanel = new SkillTreePanel(this.ui, this.skillSystem, {
+            onClose: () => { this.paused = false; },
+        });
+        this.skillBar = new SkillBar(this.ui, this.skillSystem, this.skillPanel);
 
         const loading = document.getElementById('loading');
         if (loading) loading.classList.add('hidden');
@@ -76,15 +97,73 @@ export class Game {
         const dt = Math.min(0.05, (now - this._last) / 1000);
         this._last = now;
 
-        const worldForward = this._applyInputRotation(dt);
-        this.player.update(dt, this.worldRotator, this.spawner.enemies, worldForward);
-        this.spawner.update(dt, this.worldRotator, this.player);
+        // Player died → restart before updating anything else this frame.
+        if (!this.player.alive) this._restart();
+
+        if (!this.paused) {
+            const worldForward = this._applyInputRotation(dt);
+            this.player.update(dt, this.worldRotator, this.spawner.enemies, worldForward);
+            this.spawner.update(dt, this.worldRotator, this.player);
+            this.skillSystem.update(dt, this.spawner.enemies);
+            this.drops.update(dt, this.player);
+            this.home.update(dt, this.player);
+            this._checkHomeProximity();
+        }
+
         this.hud.update(this.player, this.spawner);
-        this.skillBar.update(this.player);
+        this.skillBar.update(dt);
 
         this.renderer.render(this.scene, this.camera.camera);
         requestAnimationFrame(this._tick);
     };
+
+    /** Respawn the player and clear the transient world state. Skill progression
+     *  (level, exp, points, allocated ranks) is preserved across deaths so the
+     *  player keeps their build. */
+    _restart() {
+        // Player: heal, reset facing, bring mesh back, snap to north pole.
+        this.player.hp = this.player.maxHp;
+        this.player.alive = true;
+        if (this.player.mesh) this.player.mesh.visible = true;
+        this.player.position.set(0, this.surface.radius, 0);
+        this.player.forward.set(0, 0, -1);
+
+        // World rotation back to identity so player renders at (0, R, 0)
+        // and the sun/landmarks return to their original angles.
+        this.worldRotator.quaternion.identity();
+
+        // Despawn every enemy.
+        for (const e of this.spawner.enemies) {
+            if (e.mesh?.parent) e.mesh.parent.remove(e.mesh);
+        }
+        this.spawner.enemies.length = 0;
+        this.spawner.kills = 0;
+        this.spawner._timer = 0;
+
+        // Clear every shard (including ones mid-collect).
+        for (const s of this.drops.shards) s.detach();
+        this.drops.shards.length = 0;
+        this.drops._time = 0;
+
+        // Reset transient skill state (cooldowns, active swing meshes).
+        for (const s of this.skillSystem.skills) s.resetRuntime();
+
+        // Close the tree panel if it was open at the moment of death.
+        if (this.skillPanel?.isOpen()) this.skillPanel.close();
+        this.paused = false;
+        this._wasInHome = false;
+    }
+
+    _checkHomeProximity() {
+        const inRange = this.home.isPlayerInRange(this.player);
+        if (inRange && !this._wasInHome) {
+            this._wasInHome = true;
+            this.paused = true;
+            this.skillPanel.open();
+        } else if (!inRange) {
+            this._wasInHome = false;
+        }
+    }
 
     /** Apply a small delta rotation to worldRotator based on input.
      *  Returns the world-space forward direction (unit vector) the player is
