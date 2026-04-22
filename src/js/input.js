@@ -102,6 +102,10 @@ export class InputState {
 
         root.addEventListener('pointerdown', (e) => {
             if (activeId !== null) return;
+            // UI elements (skill bar, buttons, etc.) opt out of joystick by
+            // tagging themselves with [data-ui-layer]. Lets a skill tap stay
+            // a skill tap instead of also dragging the movement stick.
+            if (e.target.closest?.('[data-ui-layer]')) return;
             activeId = e.pointerId;
             try { root.setPointerCapture(e.pointerId); } catch {}
             show(e.clientX, e.clientY);

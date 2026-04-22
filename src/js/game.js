@@ -28,6 +28,7 @@ import { SphereSurface } from './world/surface.js';
 import { Player } from './entities/player.js';
 import { Spawner } from './systems/spawner.js';
 import { Hud } from './hud.js';
+import { SkillBar } from './ui/skill-bar.js';
 import { preload } from './assets.js';
 
 export class Game {
@@ -52,6 +53,7 @@ export class Game {
         this.player = new Player(this.surface);
         this.spawner = new Spawner(this.surface);
         this.hud = new Hud();
+        this.skillBar = new SkillBar(this.player);
 
         this._last = 0;
 
@@ -78,6 +80,7 @@ export class Game {
         this.player.update(dt, this.worldRotator, this.spawner.enemies, worldForward);
         this.spawner.update(dt, this.worldRotator, this.player);
         this.hud.update(this.player, this.spawner);
+        this.skillBar.update(this.player);
 
         this.renderer.render(this.scene, this.camera.camera);
         requestAnimationFrame(this._tick);

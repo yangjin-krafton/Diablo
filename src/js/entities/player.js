@@ -29,6 +29,7 @@ export class Player {
         this.mesh = null;
         this.swing = new SwordSwing(surface);
         this._attackTimer = 0;
+        this.autoAttack = true;   // toggled by the sword skill slot
     }
 
     async init(parent) {
@@ -60,10 +61,12 @@ export class Player {
 
         // --- auto-attack ---
         this._attackTimer -= dt;
-        const target = this._nearest(enemies, CONFIG.sword.range + CONFIG.enemy.radius);
-        if (this._attackTimer <= 0 && target) {
-            this.swing.trigger(this.position, this.forward, enemies);
-            this._attackTimer = CONFIG.sword.swingCooldown;
+        if (this.autoAttack) {
+            const target = this._nearest(enemies, CONFIG.sword.range + CONFIG.enemy.radius);
+            if (this._attackTimer <= 0 && target) {
+                this.swing.trigger(this.position, this.forward, enemies);
+                this._attackTimer = CONFIG.sword.swingCooldown;
+            }
         }
         this.swing.update(dt);
     }
