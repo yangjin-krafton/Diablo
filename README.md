@@ -29,3 +29,9 @@
 - 먼저 재미있는 전투 루프를 만든다
 - UI, 연출, 콘텐츠 양보다 조작감과 타격감을 우선한다
 - 구조는 웹에서 빠르게 반복 개발 가능한 형태로 유지한다
+
+## 에셋 생성
+
+- 캐릭터·몬스터·NPC GLB 는 `tools/` 의 ComfyUI 파이프라인으로 생성
+- `tools/product-prompts.json` 편집 → `cd tools && npm run pipeline`
+- 자세한 내용은 `tools/README.md` 참고

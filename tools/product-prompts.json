@@ -1,0 +1,62 @@
+[
+  {
+    "id": "fig_space_ranger_stylized",
+    "category": "player",
+    "name": "우주 레인저 (스타일라이즈드)",
+    "prompt": "4-head-tall stylized cartoon space ranger hero in sleek white and cyan exosuit armor with glowing energy lines, holding a humming plasma blade, determined heroic pose, helmet off showing short hair, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_astro_sorceress_chibi",
+    "category": "player",
+    "name": "우주 마법사 (치비)",
+    "prompt": "2-head-tall super deformed chibi cosmic sorceress in starry navy blue robe with constellation patterns, wielding a glowing nebula staff topped with a floating tiny planet, big sparkling violet eyes, pointed hat with crescent moon, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_alien_slime_chibi",
+    "category": "enemy",
+    "name": "외계 슬라임 (치비)",
+    "prompt": "super deformed chibi glowing bioluminescent alien slime monster, translucent toxic green jelly body, tiny floating bubbles inside, two big dumb googly eyes, pointy antenna, menacing goofy grin, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_void_crawler_chibi",
+    "category": "enemy",
+    "name": "공허 거미 (치비)",
+    "prompt": "super deformed chibi dark cosmic void crawler, spider-like creature with six glossy black chitin legs, bulbous body dotted with tiny glowing purple star specks, multiple bright magenta eyes, dripping fangs, aggressive pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_bio_husk_chibi",
+    "category": "enemy",
+    "name": "생체 병기 좀비 (치비)",
+    "prompt": "2-head-tall super deformed chibi sci-fi infected biohazard husk zombie soldier in tattered orange hazmat suit, cracked helmet visor leaking sickly green gas, exposed mutated clawed hand, glowing yellow infected eyes, menacing hunched pose, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_rogue_bot_chibi",
+    "category": "enemy",
+    "name": "해적 로봇 (치비)",
+    "prompt": "2-head-tall super deformed chibi rogue space pirate robot, scratched matte red metal plating with yellow hazard stripes, single glowing red camera eye, stubby clawed arms holding a rusty laser cutter, stumpy mechanical legs, aggressive stance, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_plasma_wraith_chibi",
+    "category": "enemy",
+    "name": "플라즈마 망령 (치비)",
+    "prompt": "super deformed chibi ghostly cosmic plasma wraith, ethereal hooded specter made of swirling blue and violet plasma energy, wispy flowing tail instead of legs, hollow glowing cyan eye sockets, skeletal clawed hands, haunting pose, single creature only, one figure, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_outpost_dome",
+    "category": "npc",
+    "name": "전진 기지 돔 (NPC 허브)",
+    "prompt": "small stylized sci-fi planetary outpost habitation dome, curved white and orange paneled shell with glowing teal window ring, antenna array on top, small airlock hatch at front, tiny solar panels on side, charming collectible base for an RPG hub, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_repair_drone_chibi",
+    "category": "npc",
+    "name": "수리 드론 (치비)",
+    "prompt": "super deformed chibi friendly floating spherical repair drone, polished white and blue shell with rounded edges, single big glowing cyan lens eye, two tiny articulated claw arms holding a wrench, small hover thrusters glowing underneath, cheerful tilted pose, single character only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_beacon_totem",
+    "category": "npc",
+    "name": "신호 등대 토템",
+    "prompt": "small stylized sci-fi planetary signal beacon totem, stacked weathered metal panels forming a totem pole shape, glowing neon cyan rune-circuit inscriptions running down the surface, rotating holographic hex ring at the top, faint energy wisps, mystical tech aura, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  }
+]

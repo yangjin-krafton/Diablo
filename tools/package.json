@@ -1,0 +1,12 @@
+{
+  "name": "diablo-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "pipeline": "node asset-pipeline.mjs",
+    "pipeline:img": "node asset-pipeline.mjs --phase 1",
+    "pipeline:glb": "node asset-pipeline.mjs --phase 2",
+    "pipeline:retry": "node asset-pipeline.mjs --retry-failed",
+    "pipeline:reset": "node asset-pipeline.mjs --reset"
+  }
+}
