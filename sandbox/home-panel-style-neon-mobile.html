@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Panel Style - Cyber Neon / Mobile</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { width: 100%; min-height: 100%; margin: 0; }
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 0;
+            color: #e6f0ff;
+            font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+            background:
+                radial-gradient(circle at 15% 12%, rgba(255, 0, 162, 0.32), transparent 22rem),
+                radial-gradient(circle at 85% 88%, rgba(0, 229, 255, 0.26), transparent 24rem),
+                linear-gradient(160deg, #0a0418 0%, #1a0733 48%, #04060f 100%);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 3px);
+            mix-blend-mode: screen;
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 50% 100%, rgba(123, 0, 255, 0.22), transparent 60%);
+        }
+
+        /* ------- Phone frame ------- */
+        .phone {
+            position: relative;
+            width: min(440px, 100vw);
+            min-height: 100vh;
+            padding: 18px 18px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background:
+                linear-gradient(180deg, rgba(0, 229, 255, 0.05), transparent 18%),
+                linear-gradient(0deg, rgba(255, 0, 162, 0.06), transparent 22%),
+                rgba(6, 4, 20, 0.55);
+            box-shadow:
+                inset 0 0 0 1px rgba(0, 229, 255, 0.24),
+                inset 0 0 60px rgba(0, 229, 255, 0.05);
+        }
+        .phone::before, .phone::after {
+            content: "";
+            position: absolute;
+            width: 72px;
+            height: 72px;
+            pointer-events: none;
+            animation: corner-pulse 2.4s ease-in-out infinite;
+        }
+        .phone::before {
+            top: 10px; left: 10px;
+            border-top: 2px solid #00e5ff;
+            border-left: 2px solid #00e5ff;
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.55));
+        }
+        .phone::after {
+            bottom: 10px; right: 10px;
+            border-bottom: 2px solid #ff00a2;
+            border-right: 2px solid #ff00a2;
+            filter: drop-shadow(0 0 8px rgba(255, 0, 162, 0.55));
+            animation-delay: 1.2s;
+        }
+        @keyframes corner-pulse {
+            0%, 100% { opacity: 0.55; }
+            50% { opacity: 1; }
+        }
+
+        /* ------- Header ------- */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 4px 2px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #8be9ff;
+            font-family: "Share Tech Mono", "Consolas", monospace;
+            font-size: 12px;
+            letter-spacing: 3px;
+        }
+        .brand .dot {
+            width: 10px; height: 10px;
+            background: #00e5ff;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #00e5ff, 0 0 4px #fff;
+            animation: beat 1.2s ease-in-out infinite;
+        }
+        @keyframes beat {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.55; }
+        }
+        .close {
+            width: 44px; height: 44px;
+            display: grid; place-items: center;
+            color: #ff9fd8;
+            background: rgba(255, 0, 162, 0.1);
+            border: 1px solid rgba(255, 0, 162, 0.55);
+            box-shadow: 0 0 14px rgba(255, 0, 162, 0.25);
+            font-size: 22px;
+            font-weight: 900;
+            clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+            cursor: pointer;
+        }
+
+        .hero {
+            padding: 8px 6px 14px;
+            border-bottom: 1px dashed rgba(0, 229, 255, 0.28);
+        }
+        h1 {
+            margin: 0;
+            font-size: 52px;
+            font-weight: 900;
+            letter-spacing: 10px;
+            line-height: 1;
+            background: linear-gradient(100deg, #00e5ff 0%, #ffffff 48%, #ff00a2 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.45));
+            animation: title-shift 4s linear infinite;
+        }
+        @keyframes title-shift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        .hero .ticker {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            font-family: "Share Tech Mono", "Consolas", monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #8be9ff;
+        }
+        .ticker .chip {
+            padding: 4px 10px;
+            border: 1px solid rgba(0, 229, 255, 0.36);
+            background: rgba(0, 229, 255, 0.06);
+        }
+        .ticker .chip.warn {
+            color: #ffb3da;
+            border-color: rgba(255, 0, 162, 0.55);
+            background: rgba(255, 0, 162, 0.1);
+            animation: warn-flash 1s ease-in-out infinite;
+        }
+        @keyframes warn-flash {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 0, 162, 0.3); }
+            50% { opacity: 0.55; box-shadow: 0 0 2px rgba(255, 0, 162, 0.1); }
+        }
+
+        /* ------- Cards ------- */
+        .card {
+            position: relative;
+            padding: 20px 22px;
+            background:
+                linear-gradient(180deg, rgba(0, 229, 255, 0.06), transparent 50%),
+                rgba(6, 4, 22, 0.82);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+            overflow: hidden;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0;
+            width: 4px; height: 44px;
+            background: linear-gradient(180deg, #00e5ff, transparent);
+            box-shadow: 0 0 10px #00e5ff;
+        }
+        .card.primary {
+            border-color: #ff00a2;
+            box-shadow:
+                0 0 0 1px rgba(255, 0, 162, 0.3),
+                0 0 32px rgba(255, 0, 162, 0.28),
+                inset 0 0 40px rgba(255, 0, 162, 0.08);
+            animation: primary-glow 2.2s ease-in-out infinite;
+        }
+        .card.primary::before {
+            background: linear-gradient(180deg, #ff00a2, transparent);
+            box-shadow: 0 0 10px #ff00a2;
+            height: 64px;
+        }
+        @keyframes primary-glow {
+            0%, 100% { box-shadow: 0 0 0 1px rgba(255, 0, 162, 0.3), 0 0 24px rgba(255, 0, 162, 0.22), inset 0 0 30px rgba(255, 0, 162, 0.06); }
+            50%     { box-shadow: 0 0 0 1px rgba(255, 0, 162, 0.65), 0 0 48px rgba(255, 0, 162, 0.55), inset 0 0 50px rgba(255, 0, 162, 0.14); }
+        }
+        .card.primary::after {
+            content: "";
+            position: absolute;
+            left: 0; right: 0; top: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff00a2 50%, transparent);
+            opacity: 0.85;
+            animation: scan-primary 2.4s linear infinite;
+        }
+        @keyframes scan-primary {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(calc(var(--h, 260px) * 1)); }
+        }
+        .card.dim {
+            opacity: 0.78;
+        }
+
+        .label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .label {
+            color: #8be9ff;
+            font-size: 14px;
+            letter-spacing: 6px;
+            font-weight: 700;
+        }
+        .card.primary .label { color: #ffb3da; }
+        .card.primary .label::before {
+            content: "●";
+            margin-right: 8px;
+            color: #ff00a2;
+            font-size: 11px;
+            vertical-align: middle;
+            animation: beat 1s ease-in-out infinite;
+        }
+        .tag {
+            font-family: "Share Tech Mono", "Consolas", monospace;
+            color: #8be9ff;
+            font-size: 11px;
+            letter-spacing: 2px;
+            padding: 4px 10px;
+            border: 1px solid rgba(0, 229, 255, 0.35);
+            background: rgba(0, 229, 255, 0.05);
+        }
+        .card.primary .tag {
+            color: #ffb3da;
+            border-color: rgba(255, 0, 162, 0.5);
+            background: rgba(255, 0, 162, 0.08);
+        }
+
+        /* ------- Big value display ------- */
+        .big {
+            margin-top: 18px;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            font-family: "Share Tech Mono", "Consolas", monospace;
+        }
+        .big .num {
+            font-size: 84px;
+            font-weight: 900;
+            line-height: 0.9;
+            color: #ffffff;
+            text-shadow:
+                0 0 16px rgba(0, 229, 255, 0.7),
+                0 0 32px rgba(0, 229, 255, 0.35);
+            letter-spacing: 2px;
+        }
+        .card.primary .big .num {
+            text-shadow:
+                0 0 18px rgba(255, 0, 162, 0.8),
+                0 0 38px rgba(255, 0, 162, 0.45);
+            animation: num-beat 1.4s ease-in-out infinite;
+        }
+        @keyframes num-beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+        .big .slash {
+            font-size: 48px;
+            color: #8be9ff;
+            opacity: 0.7;
+            font-weight: 300;
+        }
+        .card.primary .big .slash { color: #ffb3da; }
+        .big .total {
+            font-size: 40px;
+            color: #a7bdd6;
+            font-weight: 700;
+        }
+        .big .unit {
+            font-size: 20px;
+            color: #8be9ff;
+            letter-spacing: 4px;
+            margin-left: 6px;
+            align-self: center;
+        }
+        .copy {
+            margin-top: 12px;
+            color: #d4e3f3;
+            font-size: 16px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        .copy b {
+            color: #ffffff;
+            font-weight: 800;
+        }
+        .card.primary .copy b {
+            color: #ffe2f2;
+            text-shadow: 0 0 8px rgba(255, 0, 162, 0.6);
+        }
+
+        /* ------- Progress bar ------- */
+        .bar {
+            position: relative;
+            height: 20px;
+            margin-top: 18px;
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(0, 229, 255, 0.4);
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%);
+            overflow: hidden;
+        }
+        .bar > .fill {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, #00e5ff, #ff00a2);
+            box-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
+            position: relative;
+        }
+        .bar > .fill::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+            background-size: 40% 100%;
+            background-repeat: no-repeat;
+            animation: shimmer 1.8s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -50% 0; }
+            100% { background-position: 150% 0; }
+        }
+        .bar > .ticks {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(90deg, transparent 0 calc(100%/3 - 1px), rgba(0,0,0,0.6) calc(100%/3 - 1px) calc(100%/3));
+            pointer-events: none;
+        }
+
+        /* ------- Fuel slots ------- */
+        .slots {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .slot {
+            height: 68px;
+            display: grid;
+            place-items: center;
+            font-family: "Share Tech Mono", "Consolas", monospace;
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: #8be9ff;
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(0, 229, 255, 0.35);
+            clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+            position: relative;
+        }
+        .slot.on {
+            color: #061017;
+            background: linear-gradient(180deg, #8fefff, #00c9e5);
+            border-color: #00e5ff;
+            box-shadow: 0 0 18px rgba(0, 229, 255, 0.7);
+            font-weight: 900;
+        }
+        .slot.target {
+            color: #ffb3da;
+            background: rgba(255, 0, 162, 0.1);
+            border-color: #ff00a2;
+            animation: slot-target 1.2s ease-in-out infinite;
+        }
+        @keyframes slot-target {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 0, 162, 0.4), inset 0 0 8px rgba(255, 0, 162, 0.2); transform: translateY(0); }
+            50%     { box-shadow: 0 0 28px rgba(255, 0, 162, 0.85), inset 0 0 16px rgba(255, 0, 162, 0.45); transform: translateY(-3px); }
+        }
+
+        /* ------- Buttons ------- */
+        .cta {
+            margin-top: 20px;
+            width: 100%;
+            min-height: 60px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: inherit;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #061017;
+            background: linear-gradient(180deg, #8fefff 0%, #00c9e5 100%);
+            border: 0;
+            clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 100%, 14px 100%);
+            box-shadow:
+                0 0 22px rgba(0, 229, 255, 0.55),
+                inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            position: relative;
+        }
+        .cta.magenta {
+            color: #1b0013;
+            background: linear-gradient(180deg, #ff9ed6 0%, #ff00a2 100%);
+            box-shadow: 0 0 28px rgba(255, 0, 162, 0.7), inset 0 -3px 0 rgba(0, 0, 0, 0.22);
+            animation: cta-pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes cta-pulse {
+            0%, 100% { box-shadow: 0 0 22px rgba(255, 0, 162, 0.55), inset 0 -3px 0 rgba(0,0,0,0.22); transform: translateY(0); }
+            50%     { box-shadow: 0 0 44px rgba(255, 0, 162, 1), 0 0 60px rgba(255, 0, 162, 0.5), inset 0 -3px 0 rgba(0,0,0,0.22); transform: translateY(-2px); }
+        }
+        .cta.ghost {
+            color: #8be9ff;
+            background: transparent;
+            border: 1px solid rgba(0, 229, 255, 0.45);
+            box-shadow: none;
+        }
+        .cta.locked {
+            color: #6a7f92;
+            background: rgba(10, 14, 24, 0.8);
+            border: 1px dashed rgba(139, 233, 255, 0.3);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        .cta .chev {
+            font-size: 22px;
+            animation: chev-slide 0.9s ease-in-out infinite;
+        }
+        .cta.magenta .chev {
+            font-size: 26px;
+            animation: chev-slide 0.7s ease-in-out infinite;
+        }
+        @keyframes chev-slide {
+            0%, 100% { transform: translateX(0); opacity: 0.85; }
+            50%     { transform: translateX(6px); opacity: 1; }
+        }
+
+        /* ------- Focus arrow pointing at primary CTA ------- */
+        .focus-arrow {
+            position: relative;
+            margin: -4px auto 0;
+            width: 60px;
+            text-align: center;
+            color: #ff00a2;
+            font-size: 28px;
+            font-weight: 900;
+            text-shadow: 0 0 14px rgba(255, 0, 162, 0.85);
+            animation: arrow-bounce 0.9s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes arrow-bounce {
+            0%, 100% { transform: translateY(-4px); opacity: 0.7; }
+            50%     { transform: translateY(4px); opacity: 1; }
+        }
+
+        /* ------- Launch block ------- */
+        .launch-card {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 18px;
+            align-items: center;
+        }
+        .ring {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            display: grid; place-items: center;
+            position: relative;
+            background:
+                conic-gradient(#ff00a2 0deg, #ff00a2 216deg, rgba(255, 0, 162, 0.12) 216deg, rgba(255, 0, 162, 0.12) 360deg);
+            box-shadow: 0 0 32px rgba(255, 0, 162, 0.45);
+        }
+        .ring::before {
+            content: "";
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            background: rgba(6, 4, 22, 0.92);
+        }
+        .ring-inner {
+            position: relative;
+            display: grid; place-items: center;
+            gap: 0;
+            font-family: "Share Tech Mono", "Consolas", monospace;
+        }
+        .ring-inner .num {
+            font-size: 44px;
+            font-weight: 900;
+            color: #ff9fd8;
+            text-shadow: 0 0 16px rgba(255, 0, 162, 0.85);
+            line-height: 1;
+        }
+        .ring-inner .unit {
+            font-size: 12px;
+            letter-spacing: 3px;
+            color: #8be9ff;
+            margin-top: 4px;
+        }
+        .launch-text .title {
+            font-size: 20px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 2px;
+        }
+        .launch-text .sub {
+            margin-top: 6px;
+            color: #d4e3f3;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+        .launch-text .sub b {
+            color: #ff9fd8;
+            font-weight: 800;
+        }
+        .launch-card + .cta {
+            margin-top: 18px;
+        }
+
+        /* ------- Footer hint ------- */
+        .foothint {
+            text-align: center;
+            color: #6faed4;
+            font-family: "Share Tech Mono", "Consolas", monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+
+        /* ------- Reduce motion ------- */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+
+        @media (min-width: 560px) {
+            body { padding: 24px 0; }
+            .phone {
+                min-height: auto;
+                border-radius: 6px;
+                padding: 22px 22px 28px;
+                box-shadow:
+                    inset 0 0 0 1px rgba(0, 229, 255, 0.24),
+                    inset 0 0 60px rgba(0, 229, 255, 0.05),
+                    0 30px 90px rgba(0,0,0,0.6);
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="phone">
+        <div class="topbar">
+            <div class="brand"><span class="dot"></span>HOMEBASE // NODE_17.A</div>
+            <div class="close">×</div>
+        </div>
+
+        <header class="hero">
+            <h1>거점</h1>
+            <div class="ticker">
+                <span class="chip">LINK STABLE</span>
+                <span class="chip warn">FINAL WAVE · T-10s</span>
+            </div>
+        </header>
+
+        <!-- 의뢰 (보조 정보: 진행 중) -->
+        <section class="card dim" style="--h:260px;">
+            <div class="label-row">
+                <div class="label">의뢰</div>
+                <div class="tag">HUNT · TIER 02</div>
+            </div>
+            <div class="big">
+                <span class="num">6</span>
+                <span class="slash">/</span>
+                <span class="total">8</span>
+                <span class="unit">처치</span>
+            </div>
+            <div class="copy">적 <b>2명</b>을 더 처치하고 거점으로 돌아오면 연료 보상을 받습니다.</div>
+            <div class="bar">
+                <span class="fill" style="width:75%;"></span>
+                <span class="ticks"></span>
+            </div>
+            <button class="cta ghost" type="button">진행 중</button>
+        </section>
+
+        <!-- 연료 (PRIMARY — 현재 가장 중요한 액션) -->
+        <section class="card primary" style="--h:320px;">
+            <div class="label-row">
+                <div class="label">연료</div>
+                <div class="tag">보유 1 · 필요 1</div>
+            </div>
+            <div class="big">
+                <span class="num">2</span>
+                <span class="slash">/</span>
+                <span class="total">3</span>
+                <span class="unit">LOAD</span>
+            </div>
+            <div class="copy"><b>1칸만 더</b> 채우면 거점 출발이 가능합니다.</div>
+            <div class="slots">
+                <div class="slot on">FUEL</div>
+                <div class="slot on">FUEL</div>
+                <div class="slot target">＋ LOAD</div>
+            </div>
+            <button class="cta magenta" type="button">
+                연료 적재
+                <span class="chev">＋1</span>
+            </button>
+        </section>
+
+        <div class="focus-arrow">▲</div>
+        <div class="foothint">TAP TO LOAD · 연료 적재 후 출발 가능</div>
+
+        <!-- 출발 준비 (잠금 상태 + 카운트다운) -->
+        <section class="card launch-block" style="--h:220px;">
+            <div class="label-row">
+                <div class="label">출발 준비</div>
+                <div class="tag">COUNTDOWN · T-10.0</div>
+            </div>
+            <div class="launch-card" style="margin-top:16px;">
+                <div class="ring">
+                    <div class="ring-inner">
+                        <div class="num">10</div>
+                        <div class="unit">SECONDS</div>
+                    </div>
+                </div>
+                <div class="launch-text">
+                    <div class="title">FINAL WAVE</div>
+                    <div class="sub">출발 신호 후 <b>10초</b>간 거점을 사수. 이 구간을 버티면 이륙합니다.</div>
+                </div>
+            </div>
+            <button class="cta locked" type="button" disabled>출발 잠금 · 연료 필요</button>
+        </section>
+    </main>
+</body>
+</html>

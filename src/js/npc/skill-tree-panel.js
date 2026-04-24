@@ -1,52 +1,14 @@
-// NPC/building-owned skill tree panel.
-//
-// The bottom skill bar is intentionally not a tab row. Buildings open this
-// panel with a target skill id, so future NPCs can present different trees and
-// layouts without coupling to equipped slot order.
+// NPC/building-owned skill tree panel, rendered in the neon UI style.
 
-import { Container, Graphics, Text } from 'pixi.js';
-
-const COL = {
-    BLACK: 0x000000,
-    PANEL: 0x0a0a0a,
-    PANEL_2: 0x120e08,
-    GOLD: 0xffd84f,
-    GOLD_DK: 0xc9a455,
-    GOLD_DM: 0x8a6a28,
-    GOLD_FT: 0x3a2e14,
-    TEXT: 0xe6e6e6,
-    TEXT_DM: 0xa89878,
-    TEXT_FT: 0x5a4a32,
-};
-
-const F_HEAD = 'Georgia, "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", serif';
-const F_MONO = '"Lucida Console", "Consolas", "Malgun Gothic", "Noto Sans KR", monospace';
+import { Container, Graphics } from 'pixi.js';
+import { FONT_MONO, FONT_UI, NEON, fitText, makeText, neonButton, neonPanel } from '../ui/neon-theme.js';
 
 const DEFAULT_SKILL_ID = 'sword';
-const SCREEN_MARGIN = 24;
-const PAD = 22;
-const GAP = 14;
+const SCREEN_MARGIN = 12;
+const PAD = 16;
+const GAP = 12;
 const TREE_COLS = 3;
 const TREE_ROWS = 5;
-
-function hairline(g, x, y, w, h, color = COL.GOLD_DK) {
-    g.rect(x, y, w, h).stroke({ color, width: 1, alignment: 0 });
-}
-
-function fitText({ text, style, maxW, maxH = null, breakWords = true }) {
-    const s = { ...style };
-    if (maxH != null) {
-        s.wordWrap = true;
-        s.wordWrapWidth = maxW;
-        s.breakWords = breakWords;
-    }
-    const t = new Text({ text, style: s });
-    const sw = t.width > maxW ? maxW / t.width : 1;
-    const sh = maxH && t.height > maxH ? maxH / t.height : 1;
-    const scale = Math.min(sw, sh);
-    if (scale < 1) t.scale.set(scale);
-    return t;
-}
 
 class Button extends Container {
     constructor({ width, height, onClick, cursor = 'pointer' }) {
@@ -101,6 +63,7 @@ export class SkillTreePanel {
         const skill = this.skillSystem.getSkillById(skillId) ?? this.skillSystem.firstTrainableSkill();
         if (!skill || skill.isEmpty) return;
 
+        this.uiRoot.setSkillBarVisible(false);
         this._open = true;
         this._sourceId = sourceId;
         this._currentSkill = skill;
@@ -115,6 +78,7 @@ export class SkillTreePanel {
         this._sourceId = null;
         this._selectedNode = null;
         this.root.visible = false;
+        this.uiRoot.setSkillBarVisible(true);
         this._onClose();
     }
 
@@ -122,10 +86,14 @@ export class SkillTreePanel {
         this.backdrop
             .clear()
             .rect(0, 0, w, h)
-            .fill({ color: 0x000000, alpha: 0.82 });
+            .fill({ color: NEON.BG_DK, alpha: 0.86 })
+            .circle(w * 0.18, h * 0.12, Math.max(w, h) * 0.24)
+            .fill({ color: NEON.CYAN, alpha: 0.13 })
+            .circle(w * 0.88, h * 0.88, Math.max(w, h) * 0.26)
+            .fill({ color: NEON.MAGENTA, alpha: 0.14 });
 
-        this._modalW = Math.min(780, w - SCREEN_MARGIN * 2);
-        this._modalH = Math.min(640, h - SCREEN_MARGIN * 2);
+        this._modalW = Math.min(820, w - SCREEN_MARGIN * 2);
+        this._modalH = Math.min(700, h - SCREEN_MARGIN * 2);
         this.modal.position.set(
             Math.round((w - this._modalW) / 2),
             Math.round((h - this._modalH) / 2),
@@ -147,7 +115,7 @@ export class SkillTreePanel {
 
         const bodyY = PAD;
         const bodyH = h - PAD * 2;
-        const upperH = Math.round(bodyH * 0.42);
+        const upperH = Math.round(Math.min(245, Math.max(190, bodyH * 0.38)));
         const lowerY = bodyY + upperH + GAP;
         const lowerH = bodyH - upperH - GAP;
 
@@ -156,126 +124,108 @@ export class SkillTreePanel {
     }
 
     _drawChassis() {
-        const w = this._modalW;
-        const h = this._modalH;
-        const g = new Graphics();
-        g.rect(0, 0, w, h).fill(COL.BLACK);
-        hairline(g, 0, 0, w, h, COL.GOLD_DK);
-        hairline(g, 6, 6, w - 12, h - 12, COL.GOLD_FT);
-        this.modal.addChild(g);
+        const g = this.modal.addChild(new Graphics());
+        neonPanel(g, 0, 0, this._modalW, this._modalH, {
+            fill: NEON.PANEL,
+            stroke: NEON.CYAN,
+            alpha: 0.76,
+            strokeAlpha: 0.44,
+            cut: 24,
+        });
+        g.moveTo(10, 72).lineTo(10, 10).lineTo(72, 10)
+            .stroke({ color: NEON.CYAN, alpha: 0.55, width: 2 });
+        g.moveTo(this._modalW - 10, this._modalH - 72).lineTo(this._modalW - 10, this._modalH - 10).lineTo(this._modalW - 72, this._modalH - 10)
+            .stroke({ color: NEON.MAGENTA, alpha: 0.55, width: 2 });
     }
 
     _drawCloseButton() {
-        const size = 24;
+        const size = 34;
         const btn = new Button({ width: size, height: size, onClick: () => this.close() });
-        btn.position.set(this._modalW - size - 14, 14);
-
-        const box = new Graphics();
-        hairline(box, 0, 0, size, size, COL.GOLD_DM);
-        btn.addChild(box);
-
-        const x = new Text({
-            text: 'X',
-            style: { fontFamily: F_HEAD, fontSize: 18, fontWeight: '700', fill: COL.GOLD_DK },
+        btn.position.set(this._modalW - size - 18, 18);
+        const bg = new Graphics();
+        neonButton(bg, 0, 0, size, size, { primary: false, enabled: true, cut: 9 });
+        btn.addChild(bg);
+        const x = makeText('×', {
+            fontFamily: FONT_UI,
+            fontSize: 22,
+            fontWeight: '900',
+            fill: NEON.CYAN_LT,
         });
         x.anchor.set(0.5);
         x.position.set(size / 2, size / 2);
         btn.addChild(x);
-
-        btn.on('pointerover', () => {
-            box.clear();
-            hairline(box, 0, 0, size, size, COL.GOLD);
-            x.tint = 0xffffff;
-        });
-        btn.on('pointerout', () => {
-            box.clear();
-            hairline(box, 0, 0, size, size, COL.GOLD_DM);
-            x.tint = 0xeeeeee;
-        });
         this.modal.addChild(btn);
     }
 
     _renderDetails(x, y, W, H) {
         const skill = this._currentSkill;
         const focus = this._selectedNode || this._hoverNode;
+        const frame = this.modal.addChild(new Graphics());
+        neonPanel(frame, x, y, W, H, {
+            fill: NEON.PANEL_2,
+            stroke: focus ? NEON.MAGENTA : NEON.CYAN,
+            alpha: 0.82,
+            strokeAlpha: focus ? 0.56 : 0.30,
+            cut: 18,
+        });
 
-        const frame = new Graphics();
-        frame.rect(x, y, W, H).fill(COL.PANEL);
-        hairline(frame, x, y, W, H, COL.GOLD_DM);
-        this.modal.addChild(frame);
-
-        const padX = 20;
-        const padY = 22;
-        const px = x + padX;
-        const py = y + padY;
-        const pw = W - padX * 2;
-
+        const px = x + 18;
+        const py = y + 18;
+        const pw = W - 36;
         const title = fitText({
             text: focus ? focus.name : skill.displayName,
             style: {
-                fontFamily: F_HEAD,
+                fontFamily: FONT_UI,
                 fontSize: 32,
-                fontWeight: '700',
-                letterSpacing: 3,
-                fill: COL.GOLD,
+                fontWeight: '900',
+                fill: focus ? NEON.MAGENTA_LT : NEON.CYAN_LT,
             },
-            maxW: pw - 150,
+            maxW: pw - 146,
         });
         title.position.set(px, py);
         this.modal.addChild(title);
 
-        const meta = new Text({
-            text: focus ? `${skill.rankOf(focus.id)} / ${focus.maxRank}` : `Lv ${skill.level}`,
-            style: {
-                fontFamily: F_MONO,
-                fontSize: 20,
-                fontWeight: '700',
-                letterSpacing: 3,
-                fill: COL.GOLD_DK,
-            },
+        const meta = makeText(focus ? `${skill.rankOf(focus.id)} / ${focus.maxRank}` : `레벨 ${skill.level}`, {
+            fontFamily: FONT_MONO,
+            fontSize: 18,
+            fontWeight: '900',
+            fill: NEON.TEXT,
         });
         meta.anchor.set(1, 0);
-        meta.position.set(x + W - 28, py + 6);
+        meta.position.set(x + W - 22, py + 7);
         this.modal.addChild(meta);
 
-        const rule = new Graphics();
-        rule.rect(px, py + 48, pw, 1).fill(COL.GOLD_FT);
-        this.modal.addChild(rule);
-
-        const rowH = 30;
-        const descTop = py + 62;
-        const descMaxH = y + H - descTop - rowH - 22;
         const desc = fitText({
             text: (focus ? focus.desc : skill.description) || ' ',
             style: {
-                fontFamily: F_HEAD,
-                fontSize: 18,
-                fill: COL.TEXT,
-                lineHeight: 26,
+                fontFamily: FONT_UI,
+                fontSize: 15,
+                fill: NEON.TEXT,
+                lineHeight: 22,
             },
             maxW: pw,
-            maxH: descMaxH,
+            maxH: Math.max(52, H - 104),
         });
-        desc.position.set(px, descTop);
+        desc.position.set(px, py + 52);
         this.modal.addChild(desc);
 
-        const rowY = y + H - rowH - 10;
-        const allocateW = this._selectedNode ? 140 : 0;
+        const rowY = y + H - 42;
+        const allocateW = this._selectedNode ? 128 : 0;
         if (this._selectedNode) {
-            this._renderAllocateButton(x + W - padX - allocateW, rowY, allocateW, rowH);
+            this._renderAllocateButton(x + W - 18 - allocateW, rowY, allocateW, 30);
         }
 
         const status = fitText({
             text: this._statusText(focus),
             style: {
-                fontFamily: F_MONO,
+                fontFamily: FONT_MONO,
                 fontSize: 12,
-                letterSpacing: 1,
+                fontWeight: '800',
                 fill: this._statusColor(focus),
             },
-            maxW: allocateW > 0 ? pw - allocateW - 16 : pw,
+            maxW: allocateW > 0 ? pw - allocateW - 14 : pw,
         });
-        status.position.set(px, rowY + (rowH - status.height) / 2);
+        status.position.set(px, rowY + 7);
         this.modal.addChild(status);
     }
 
@@ -299,42 +249,32 @@ export class SkillTreePanel {
         btn.position.set(x, y);
 
         const bg = new Graphics();
-        if (enabled) {
-            bg.rect(0, 0, w, h).fill(COL.GOLD);
-            hairline(bg, 0, 0, w, h, COL.GOLD);
-        } else {
-            bg.rect(0, 0, w, h).fill(COL.PANEL_2);
-            hairline(bg, 0, 0, w, h, full ? COL.GOLD_DM : COL.GOLD_FT);
-        }
+        neonButton(bg, 0, 0, w, h, { primary: true, enabled, cut: 9 });
         btn.addChild(bg);
 
-        const label = full ? 'MAX' : (reqMet ? `ALLOCATE ${skill.getNextNodeCost()}p` : 'LOCKED');
-        const txt = new Text({
-            text: label,
-            style: {
-                fontFamily: F_HEAD,
-                fontSize: 13,
-                fontWeight: '700',
-                letterSpacing: 1,
-                fill: enabled ? COL.BLACK : COL.TEXT_FT,
-            },
+        const label = full ? '최대' : (reqMet ? `배분 ${skill.getNextNodeCost()}p` : '잠김');
+        const txt = makeText(label, {
+            fontFamily: FONT_UI,
+            fontSize: 12,
+            fontWeight: '900',
+            fill: enabled ? 0x160014 : NEON.TEXT_FT,
         });
         txt.anchor.set(0.5);
         txt.position.set(w / 2, h / 2);
         btn.addChild(txt);
-
-        if (enabled) {
-            btn.on('pointerover', () => { bg.tint = 0xffeb8a; });
-            btn.on('pointerout', () => { bg.tint = 0xffffff; });
-        }
         this.modal.addChild(btn);
     }
 
     _renderTree(x, y, W, H) {
         const skill = this._currentSkill;
-        const frame = new Graphics();
-        hairline(frame, x, y, W, H, COL.GOLD_FT);
-        this.modal.addChild(frame);
+        const frame = this.modal.addChild(new Graphics());
+        neonPanel(frame, x, y, W, H, {
+            fill: NEON.BG_DK,
+            stroke: NEON.CYAN,
+            alpha: 0.58,
+            strokeAlpha: 0.24,
+            cut: 18,
+        });
 
         const catcher = new Graphics();
         catcher.rect(x, y, W, H).fill({ color: 0x000000, alpha: 0.001 });
@@ -356,15 +296,16 @@ export class SkillTreePanel {
             return;
         }
 
-        const topPad = 50;
-        const sidePad = 14;
+        const topPad = 48;
+        const sidePad = 10;
         const areaX = x + sidePad;
         const areaY = y + topPad;
         const areaW = W - sidePad * 2;
         const areaH = H - topPad - sidePad;
         const cellW = areaW / TREE_COLS;
         const cellH = areaH / TREE_ROWS;
-        const nodeSize = Math.max(36, Math.floor(Math.min(cellW, cellH)) - 8);
+        const nodeW = Math.max(44, Math.min(104, Math.floor(cellW) - 8));
+        const nodeH = Math.max(42, Math.min(58, Math.floor(cellH) - 8));
         const center = (node) => ({
             cx: Math.round(areaX + cellW * (node.col + 0.5)),
             cy: Math.round(areaY + cellH * (node.row + 0.5)),
@@ -374,14 +315,14 @@ export class SkillTreePanel {
 
         for (const node of nodes) {
             const { cx, cy } = center(node);
-            const button = this._buildNodeButton(skill, node, nodeSize, nodeSize);
-            button.position.set(cx - Math.floor(nodeSize / 2), cy - Math.floor(nodeSize / 2));
+            const button = this._buildNodeButton(skill, node, nodeW, nodeH);
+            button.position.set(cx - Math.floor(nodeW / 2), cy - Math.floor(nodeH / 2));
             this.modal.addChild(button);
         }
     }
 
     _renderResetButton(x, y) {
-        const w = 82;
+        const w = 84;
         const h = 28;
         const btn = new Button({
             width: w,
@@ -394,43 +335,23 @@ export class SkillTreePanel {
             },
         });
         btn.position.set(x, y);
-
         const bg = new Graphics();
-        bg.rect(0, 0, w, h).fill(COL.BLACK);
-        hairline(bg, 0, 0, w, h, COL.GOLD_DM);
+        neonButton(bg, 0, 0, w, h, { primary: false, enabled: true, cut: 8 });
         btn.addChild(bg);
-
-        const label = new Text({
-            text: 'RESET',
-            style: {
-                fontFamily: F_HEAD,
-                fontSize: 13,
-                fontWeight: '700',
-                letterSpacing: 2,
-                fill: COL.GOLD_DK,
-            },
+        const label = makeText('초기화', {
+            fontFamily: FONT_UI,
+            fontSize: 12,
+            fontWeight: '900',
+            fill: NEON.CYAN_LT,
         });
         label.anchor.set(0.5);
         label.position.set(w / 2, h / 2);
         btn.addChild(label);
-
-        btn.on('pointerover', () => {
-            bg.clear();
-            bg.rect(0, 0, w, h).fill(COL.PANEL_2);
-            hairline(bg, 0, 0, w, h, COL.GOLD);
-            label.tint = 0xffffff;
-        });
-        btn.on('pointerout', () => {
-            bg.clear();
-            bg.rect(0, 0, w, h).fill(COL.BLACK);
-            hairline(bg, 0, 0, w, h, COL.GOLD_DM);
-            label.tint = 0xeeeeee;
-        });
         this.modal.addChild(btn);
     }
 
     _renderLinks(skill, nodes, center) {
-        const lines = new Graphics();
+        const lines = this.modal.addChild(new Graphics());
         const byId = Object.fromEntries(nodes.map((node) => [node.id, node]));
         for (const node of nodes) {
             if (!node.requires) continue;
@@ -440,10 +361,9 @@ export class SkillTreePanel {
                 const a = center(parent);
                 const b = center(node);
                 lines.moveTo(a.cx, a.cy).lineTo(b.cx, b.cy)
-                    .stroke({ color: skill._requirementsMet(node) ? COL.GOLD_DK : COL.GOLD_FT, width: 1 });
+                    .stroke({ color: skill._requirementsMet(node) ? NEON.CYAN : NEON.TEXT_FT, alpha: 0.45, width: 1 });
             }
         }
-        this.modal.addChild(lines);
     }
 
     _buildNodeButton(skill, node, w, h) {
@@ -474,74 +394,58 @@ export class SkillTreePanel {
             }
         });
 
-        const colors = this._nodeColors({ full, rank, unlocked });
+        const colors = this._nodeColors({ full, rank, unlocked, canAllocate, selected });
         const bg = new Graphics();
-        bg.rect(0, 0, w, h).fill(colors.bg);
-        hairline(bg, 0, 0, w, h, colors.border);
+        neonPanel(bg, 0, 0, w, h, {
+            fill: colors.bg,
+            stroke: colors.border,
+            alpha: colors.alpha,
+            strokeAlpha: colors.strokeAlpha,
+            cut: 9,
+            glow: selected || canAllocate,
+        });
         btn.addChild(bg);
-
-        const pillH = Math.max(11, Math.min(14, Math.round(h * 0.26)));
-        const pillW = Math.min(w - 6, Math.max(26, Math.round(w * 0.72)));
-        const pillY = h - pillH - Math.max(3, Math.round(h * 0.08));
-        const nameTop = Math.max(4, Math.round(h * 0.12));
-        const nameMaxH = Math.max(12, pillY - 3 - nameTop);
 
         const name = fitText({
             text: node.name,
             style: {
-                fontFamily: F_HEAD,
-                fontSize: Math.max(9, Math.min(12, Math.round(h * 0.22))),
-                fontWeight: '700',
-                letterSpacing: 0.5,
+                fontFamily: FONT_UI,
+                fontSize: Math.max(9, Math.min(12, Math.round(h * 0.23))),
+                fontWeight: '900',
                 fill: colors.text,
                 align: 'center',
             },
-            maxW: w - 6,
-            maxH: nameMaxH,
+            maxW: w - 8,
+            maxH: h - 20,
         });
         name.anchor.set(0.5);
-        name.position.set(w / 2, nameTop + nameMaxH / 2);
+        name.position.set(w / 2, h * 0.38);
         btn.addChild(name);
 
-        const pillX = (w - pillW) / 2;
-        const pill = new Graphics();
-        pill.rect(pillX, pillY, pillW, pillH).fill(colors.rankBg);
-        hairline(pill, pillX, pillY, pillW, pillH, colors.rankBorder);
-        btn.addChild(pill);
-
-        const rankText = new Text({
-            text: `${rank}/${node.maxRank}`,
-            style: {
-                fontFamily: F_MONO,
-                fontSize: Math.max(8, pillH - 4),
-                fontWeight: '700',
-                letterSpacing: 1,
-                fill: colors.rankText,
-            },
+        const rankText = makeText(`${rank}/${node.maxRank}`, {
+            fontFamily: FONT_MONO,
+            fontSize: 10,
+            fontWeight: '900',
+            fill: colors.rankText,
         });
         rankText.anchor.set(0.5);
-        rankText.position.set(w / 2, pillY + pillH / 2);
+        rankText.position.set(w / 2, h - 12);
         btn.addChild(rankText);
 
         if (canAllocate) {
             const hint = new Graphics();
-            hint.circle(w - 6, 6, 2).fill(COL.GOLD);
+            hint.circle(w - 7, 7, 3).fill(NEON.MAGENTA);
             btn.addChild(hint);
-        }
-
-        if (selected) {
-            const outline = new Graphics();
-            outline.rect(-2, -2, w + 4, h + 4)
-                .stroke({ color: COL.GOLD, width: 2, alignment: 0 });
-            btn.addChild(outline);
         }
         return btn;
     }
 
     _renderEmptyTreeMessage(x, y, W, H) {
-        const msg = new Text({
-            text: 'NO TREE',
-            style: { fontFamily: F_HEAD, fontSize: 14, letterSpacing: 4, fill: COL.TEXT_FT },
+        const msg = makeText('스킬 트리 없음', {
+            fontFamily: FONT_UI,
+            fontSize: 14,
+            fontWeight: '900',
+            fill: NEON.TEXT_FT,
         });
         msg.anchor.set(0.5);
         msg.position.set(x + W / 2, y + H / 2);
@@ -551,63 +455,83 @@ export class SkillTreePanel {
     _statusText(node) {
         const skill = this._currentSkill;
         if (!node) {
-            return `POINTS ${skill.points}  |  NEXT ${skill.getNextNodeCost()}p  |  EXP ${Math.floor(skill.exp)}/${skill.getExpForLevel(skill.level)}`;
+            return `포인트 ${skill.points}  |  다음 ${skill.getNextNodeCost()}p  |  경험치 ${Math.floor(skill.exp)}/${skill.getExpForLevel(skill.level)}`;
         }
 
         const rank = skill.rankOf(node.id);
         if (!skill._requirementsMet(node)) {
-            return `${rank}/${node.maxRank}  |  prerequisite node required`;
+            return `${rank}/${node.maxRank}  |  선행 노드가 필요합니다`;
         }
         if (skill.canAllocate(node.id)) {
-            return `${rank}/${node.maxRank}  |  ready to allocate`;
+            return `${rank}/${node.maxRank}  |  배분 가능`;
         }
-        return `${rank}/${node.maxRank}  |  not enough points`;
+        return `${rank}/${node.maxRank}  |  포인트 부족`;
     }
 
     _statusColor(node) {
-        if (!node) return COL.GOLD_DM;
-        if (!this._currentSkill._requirementsMet(node)) return COL.TEXT_FT;
-        return this._currentSkill.canAllocate(node.id) ? COL.GOLD : COL.GOLD_DM;
+        if (!node) return NEON.CYAN_LT;
+        if (!this._currentSkill._requirementsMet(node)) return NEON.TEXT_FT;
+        return this._currentSkill.canAllocate(node.id) ? NEON.MAGENTA_LT : NEON.TEXT_DM;
     }
 
-    _nodeColors({ full, rank, unlocked }) {
+    _nodeColors({ full, rank, unlocked, canAllocate, selected }) {
+        if (selected) {
+            return {
+                bg: 0x210320,
+                border: NEON.MAGENTA,
+                text: NEON.MAGENTA_LT,
+                rankText: NEON.WHITE,
+                alpha: 0.95,
+                strokeAlpha: 0.9,
+            };
+        }
         if (full) {
             return {
-                bg: COL.GOLD,
-                border: COL.GOLD,
-                text: COL.BLACK,
-                rankBg: COL.GOLD_DK,
-                rankText: COL.BLACK,
-                rankBorder: COL.GOLD,
+                bg: NEON.CYAN,
+                border: NEON.CYAN_LT,
+                text: NEON.BG_DK,
+                rankText: NEON.BG_DK,
+                alpha: 0.95,
+                strokeAlpha: 0.82,
             };
         }
         if (rank > 0) {
             return {
-                bg: COL.PANEL_2,
-                border: COL.GOLD,
-                text: COL.GOLD,
-                rankBg: COL.GOLD,
-                rankText: COL.BLACK,
-                rankBorder: COL.GOLD_DK,
+                bg: NEON.PANEL_2,
+                border: NEON.CYAN,
+                text: NEON.CYAN_LT,
+                rankText: NEON.TEXT,
+                alpha: 0.86,
+                strokeAlpha: 0.58,
+            };
+        }
+        if (canAllocate) {
+            return {
+                bg: 0x15051a,
+                border: NEON.MAGENTA,
+                text: NEON.MAGENTA_LT,
+                rankText: NEON.TEXT,
+                alpha: 0.9,
+                strokeAlpha: 0.76,
             };
         }
         if (unlocked) {
             return {
-                bg: COL.PANEL,
-                border: COL.GOLD_DM,
-                text: COL.TEXT_DM,
-                rankBg: COL.PANEL,
-                rankText: COL.GOLD_DM,
-                rankBorder: COL.GOLD_FT,
+                bg: NEON.PANEL,
+                border: NEON.CYAN,
+                text: NEON.TEXT_DM,
+                rankText: NEON.TEXT_DM,
+                alpha: 0.72,
+                strokeAlpha: 0.26,
             };
         }
         return {
-            bg: COL.BLACK,
-            border: COL.GOLD_FT,
-            text: COL.TEXT_FT,
-            rankBg: COL.BLACK,
-            rankText: COL.TEXT_FT,
-            rankBorder: COL.GOLD_FT,
+            bg: NEON.BG_DK,
+            border: NEON.TEXT_FT,
+            text: NEON.TEXT_FT,
+            rankText: NEON.TEXT_FT,
+            alpha: 0.58,
+            strokeAlpha: 0.30,
         };
     }
 }

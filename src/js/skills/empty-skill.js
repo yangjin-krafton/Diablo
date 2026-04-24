@@ -1,5 +1,4 @@
-// Placeholder for an unassigned skill slot. Renders locked in the bar and as
-// an empty column in the tree panel.
+// Placeholder for an unassigned skill slot.
 
 import { Skill } from './skill-base.js';
 
@@ -10,5 +9,6 @@ export class EmptySkill extends Skill {
         this.displayName = label;
         this.isEmpty = true;
     }
+
     getNodes() { return []; }
 }

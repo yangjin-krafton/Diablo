@@ -35,8 +35,8 @@ export class UIRoot {
         this.stage.eventMode = 'static';
 
         this.hudLayer = this.stage.addChild(new Container());
-        this.panelLayer = this.stage.addChild(new Container());
         this.barLayer = this.stage.addChild(new Container());
+        this.panelLayer = this.stage.addChild(new Container());
 
         this._setupHitToggle();
         this._resizeListeners = [];
@@ -78,6 +78,10 @@ export class UIRoot {
 
     update(dt) {
         void dt;
+    }
+
+    setSkillBarVisible(visible) {
+        this.barLayer.visible = !!visible;
     }
 
     get width() { return this.app.screen.width; }

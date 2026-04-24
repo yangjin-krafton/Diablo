@@ -17,7 +17,7 @@ export class SwordSwing {
         this.surface = surface;
         this._currentArc = CONFIG.sword.arcAngle;
         this._currentRange = CONFIG.sword.range;
-        this.mesh = this._buildArcMesh(this._currentRange, this._currentArc);
+        this.mesh = this._buildArcEffect(this._currentRange, this._currentArc);
         this.mesh.visible = false;
         this._timer = 0;
         this._active = false;
@@ -46,14 +46,18 @@ export class SwordSwing {
         if (range !== this._currentRange || arcAngle !== this._currentArc) {
             this._currentRange = range;
             this._currentArc = arcAngle;
-            this.mesh.geometry.dispose();
-            this.mesh.geometry = this._buildArcGeometry(range, arcAngle);
+            this._setArcGeometry(range, arcAngle);
         }
 
         this._active = true;
         this._timer = CONFIG.sword.swingDuration;
         this.mesh.visible = true;
-        this.mesh.material.opacity = CONFIG.sword.opacity;
+        this.mesh.scale.set(1, 1, 1);
+        this.mesh.rotation.y = 0;
+        this._fillMesh.material.opacity = CONFIG.sword.opacity * 0.55;
+        this._edgeMesh.material.opacity = CONFIG.sword.opacity * 1.45;
+        this._slashMesh.material.opacity = CONFIG.sword.opacity * 1.8;
+        this._slashMesh.rotation.y = arcAngle * 0.35;
 
         this._up.copy(position).normalize();
         this._pos.copy(position).addScaledVector(this._up, CONFIG.sword.lift);
@@ -89,7 +93,14 @@ export class SwordSwing {
         if (!this._active) return;
         this._timer -= dt;
         const t = 1 - this._timer / CONFIG.sword.swingDuration;
-        this.mesh.material.opacity = CONFIG.sword.opacity * Math.max(0, 1 - t);
+        const fade = Math.max(0, 1 - t);
+        const snap = Math.sin(Math.min(1, t) * Math.PI);
+        this._fillMesh.material.opacity = CONFIG.sword.opacity * 0.55 * fade;
+        this._edgeMesh.material.opacity = CONFIG.sword.opacity * (1.1 + snap * 0.55) * fade;
+        this._slashMesh.material.opacity = CONFIG.sword.opacity * 1.8 * Math.max(0, 1 - t * 1.35);
+        this._slashMesh.rotation.y = THREE.MathUtils.lerp(this._currentArc * 0.35, -this._currentArc * 0.35, Math.min(1, t * 1.12));
+        const pulse = 1 + snap * 0.05;
+        this.mesh.scale.set(pulse, 1, pulse);
         if (this._timer <= 0) {
             this._active = false;
             this.mesh.visible = false;
@@ -111,14 +122,76 @@ export class SwordSwing {
         return geo;
     }
 
-    _buildArcMesh(range, arcAngle) {
-        const mat = new THREE.MeshBasicMaterial({
+    _buildBladeGeometry(range, arcAngle) {
+        const inner = range * 0.62;
+        const outer = range * 1.02;
+        const seg = Math.max(16, Math.ceil(arcAngle / Math.PI * 64));
+        const half = arcAngle / 2;
+        const geo = new THREE.RingGeometry(
+            inner, outer, seg, 1,
+            -Math.PI / 2 - half, arcAngle,
+        );
+        geo.rotateX(-Math.PI / 2);
+        return geo;
+    }
+
+    _buildSlashGeometry(range) {
+        const inner = range * 0.08;
+        const outer = range * 1.08;
+        const width = Math.min(Math.PI / 4, Math.max(Math.PI / 7, this._currentArc * 0.14));
+        const geo = new THREE.RingGeometry(
+            inner, outer, 18, 1,
+            -Math.PI / 2 - width / 2, width,
+        );
+        geo.rotateX(-Math.PI / 2);
+        return geo;
+    }
+
+    _setArcGeometry(range, arcAngle) {
+        this._fillMesh.geometry.dispose();
+        this._edgeMesh.geometry.dispose();
+        this._slashMesh.geometry.dispose();
+        this._fillMesh.geometry = this._buildArcGeometry(range, arcAngle);
+        this._edgeMesh.geometry = this._buildBladeGeometry(range, arcAngle);
+        this._slashMesh.geometry = this._buildSlashGeometry(range);
+    }
+
+    _buildArcEffect(range, arcAngle) {
+        const group = new THREE.Group();
+
+        const fillMat = new THREE.MeshBasicMaterial({
             color: CONFIG.sword.color,
             transparent: true,
-            opacity: CONFIG.sword.opacity,
+            opacity: CONFIG.sword.opacity * 0.55,
             side: THREE.DoubleSide,
             depthWrite: false,
+            blending: THREE.AdditiveBlending,
         });
-        return new THREE.Mesh(this._buildArcGeometry(range, arcAngle), mat);
+        this._fillMesh = new THREE.Mesh(this._buildArcGeometry(range, arcAngle), fillMat);
+
+        const edgeMat = new THREE.MeshBasicMaterial({
+            color: 0xfff0a8,
+            transparent: true,
+            opacity: CONFIG.sword.opacity * 1.45,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+        });
+        this._edgeMesh = new THREE.Mesh(this._buildBladeGeometry(range, arcAngle), edgeMat);
+        this._edgeMesh.position.y = 0.012;
+
+        const slashMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: CONFIG.sword.opacity * 1.8,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+        });
+        this._slashMesh = new THREE.Mesh(this._buildSlashGeometry(range), slashMat);
+        this._slashMesh.position.y = 0.024;
+
+        group.add(this._fillMesh, this._edgeMesh, this._slashMesh);
+        return group;
     }
 }

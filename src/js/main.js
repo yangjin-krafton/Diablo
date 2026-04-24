@@ -7,5 +7,5 @@ const game = new Game(canvas);
 game.start().catch((err) => {
     console.error('[Diablo] failed to start:', err);
     const loading = document.getElementById('loading');
-    if (loading) loading.textContent = 'ERROR — see console';
+    if (loading) loading.textContent = '오류가 발생했습니다. 콘솔을 확인하세요.';
 });

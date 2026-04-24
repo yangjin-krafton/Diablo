@@ -14,6 +14,14 @@ export class HomeController {
         this.carriedFuel = 0;
         this.loadedFuel = 0;
 
+        this.ores = {
+            red: 0,
+            yellow: 0,
+            green: 0,
+            blue: 0,
+            purple: 0,
+        };
+
         this.departureState = 'idle';
         this.departureRemaining = CONFIG.home.departureCountdown;
         this.success = false;
@@ -29,7 +37,7 @@ export class HomeController {
 
         if (!this.home.isPlayerInRange(player)) {
             this.departureState = 'failed';
-            this.failureReason = 'Left home range during departure';
+            this.failureReason = '출발 준비 중 거점 범위를 벗어났습니다.';
             this.spawner.stopBossWave();
             return;
         }
@@ -94,6 +102,7 @@ export class HomeController {
             carriedFuel: this.carriedFuel,
             loadedFuel: this.loadedFuel,
             fuelCapacity: CONFIG.home.fuelCapacity,
+            ores: { ...this.ores },
             departureState: this.departureState,
             departureRemaining: this.departureRemaining,
             canAcceptQuest: this.questState === QUEST_IDLE && !this.isFuelFull && !this.success,

@@ -1,12 +1,12 @@
-// Pixi skill bar. Lays out one SkillSlot per equipped skill at the bottom
-// center of the screen, and pushes SkillSystem state into them each frame.
+// Pixi skill bar. Neon bottom control strip for equipped skills.
 
 import { Container, Graphics } from 'pixi.js';
+import { NEON, neonPanel } from './neon-theme.js';
 import { SkillSlot } from './skill-slot.js';
 
-const SLOT_SIZE = 68;
+const SLOT_SIZE = 66;
 const SLOT_GAP = 10;
-const BOTTOM_INSET = 22;
+const BOTTOM_INSET = 18;
 
 export class SkillBar {
     constructor(uiRoot, skillSystem) {
@@ -19,6 +19,8 @@ export class SkillBar {
         this._catcher.eventMode = 'static';
         this._catcher.on('pointerdown', (e) => e.stopPropagation());
         this.root.addChild(this._catcher);
+
+        this._frame = this.root.addChild(new Graphics());
 
         this.slots = skillSystem.skills.map((skill, i) => {
             const slot = new SkillSlot({
@@ -42,13 +44,27 @@ export class SkillBar {
     _layout(w, h) {
         const n = this.slots.length;
         const total = n * SLOT_SIZE + (n - 1) * SLOT_GAP;
+        const framePad = 12;
+        const frameW = total + framePad * 2;
+        const frameH = SLOT_SIZE + framePad * 2;
         const startX = Math.round((w - total) / 2);
         const y = Math.round(h - SLOT_SIZE - BOTTOM_INSET);
+        const frameX = startX - framePad;
+        const frameY = y - framePad;
 
         this._catcher
             .clear()
-            .rect(startX - 10, y - 10, total + 20, SLOT_SIZE + 20)
+            .rect(frameX, frameY, frameW, frameH)
             .fill({ color: 0x000000, alpha: 0.001 });
+
+        this._frame.clear();
+        neonPanel(this._frame, frameX, frameY, frameW, frameH, {
+            fill: NEON.PANEL,
+            stroke: NEON.CYAN,
+            alpha: 0.58,
+            strokeAlpha: 0.30,
+            cut: 18,
+        });
 
         for (let i = 0; i < n; i++) {
             this.slots[i].position.set(startX + i * (SLOT_SIZE + SLOT_GAP), y);
