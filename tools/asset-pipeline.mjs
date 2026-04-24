@@ -63,7 +63,7 @@ const IMG_DIR         = resolve(__dirname, 'generated-img');
 const GLB_DIR         = resolve(__dirname, 'generated-glb');
 const MODELS_ROOT     = resolve(__dirname, '../src/asset/models');
 const TEXT2IMG_PATH   = resolve(__dirname, 'text2img.json');
-const IMG2GLB_PATH    = resolve(__dirname, 'Better_Texture_Trellis2.json');
+const IMG2GLB_PATH    = resolve(__dirname, 'MeshWithTexturing_LowPoly.json');
 
 const VALID_CATEGORIES = new Set(['player', 'enemy', 'npc', 'pickup']);
 
@@ -330,8 +330,8 @@ async function runPhase2(products, checkpoint) {
       });
 
       const wf = JSON.parse(JSON.stringify(workflow));
-      wf['69'].inputs.image = `pipeline/${id}.png`;
-      wf['19'].inputs.filename_prefix = id;
+      wf['6'].inputs.image = `pipeline/${id}.png`;
+      wf['219'].inputs.value = id;
 
       const promptId = await queuePrompt(wf);
       const outputs = await waitForCompletion(promptId);
@@ -339,7 +339,8 @@ async function runPhase2(products, checkpoint) {
       const glbDest = resolve(GLB_DIR, `${id}.glb`);
       let glbFound = false;
 
-      const exportNode = outputs?.['19'];
+      // 최종 텍스처드 저폴리 GLB (node 265 = Trellis2ExportMesh "_LowPoly_Textured")
+      const exportNode = outputs?.['265'];
       if (exportNode) {
         const meshFiles = exportNode.gltf || exportNode.files || exportNode.mesh;
         if (meshFiles?.length > 0) {
@@ -349,7 +350,7 @@ async function runPhase2(products, checkpoint) {
       }
 
       if (!glbFound) {
-        const previewNode = outputs?.['10'];
+        const previewNode = outputs?.['232'];
         const resultPath = previewNode?.result?.[0];
         if (resultPath && typeof resultPath === 'string' && resultPath.endsWith('.glb')) {
           const filename = resultPath.split('/').pop();
