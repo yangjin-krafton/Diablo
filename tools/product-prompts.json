@@ -1,211 +1,1046 @@
 [
   {
-    "id": "fig_space_ranger_stylized",
+    "id": "fig_p_knight",
     "category": "player",
-    "role": "melee",
-    "name": "우주 레인저 — 근딜 (플라즈마 블레이드)",
-    "prompt": "4-head-tall stylized cartoon space ranger hero in sleek white and cyan exosuit armor with glowing energy lines, holding a humming plasma blade, determined heroic pose, helmet off showing short hair and confident face, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "role": "melee_tank",
+    "name": "knight",
+    "color_scheme": "charcoal_amber",
+    "material": "weathered_stone",
+    "prompt": "2-head-tall super deformed chibi noble knight warrior holding a longsword and heater shield in full plate armor, color scheme of charcoal grey and glowing amber, weathered ancient carved stone, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_astro_sorceress_chibi",
+    "id": "fig_p_berserker",
     "category": "player",
-    "role": "caster",
-    "name": "우주 마법사 — 캐스터 (성운 지팡이)",
-    "prompt": "2-head-tall super deformed chibi cosmic sorceress in starry navy blue robe with constellation patterns, wielding a glowing nebula staff topped with a floating tiny planet, big sparkling violet eyes, pointed hat with crescent moon, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "role": "melee_dps",
+    "name": "berserker",
+    "color_scheme": "magenta_chrome",
+    "material": "holographic",
+    "prompt": "2-head-tall super deformed chibi wild berserker warrior wielding a massive two-handed greataxe, shirtless with battle scars, color scheme of hot magenta and polished chrome, iridescent holographic shimmer, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_void_huntress_stylized",
+    "id": "fig_p_paladin",
+    "category": "player",
+    "role": "tank_support",
+    "name": "paladin",
+    "color_scheme": "sunset_navy",
+    "material": "crystal",
+    "prompt": "2-head-tall super deformed chibi holy paladin with a glowing warhammer and tower shield, radiant halo aura, color scheme of sunset orange and midnight navy, translucent faceted crystalline surface, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_monk",
+    "category": "player",
+    "role": "melee_dps",
+    "name": "monk",
+    "color_scheme": "ashen_ember",
+    "material": "holographic",
+    "prompt": "2-head-tall super deformed chibi martial monk fighter in loose robes with bare fists wrapped in cloth tape, combat stance, color scheme of ashen grey and ember orange, iridescent holographic shimmer, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_ranger",
     "category": "player",
     "role": "ranged",
-    "name": "보이드 헌트리스 — 원딜 (플라즈마 보우)",
-    "prompt": "4-head-tall stylized cartoon space huntress in sleek dark purple stealth suit with glowing magenta trim, drawing a compact plasma energy bow with arrow of light, hooded cape, sharp focused eyes, agile archer stance, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "ranger",
+    "color_scheme": "charcoal_amber",
+    "material": "weathered_stone",
+    "prompt": "2-head-tall super deformed chibi nimble forest ranger archer drawing a composite bow with quiver on back and hooded cloak, color scheme of charcoal grey and glowing amber, weathered ancient carved stone, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_cyber_paladin_stylized",
+    "id": "fig_p_gunner",
     "category": "player",
-    "role": "tank",
-    "name": "사이버 팔라딘 — 탱커 (망치+실드)",
-    "prompt": "4-head-tall stylized cartoon heroic cyber paladin in bulky white and gold plate armor with glowing holy circuit sigils, wielding a massive powered warhammer in one hand and an energy tower shield in the other, confident stance, clean helmeted head with visor open, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "role": "ranged",
+    "name": "gunner",
+    "color_scheme": "magenta_chrome",
+    "material": "brushed_metal",
+    "prompt": "2-head-tall super deformed chibi frontier gunner hero holding twin revolvers, wide-brim hat and long coat, color scheme of hot magenta and polished chrome, brushed metal with fine directional scratches, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_shadow_operative_stylized",
+    "id": "fig_p_sniper",
     "category": "player",
-    "role": "rogue",
-    "name": "섀도우 오퍼레이티브 — 암살 (듀얼 대거)",
-    "prompt": "4-head-tall stylized cartoon female shadow operative assassin in sleek black bodysuit with glowing red accent lines, dual crystal-blade daggers crossed, half mask over lower face, sharp cunning eyes, crouching sneak-attack pose, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "role": "ranged",
+    "name": "sniper",
+    "color_scheme": "magenta_chrome",
+    "material": "holographic",
+    "prompt": "2-head-tall super deformed chibi stealth sniper kneeling with a long-barrel rifle and optical scope, camouflage cloak, color scheme of hot magenta and polished chrome, iridescent holographic shimmer, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
-
   {
-    "id": "fig_alien_slime_chibi",
+    "id": "fig_p_grenadier",
+    "category": "player",
+    "role": "ranged_aoe",
+    "name": "grenadier",
+    "color_scheme": "arctic_sapphire",
+    "material": "brushed_metal",
+    "prompt": "2-head-tall super deformed chibi rugged grenadier soldier holding a lit grenade with bandoliers across chest and goggles, color scheme of arctic white and deep sapphire, brushed metal with fine directional scratches, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_mage",
+    "category": "player",
+    "role": "caster",
+    "name": "mage",
+    "color_scheme": "teal_bronze",
+    "material": "ceramic",
+    "prompt": "2-head-tall super deformed chibi elemental mage wielding a flaming spellbook in one hand and a glowing wand, pointed hat, color scheme of oxidized teal and antique bronze, smooth matte ceramic porcelain feel, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_necromancer",
+    "category": "player",
+    "role": "caster",
+    "name": "necromancer",
+    "color_scheme": "charcoal_amber",
+    "material": "matte_plastic",
+    "prompt": "2-head-tall super deformed chibi sinister necromancer with a skull-topped staff, tattered robes and floating dark orbs, color scheme of charcoal grey and glowing amber, soft matte plastic with rounded bevels, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_druid",
+    "category": "player",
+    "role": "support",
+    "name": "druid",
+    "color_scheme": "teal_bronze",
+    "material": "chrome_mirror",
+    "prompt": "2-head-tall super deformed chibi nature druid holding a vine-wrapped staff with antler headdress and leafy cloak, color scheme of oxidized teal and antique bronze, mirror polished chrome with reflections, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_warlock",
+    "category": "player",
+    "role": "caster",
+    "name": "warlock",
+    "color_scheme": "magenta_chrome",
+    "material": "brushed_metal",
+    "prompt": "2-head-tall super deformed chibi cursed warlock channeling a glowing eldritch sigil in one hand, horned hood over face, color scheme of hot magenta and polished chrome, brushed metal with fine directional scratches, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_assassin",
+    "category": "player",
+    "role": "melee_dps",
+    "name": "assassin",
+    "color_scheme": "charcoal_amber",
+    "material": "matte_plastic",
+    "prompt": "2-head-tall super deformed chibi silent assassin rogue crouching with twin daggers, dark hood and face mask, color scheme of charcoal grey and glowing amber, soft matte plastic with rounded bevels, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_ninja",
+    "category": "player",
+    "role": "melee_dps",
+    "name": "ninja",
+    "color_scheme": "toxic_black",
+    "material": "chrome_mirror",
+    "prompt": "2-head-tall super deformed chibi agile ninja with a short katana and shuriken, masked face and trailing scarf, color scheme of toxic neon green and matte black, mirror polished chrome with reflections, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_bard",
+    "category": "player",
+    "role": "support",
+    "name": "bard",
+    "color_scheme": "ashen_ember",
+    "material": "brushed_metal",
+    "prompt": "2-head-tall super deformed chibi charming bard strumming a wooden lute, feathered hat and colorful traveling coat, color scheme of ashen grey and ember orange, brushed metal with fine directional scratches, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_p_engineer",
+    "category": "player",
+    "role": "ranged",
+    "name": "engineer",
+    "color_scheme": "forest_rust",
+    "material": "weathered_stone",
+    "prompt": "2-head-tall super deformed chibi tinkerer engineer holding a heavy wrench with a hovering spherical repair drone, goggles on forehead, color scheme of forest green and rust orange, weathered ancient carved stone, dynamic heroic pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_m_slime",
     "category": "enemy",
     "role": "tier1",
-    "name": "외계 슬라임 — 티어1 챠프",
-    "prompt": "super deformed chibi glowing bioluminescent alien slime monster, translucent toxic green jelly body, tiny floating bubbles inside, two big dumb googly eyes, pointy antenna, menacing goofy grin, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "slime",
+    "color_scheme": "charcoal_amber",
+    "material": "matte_plastic",
+    "prompt": "super deformed chibi wobbly jelly slime monster with two goofy eyes and a dumb grin, color scheme of charcoal grey and glowing amber, soft matte plastic with rounded bevels, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_void_crawler_chibi",
+    "id": "fig_m_goblin",
     "category": "enemy",
     "role": "tier1",
-    "name": "보이드 크롤러 — 티어1 챠프",
-    "prompt": "super deformed chibi dark cosmic void crawler, spider-like creature with six glossy black chitin legs, bulbous body dotted with tiny glowing purple star specks, multiple bright magenta eyes, dripping fangs, aggressive pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "goblin",
+    "color_scheme": "lavender_silver",
+    "material": "ceramic",
+    "prompt": "super deformed chibi scrappy goblin grunt holding a rusty cleaver, color scheme of soft lavender and moonlit silver, smooth matte ceramic porcelain feel, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_swarm_bat_chibi",
+    "id": "fig_m_skeleton",
     "category": "enemy",
     "role": "tier1",
-    "name": "스웜 배트 — 티어1 비행 챠프",
-    "prompt": "super deformed chibi alien space bat creature, leathery teal-purple wings spread wide, tiny rounded body, two big glowing yellow eyes, stubby fangs, hovering flapping pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "skeleton",
+    "color_scheme": "lavender_silver",
+    "material": "ceramic",
+    "prompt": "super deformed chibi undead skeleton warrior rattling with a bone sword, color scheme of soft lavender and moonlit silver, smooth matte ceramic porcelain feel, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_parasite_pod_chibi",
+    "id": "fig_m_zombie",
     "category": "enemy",
     "role": "tier1",
-    "name": "패러사이트 포드 — 티어1 저속 챠프",
-    "prompt": "super deformed chibi crawling parasite pod creature, plump round segmented pink-red body with pulsing veins, tiny spiny legs underneath, single glowing green eye in front, dripping tendril mouth, slow menacing crawl pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "zombie",
+    "color_scheme": "violet_cyan",
+    "material": "bio_organic",
+    "prompt": "super deformed chibi decayed shambling zombie in tattered clothes, color scheme of royal violet and electric cyan, wet bio-organic tissue with subtle veins, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_dust_mite_chibi",
+    "id": "fig_m_wolf",
     "category": "enemy",
     "role": "tier1",
-    "name": "더스트 마이트 — 티어1 초고속 챠프",
-    "prompt": "super deformed chibi tiny fast dust mite alien creature, sandy-yellow fuzzy fluff ball body, four spindly insect legs, two antennae, single big angry orange eye, tiny sharp pincers, scurrying pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "wolf",
+    "color_scheme": "sunset_navy",
+    "material": "crystal",
+    "prompt": "super deformed chibi feral wolf beast with bared fangs and raised hackles, color scheme of sunset orange and midnight navy, translucent faceted crystalline surface, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
-
   {
-    "id": "fig_bio_husk_chibi",
+    "id": "fig_m_bat",
+    "category": "enemy",
+    "role": "tier1",
+    "name": "bat",
+    "color_scheme": "emerald_gold",
+    "material": "ceramic",
+    "prompt": "super deformed chibi screeching flying bat creature with leathery wings spread, color scheme of emerald green and rich gold, smooth matte ceramic porcelain feel, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_m_imp",
+    "category": "enemy",
+    "role": "tier1",
+    "name": "imp",
+    "color_scheme": "ashen_ember",
+    "material": "holographic",
+    "prompt": "super deformed chibi cackling horned imp with tiny wings and forked tail, color scheme of ashen grey and ember orange, iridescent holographic shimmer, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_m_kobold",
+    "category": "enemy",
+    "role": "tier1",
+    "name": "kobold",
+    "color_scheme": "burgundy_cream",
+    "material": "glossy_toy",
+    "prompt": "super deformed chibi mischievous kobold scout with oversized crude dagger, color scheme of rich burgundy and cream white, glossy vinyl toy finish with smooth highlights, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_m_spider",
     "category": "enemy",
     "role": "tier2",
-    "name": "바이오 허스크 — 티어2 엘리트",
-    "prompt": "2-head-tall super deformed chibi sci-fi infected biohazard husk zombie soldier in tattered orange hazmat suit, cracked helmet visor leaking sickly green gas, exposed mutated clawed hand, glowing yellow infected eyes, menacing hunched pose, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "spider",
+    "color_scheme": "obsidian_crimson",
+    "material": "fabric_leather",
+    "prompt": "super deformed chibi giant fanged spider with eight hairy legs, color scheme of obsidian black and crimson red, woven fabric and tooled leather, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_rogue_bot_chibi",
+    "id": "fig_m_orc",
     "category": "enemy",
     "role": "tier2",
-    "name": "로그 봇 — 티어2 엘리트 원거리",
-    "prompt": "2-head-tall super deformed chibi rogue space pirate robot, scratched matte red metal plating with yellow hazard stripes, single glowing red camera eye, stubby clawed arms holding a rusty laser cutter, stumpy mechanical legs, aggressive stance, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "orc",
+    "color_scheme": "magenta_chrome",
+    "material": "bio_organic",
+    "prompt": "super deformed chibi hulking orc brute swinging a heavy spiked club, color scheme of hot magenta and polished chrome, wet bio-organic tissue with subtle veins, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_plasma_wraith_chibi",
+    "id": "fig_m_harpy",
     "category": "enemy",
     "role": "tier2",
-    "name": "플라즈마 렌스 — 티어2 엘리트 캐스터",
-    "prompt": "super deformed chibi ghostly cosmic plasma wraith, ethereal hooded specter made of swirling blue and violet plasma energy, wispy flowing tail instead of legs, hollow glowing cyan eye sockets, skeletal clawed hands, haunting pose, single creature only, one figure, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "harpy",
+    "color_scheme": "forest_rust",
+    "material": "weathered_stone",
+    "prompt": "super deformed chibi feathered harpy with taloned feet and spread wings, color scheme of forest green and rust orange, weathered ancient carved stone, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_mutant_brute_chibi",
+    "id": "fig_m_mummy",
     "category": "enemy",
     "role": "tier2",
-    "name": "뮤턴트 브루트 — 티어2 엘리트 근딜",
-    "prompt": "2-head-tall super deformed chibi mutant brute monster, bulky asymmetric gray-purple muscular body, oversized right fist, smaller left arm, tiny head with four glowing red eyes, jagged teeth, heavy stomping pose, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "mummy",
+    "color_scheme": "toxic_black",
+    "material": "ceramic",
+    "prompt": "super deformed chibi bandaged undead mummy with dragging linen wraps, color scheme of toxic neon green and matte black, smooth matte ceramic porcelain feel, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
-
   {
-    "id": "fig_hive_queen_chibi",
+    "id": "fig_m_ghost",
+    "category": "enemy",
+    "role": "tier2",
+    "name": "ghost",
+    "color_scheme": "teal_bronze",
+    "material": "ceramic",
+    "prompt": "super deformed chibi hollow translucent ghost spirit trailing a misty tail, color scheme of oxidized teal and antique bronze, smooth matte ceramic porcelain feel, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_m_gargoyle",
+    "category": "enemy",
+    "role": "tier2",
+    "name": "gargoyle",
+    "color_scheme": "charcoal_amber",
+    "material": "matte_plastic",
+    "prompt": "super deformed chibi stone gargoyle with folded bat wings and curling horns, color scheme of charcoal grey and glowing amber, soft matte plastic with rounded bevels, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_m_lizardman",
+    "category": "enemy",
+    "role": "tier2",
+    "name": "lizardman",
+    "color_scheme": "charcoal_amber",
+    "material": "crystal",
+    "prompt": "super deformed chibi scaly lizardman warrior holding a barbed spear, color scheme of charcoal grey and glowing amber, translucent faceted crystalline surface, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_m_fungus_beast",
+    "category": "enemy",
+    "role": "tier2",
+    "name": "fungus beast",
+    "color_scheme": "arctic_sapphire",
+    "material": "holographic",
+    "prompt": "super deformed chibi walking fungus beast with spore caps on its back, color scheme of arctic white and deep sapphire, iridescent holographic shimmer, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_m_snake",
     "category": "enemy",
     "role": "tier3",
-    "name": "하이브 퀸 — 티어3 미니보스 (소환형)",
-    "prompt": "super deformed chibi alien hive queen monster, bloated abdomen with glowing orange egg sacs, upper torso with four slender insectoid arms, regal crown of bony spikes, piercing compound eyes, menacing majestic pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "snake",
+    "color_scheme": "forest_rust",
+    "material": "matte_plastic",
+    "prompt": "super deformed chibi coiled giant fanged snake rearing to strike, color scheme of forest green and rust orange, soft matte plastic with rounded bevels, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_war_mech_chibi",
+    "id": "fig_m_crab",
     "category": "enemy",
     "role": "tier3",
-    "name": "워 메크 — 티어3 미니보스 (탱커/샷)",
-    "prompt": "2-head-tall super deformed chibi heavy war mech walker, thick armored matte gray plating with red military markings, two shoulder-mounted gatling cannons, tiny cockpit visor glowing orange, stumpy bipedal legs, intimidating stance, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "crab",
+    "color_scheme": "ashen_ember",
+    "material": "brushed_metal",
+    "prompt": "super deformed chibi heavily armored giant pincer crab, color scheme of ashen grey and ember orange, brushed metal with fine directional scratches, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_corrupted_seer_chibi",
+    "id": "fig_m_scorpion",
     "category": "enemy",
     "role": "tier3",
-    "name": "커럽티드 시어 — 티어3 미니보스 (텔레포트 캐스터)",
-    "prompt": "2-head-tall super deformed chibi corrupted cosmic seer warlock, tattered dark indigo robes covered in glowing rune-scripts, floating cracked mask with glowing green slit eyes, hovering slightly, skeletal hands casting a swirling dark orb, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "scorpion",
+    "color_scheme": "jade_ivory",
+    "material": "neon_energy",
+    "prompt": "super deformed chibi giant stinger scorpion with raised barbed tail, color scheme of jade green and pale ivory, glowing neon energy trim with soft emission, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
-
   {
-    "id": "fig_moon_tyrant_chibi",
+    "id": "fig_m_rock_golem",
     "category": "enemy",
+    "role": "tier3",
+    "name": "rock golem",
+    "color_scheme": "violet_cyan",
+    "material": "bio_organic",
+    "prompt": "super deformed chibi small walking rock golem made of jagged stone shards, color scheme of royal violet and electric cyan, wet bio-organic tissue with subtle veins, menacing aggressive pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_b_dragon",
+    "category": "boss",
     "role": "boss",
-    "name": "문 타이런트 — 보스 (대형 오버로드)",
-    "prompt": "super deformed chibi colossal moon tyrant boss monster, imposing bulky bone-white armored humanoid with glowing crescent crown, four massive clawed arms, one holding a jagged moonblade, cape of cosmic starry void, tiny glowing yellow eyes, dominating pose, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "name": "dragon",
+    "color_scheme": "forest_rust",
+    "material": "crystal",
+    "prompt": "2-head-tall super deformed chibi colossal majestic winged dragon with vast outstretched wings, long tail and fanged maw boss monster, imposing color scheme of forest green and rust orange, translucent faceted crystalline surface, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_rift_leviathan_chibi",
-    "category": "enemy",
+    "id": "fig_b_lich_king",
+    "category": "boss",
     "role": "boss",
-    "name": "리프트 레비아탄 — 보스 (거대 코스믹 웜)",
-    "prompt": "super deformed chibi massive cosmic space worm leviathan boss, thick coiling serpentine body with deep purple and black segments, glowing violet energy cracks along the spine, gaping circular maw ringed with rows of teeth, tiny pair of star-glow eyes, rearing coiled pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
-  },
-
-  {
-    "id": "fig_outpost_dome",
-    "category": "npc",
-    "role": "hub",
-    "name": "전진 기지 돔 — 허브 (귀환 장소)",
-    "prompt": "small stylized sci-fi planetary outpost habitation dome, curved white and orange paneled shell with glowing teal window ring, antenna array on top, small airlock hatch at front, tiny solar panels on side, charming collectible base for an RPG hub, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+    "name": "lich king",
+    "color_scheme": "toxic_black",
+    "material": "ceramic",
+    "prompt": "2-head-tall super deformed chibi colossal skeletal lich king wearing a spiked crown with glowing eyes and floating ragged robes boss monster, imposing color scheme of toxic neon green and matte black, smooth matte ceramic porcelain feel, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_repair_drone_chibi",
-    "category": "npc",
-    "role": "wander",
-    "name": "수리 드론 — 떠도는 도우미 NPC",
-    "prompt": "super deformed chibi friendly floating spherical repair drone, polished white and blue shell with rounded edges, single big glowing cyan lens eye, two tiny articulated claw arms holding a wrench, small hover thrusters glowing underneath, cheerful tilted pose, single character only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "id": "fig_b_demon_lord",
+    "category": "boss",
+    "role": "boss",
+    "name": "demon lord",
+    "color_scheme": "cobalt_silver",
+    "material": "weathered_stone",
+    "prompt": "2-head-tall super deformed chibi colossal massive horned demon lord with cloven hooves wielding a cruel jagged greatsword boss monster, imposing color scheme of deep cobalt blue and brushed silver, weathered ancient carved stone, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_beacon_totem",
-    "category": "npc",
-    "role": "interact",
-    "name": "신호 등대 토템 — 체크포인트",
-    "prompt": "small stylized sci-fi planetary signal beacon totem, stacked weathered metal panels forming a totem pole shape, glowing neon cyan rune-circuit inscriptions running down the surface, rotating holographic hex ring at the top, faint energy wisps, mystical tech aura, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+    "id": "fig_b_chimera",
+    "category": "boss",
+    "role": "boss",
+    "name": "chimera",
+    "color_scheme": "cobalt_silver",
+    "material": "weathered_stone",
+    "prompt": "2-head-tall super deformed chibi colossal three-headed chimera with lion, goat and serpent heads sharing one muscular body boss monster, imposing color scheme of deep cobalt blue and brushed silver, weathered ancient carved stone, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_merchant_kiosk",
+    "id": "fig_b_cyclops",
+    "category": "boss",
+    "role": "boss",
+    "name": "cyclops",
+    "color_scheme": "charcoal_amber",
+    "material": "matte_plastic",
+    "prompt": "2-head-tall super deformed chibi colossal one-eyed cyclops giant swinging a huge spiked stone club boss monster, imposing color scheme of charcoal grey and glowing amber, soft matte plastic with rounded bevels, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_b_hydra",
+    "category": "boss",
+    "role": "boss",
+    "name": "hydra",
+    "color_scheme": "burgundy_cream",
+    "material": "fabric_leather",
+    "prompt": "2-head-tall super deformed chibi colossal five-headed hydra with serpentine necks each ending in a fanged maw boss monster, imposing color scheme of rich burgundy and cream white, woven fabric and tooled leather, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_b_minotaur",
+    "category": "boss",
+    "role": "boss",
+    "name": "minotaur",
+    "color_scheme": "arctic_sapphire",
+    "material": "holographic",
+    "prompt": "2-head-tall super deformed chibi colossal bull-headed minotaur hefting a heavy double-bladed battle axe boss monster, imposing color scheme of arctic white and deep sapphire, iridescent holographic shimmer, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_b_titan_golem",
+    "category": "boss",
+    "role": "boss",
+    "name": "titan golem",
+    "color_scheme": "sunset_navy",
+    "material": "crystal",
+    "prompt": "2-head-tall super deformed chibi colossal colossal stone titan golem with glowing runic cracks running across massive limbs boss monster, imposing color scheme of sunset orange and midnight navy, translucent faceted crystalline surface, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_b_kraken",
+    "category": "boss",
+    "role": "boss",
+    "name": "kraken",
+    "color_scheme": "ivory_rose",
+    "material": "fabric_leather",
+    "prompt": "2-head-tall super deformed chibi colossal tentacled kraken rising from coiled tentacles with huge glowing eyes boss monster, imposing color scheme of warm ivory and soft rose pink, woven fabric and tooled leather, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_b_fallen_angel",
+    "category": "boss",
+    "role": "boss",
+    "name": "fallen angel",
+    "color_scheme": "lavender_silver",
+    "material": "chrome_mirror",
+    "prompt": "2-head-tall super deformed chibi colossal fallen angel warrior with torn black wings wielding a glowing soul blade boss monster, imposing color scheme of soft lavender and moonlit silver, mirror polished chrome with reflections, dominating powerful pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_merchant",
     "category": "npc",
     "role": "shop",
-    "name": "머천트 키오스크 — 상점",
-    "prompt": "small stylized sci-fi holographic merchant kiosk, rounded matte black counter with glowing amber display screen showing floating item icons, small canopy roof with striped awning pattern, sign pole with blinking shop icon, tiny crates stacked beside, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+    "name": "merchant",
+    "color_scheme": "toxic_black",
+    "material": "cel_painted",
+    "prompt": "2-head-tall super deformed chibi friendly traveling merchant character carrying a backpack of goods, friendly smile, color scheme of toxic neon green and matte black, flat cel-shaded painted look with clean line art, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_skill_altar",
+    "id": "fig_n_blacksmith",
     "category": "npc",
-    "role": "upgrade",
-    "name": "스킬 제단 — 성장 상호작용",
-    "prompt": "small stylized sci-fi skill upgrade altar, octagonal crystalline pedestal with floating hovering rune cube on top emitting soft golden light, glowing circuit patterns etched into the stone base, faint orbiting particle motes, mystical tech shrine look, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
-  },
-
-  {
-    "id": "fig_exp_shard",
-    "category": "pickup",
-    "role": "exp",
-    "name": "경험치 샤드 — 기본 드랍",
-    "prompt": "small glowing crystalline exp shard pickup, sharp faceted yellow-gold gem crystal cluster, radiant inner glow, simple clean silhouette, small stylized game drop prop, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
+    "role": "craft",
+    "name": "blacksmith",
+    "color_scheme": "ivory_rose",
+    "material": "glossy_toy",
+    "prompt": "2-head-tall super deformed chibi friendly burly blacksmith with leather apron and hammer over shoulder, color scheme of warm ivory and soft rose pink, glossy vinyl toy finish with smooth highlights, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_health_orb",
-    "category": "pickup",
+    "id": "fig_n_alchemist",
+    "category": "npc",
+    "role": "craft",
+    "name": "alchemist",
+    "color_scheme": "jade_ivory",
+    "material": "neon_energy",
+    "prompt": "2-head-tall super deformed chibi friendly eccentric alchemist holding a bubbling potion flask, round goggles, color scheme of jade green and pale ivory, glowing neon energy trim with soft emission, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_priest",
+    "category": "npc",
     "role": "heal",
-    "name": "체력 오브 — 힐 드랍",
-    "prompt": "small glossy red health orb pickup sphere, bright ruby-red glass ball with soft inner glow and tiny white highlight, floating slightly above a small rune-etched base plate, simple clean game drop silhouette, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
+    "name": "priest",
+    "color_scheme": "charcoal_amber",
+    "material": "weathered_stone",
+    "prompt": "2-head-tall super deformed chibi friendly serene priest in clean robes holding a small prayer book, color scheme of charcoal grey and glowing amber, weathered ancient carved stone, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_loot_crate",
-    "category": "pickup",
-    "role": "chest",
-    "name": "전리품 크레이트 — 상자 드랍",
-    "prompt": "small stylized sci-fi loot cargo crate pickup, cube-shaped metal box with rounded edges, gray and orange color scheme, glowing teal latch panel with lock icon on front, yellow hazard stripes on corners, small feet underneath, simple clean game drop silhouette, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
+    "id": "fig_n_innkeeper",
+    "category": "npc",
+    "role": "rest",
+    "name": "innkeeper",
+    "color_scheme": "charcoal_amber",
+    "material": "weathered_stone",
+    "prompt": "2-head-tall super deformed chibi friendly plump innkeeper with apron holding a wooden mug, color scheme of charcoal grey and glowing amber, weathered ancient carved stone, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_magnet_crystal",
-    "category": "pickup",
-    "role": "magnet",
-    "name": "자석 크리스탈 — 범위 수집 드랍",
-    "prompt": "small glowing sci-fi magnet crystal pickup, pink-magenta U-shaped horseshoe magnet made of shimmering faceted crystal, arcing energy sparks between the two poles, tiny floating base ring, simple clean game drop silhouette, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
+    "id": "fig_n_quest_giver",
+    "category": "npc",
+    "role": "quest",
+    "name": "quest giver",
+    "color_scheme": "burgundy_cream",
+    "material": "neon_energy",
+    "prompt": "2-head-tall super deformed chibi friendly mysterious quest giver in a hooded cloak holding a rolled scroll, color scheme of rich burgundy and cream white, glowing neon energy trim with soft emission, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
-    "id": "fig_relic_artifact",
-    "category": "pickup",
-    "role": "relic",
-    "name": "고대 유물 — 희귀 드랍",
-    "prompt": "small stylized ancient cosmic relic artifact pickup, ornate dark bronze metal sphere cradled in a curved four-pronged claw stand, glowing violet rune core visible inside, intricate filigree engravings, mystical collectible prop, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
+    "id": "fig_n_elder",
+    "category": "npc",
+    "role": "lore",
+    "name": "elder",
+    "color_scheme": "ivory_rose",
+    "material": "neon_energy",
+    "prompt": "2-head-tall super deformed chibi friendly bearded village elder leaning on a wooden cane, wise kind face, color scheme of warm ivory and soft rose pink, glowing neon energy trim with soft emission, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_town_guard",
+    "category": "npc",
+    "role": "guard",
+    "name": "town guard",
+    "color_scheme": "ivory_rose",
+    "material": "fabric_leather",
+    "prompt": "2-head-tall super deformed chibi friendly dutiful town guard in simple chain armor holding a halberd at rest, color scheme of warm ivory and soft rose pink, woven fabric and tooled leather, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_farmer",
+    "category": "npc",
+    "role": "civilian",
+    "name": "farmer",
+    "color_scheme": "forest_rust",
+    "material": "crystal",
+    "prompt": "2-head-tall super deformed chibi friendly weathered farmer in straw hat holding a wooden rake, color scheme of forest green and rust orange, translucent faceted crystalline surface, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_hunter_npc",
+    "category": "npc",
+    "role": "civilian",
+    "name": "hunter npc",
+    "color_scheme": "jade_ivory",
+    "material": "glossy_toy",
+    "prompt": "2-head-tall super deformed chibi friendly rugged hunter with leather vest and shortbow slung on back, color scheme of jade green and pale ivory, glossy vinyl toy finish with smooth highlights, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_scholar",
+    "category": "npc",
+    "role": "lore",
+    "name": "scholar",
+    "color_scheme": "teal_bronze",
+    "material": "ceramic",
+    "prompt": "2-head-tall super deformed chibi friendly scholarly librarian with round spectacles carrying a stack of books, color scheme of oxidized teal and antique bronze, smooth matte ceramic porcelain feel, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_wandering_bard",
+    "category": "npc",
+    "role": "entertain",
+    "name": "wandering bard",
+    "color_scheme": "sunset_navy",
+    "material": "weathered_stone",
+    "prompt": "2-head-tall super deformed chibi friendly cheerful wandering bard with feathered hat plucking a small harp, color scheme of sunset orange and midnight navy, weathered ancient carved stone, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_witch_hermit",
+    "category": "npc",
+    "role": "craft",
+    "name": "witch hermit",
+    "color_scheme": "cobalt_silver",
+    "material": "crystal",
+    "prompt": "2-head-tall super deformed chibi friendly old witch hermit with pointed hat stirring a tiny cauldron, color scheme of deep cobalt blue and brushed silver, translucent faceted crystalline surface, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_fisher",
+    "category": "npc",
+    "role": "civilian",
+    "name": "fisher",
+    "color_scheme": "arctic_sapphire",
+    "material": "holographic",
+    "prompt": "2-head-tall super deformed chibi friendly tan fisher in wide straw hat holding a fishing rod over shoulder, color scheme of arctic white and deep sapphire, iridescent holographic shimmer, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_child_villager",
+    "category": "npc",
+    "role": "civilian",
+    "name": "child villager",
+    "color_scheme": "violet_cyan",
+    "material": "bio_organic",
+    "prompt": "2-head-tall super deformed chibi friendly small child villager hugging a stuffed toy, cheerful expression, color scheme of royal violet and electric cyan, wet bio-organic tissue with subtle veins, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_traveler",
+    "category": "npc",
+    "role": "info",
+    "name": "traveler",
+    "color_scheme": "forest_rust",
+    "material": "weathered_stone",
+    "prompt": "2-head-tall super deformed chibi friendly wandering traveler with walking staff and full backpack, color scheme of forest green and rust orange, weathered ancient carved stone, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_archmage_npc",
+    "category": "npc",
+    "role": "lore",
+    "name": "archmage npc",
+    "color_scheme": "ivory_rose",
+    "material": "fabric_leather",
+    "prompt": "2-head-tall super deformed chibi friendly dignified archmage in embroidered robes with floating spellbook beside him, color scheme of warm ivory and soft rose pink, woven fabric and tooled leather, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_knight_captain",
+    "category": "npc",
+    "role": "guard",
+    "name": "knight captain",
+    "color_scheme": "ivory_rose",
+    "material": "neon_energy",
+    "prompt": "2-head-tall super deformed chibi friendly stoic knight captain in ornate plate armor, hand resting on sheathed sword, color scheme of warm ivory and soft rose pink, glowing neon energy trim with soft emission, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_beggar",
+    "category": "npc",
+    "role": "civilian",
+    "name": "beggar",
+    "color_scheme": "toxic_black",
+    "material": "ceramic",
+    "prompt": "2-head-tall super deformed chibi friendly thin ragged beggar sitting with an empty bowl, humble pose, color scheme of toxic neon green and matte black, smooth matte ceramic porcelain feel, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_n_spirit_guide",
+    "category": "npc",
+    "role": "info",
+    "name": "spirit guide",
+    "color_scheme": "jade_ivory",
+    "material": "fabric_leather",
+    "prompt": "2-head-tall super deformed chibi friendly translucent ethereal spirit guide in flowing robes, serene floating pose, color scheme of jade green and pale ivory, woven fabric and tooled leather, welcoming idle pose, single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_village_house",
+    "category": "building",
+    "role": "dwelling",
+    "name": "village house",
+    "color_scheme": "obsidian_crimson",
+    "material": "fabric_leather",
+    "prompt": "small stylized diorama small cozy village house with pitched thatched roof, wooden door and shuttered window, color scheme of obsidian black and crimson red, woven fabric and tooled leather, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_inn",
+    "category": "building",
+    "role": "rest",
+    "name": "inn",
+    "color_scheme": "obsidian_crimson",
+    "material": "neon_energy",
+    "prompt": "small stylized diorama two-story tavern inn with hanging wooden sign, chimney and porch lantern, color scheme of obsidian black and crimson red, glowing neon energy trim with soft emission, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_blacksmith_shop",
+    "category": "building",
+    "role": "craft",
+    "name": "blacksmith shop",
+    "color_scheme": "ivory_rose",
+    "material": "glossy_toy",
+    "prompt": "small stylized diorama open-front blacksmith forge with anvil outside, smoking chimney and tool rack, color scheme of warm ivory and soft rose pink, glossy vinyl toy finish with smooth highlights, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_apothecary",
+    "category": "building",
+    "role": "shop",
+    "name": "apothecary",
+    "color_scheme": "ashen_ember",
+    "material": "holographic",
+    "prompt": "small stylized diorama narrow apothecary shop with colorful potion bottles displayed in the window, color scheme of ashen grey and ember orange, iridescent holographic shimmer, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_church_chapel",
+    "category": "building",
+    "role": "holy",
+    "name": "church chapel",
+    "color_scheme": "burgundy_cream",
+    "material": "glossy_toy",
+    "prompt": "small stylized diorama small stone chapel with pointed belfry, stained-glass round window and cross on top, color scheme of rich burgundy and cream white, glossy vinyl toy finish with smooth highlights, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_castle_keep",
+    "category": "building",
+    "role": "fortress",
+    "name": "castle keep",
+    "color_scheme": "ashen_ember",
+    "material": "bio_organic",
+    "prompt": "small stylized diorama compact square castle keep with crenellated battlements and banner on pole, color scheme of ashen grey and ember orange, wet bio-organic tissue with subtle veins, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_watchtower",
+    "category": "building",
+    "role": "fortress",
+    "name": "watchtower",
+    "color_scheme": "arctic_sapphire",
+    "material": "bio_organic",
+    "prompt": "small stylized diorama tall circular stone watchtower with wooden roof and arrow slits, color scheme of arctic white and deep sapphire, wet bio-organic tissue with subtle veins, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_windmill",
+    "category": "building",
+    "role": "utility",
+    "name": "windmill",
+    "color_scheme": "violet_cyan",
+    "material": "bio_organic",
+    "prompt": "small stylized diorama classic windmill with four large wooden sail blades on a stone base, color scheme of royal violet and electric cyan, wet bio-organic tissue with subtle veins, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_market_stall",
+    "category": "building",
+    "role": "shop",
+    "name": "market stall",
+    "color_scheme": "lavender_silver",
+    "material": "ceramic",
+    "prompt": "small stylized diorama wooden market stall with striped canvas awning and crates of goods, color scheme of soft lavender and moonlit silver, smooth matte ceramic porcelain feel, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_stone_well",
+    "category": "building",
+    "role": "utility",
+    "name": "stone well",
+    "color_scheme": "charcoal_amber",
+    "material": "matte_plastic",
+    "prompt": "small stylized diorama round stone village well with wooden roof, crank handle and hanging bucket, color scheme of charcoal grey and glowing amber, soft matte plastic with rounded bevels, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_arched_bridge",
+    "category": "building",
+    "role": "utility",
+    "name": "arched bridge",
+    "color_scheme": "obsidian_crimson",
+    "material": "fabric_leather",
+    "prompt": "small stylized diorama short arched stone bridge with low railings and cobbled surface, color scheme of obsidian black and crimson red, woven fabric and tooled leather, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_ruined_tower",
+    "category": "building",
+    "role": "ruin",
+    "name": "ruined tower",
+    "color_scheme": "teal_bronze",
+    "material": "cel_painted",
+    "prompt": "small stylized diorama crumbling ruined stone tower with collapsed top, overgrown vines climbing the side, color scheme of oxidized teal and antique bronze, flat cel-shaded painted look with clean line art, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_dungeon_gate",
+    "category": "building",
+    "role": "dungeon",
+    "name": "dungeon gate",
+    "color_scheme": "arctic_sapphire",
+    "material": "brushed_metal",
+    "prompt": "small stylized diorama menacing dungeon entrance gate carved into a rock face with iron bars, color scheme of arctic white and deep sapphire, brushed metal with fine directional scratches, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_forest_shrine",
+    "category": "building",
+    "role": "holy",
+    "name": "forest shrine",
+    "color_scheme": "emerald_gold",
+    "material": "ceramic",
+    "prompt": "small stylized diorama small forest shrine on stone plinth with offering bowl and carved idol, color scheme of emerald green and rich gold, smooth matte ceramic porcelain feel, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_campfire_tent",
+    "category": "building",
+    "role": "camp",
+    "name": "campfire tent",
+    "color_scheme": "ivory_rose",
+    "material": "fabric_leather",
+    "prompt": "small stylized diorama small camp scene with a single tent, stacked logs and smoldering campfire, color scheme of warm ivory and soft rose pink, woven fabric and tooled leather, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_grain_silo",
+    "category": "building",
+    "role": "utility",
+    "name": "grain silo",
+    "color_scheme": "toxic_black",
+    "material": "ceramic",
+    "prompt": "small stylized diorama tall cylindrical grain silo with conical roof and ladder on the side, color scheme of toxic neon green and matte black, smooth matte ceramic porcelain feel, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_magic_portal",
+    "category": "building",
+    "role": "arcane",
+    "name": "magic portal",
+    "color_scheme": "forest_rust",
+    "material": "weathered_stone",
+    "prompt": "small stylized diorama freestanding arcane stone archway portal with swirling glowing energy inside, color scheme of forest green and rust orange, weathered ancient carved stone, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_graveyard_plot",
+    "category": "building",
+    "role": "ruin",
+    "name": "graveyard plot",
+    "color_scheme": "teal_bronze",
+    "material": "ceramic",
+    "prompt": "small stylized diorama tiny graveyard diorama with three weathered tombstones and a leaning iron fence, color scheme of oxidized teal and antique bronze, smooth matte ceramic porcelain feel, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_town_statue",
+    "category": "building",
+    "role": "monument",
+    "name": "town statue",
+    "color_scheme": "emerald_gold",
+    "material": "cel_painted",
+    "prompt": "small stylized diorama pedestal monument with a heroic stone statue of a knight holding a sword aloft, color scheme of emerald green and rich gold, flat cel-shaded painted look with clean line art, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_s_wooden_barricade",
+    "category": "building",
+    "role": "fortress",
+    "name": "wooden barricade",
+    "color_scheme": "sunset_navy",
+    "material": "crystal",
+    "prompt": "small stylized diorama defensive wooden barricade wall of sharpened logs with a small watch platform, color scheme of sunset orange and midnight navy, translucent faceted crystalline surface, complete compact structure, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_sword",
+    "category": "item",
+    "role": "weapon",
+    "name": "sword",
+    "color_scheme": "obsidian_crimson",
+    "material": "neon_energy",
+    "prompt": "small stylized game prop long straight sword with crossguard and pointed tip, blade catching light, color scheme of obsidian black and crimson red, glowing neon energy trim with soft emission, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_greatsword",
+    "category": "item",
+    "role": "weapon",
+    "name": "greatsword",
+    "color_scheme": "ashen_ember",
+    "material": "holographic",
+    "prompt": "small stylized game prop massive two-handed greatsword with wide heavy blade and wrapped hilt, color scheme of ashen grey and ember orange, iridescent holographic shimmer, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_battle_axe",
+    "category": "item",
+    "role": "weapon",
+    "name": "battle axe",
+    "color_scheme": "burgundy_cream",
+    "material": "fabric_leather",
+    "prompt": "small stylized game prop curved battle axe with wooden haft and metal head, color scheme of rich burgundy and cream white, woven fabric and tooled leather, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_flanged_mace",
+    "category": "item",
+    "role": "weapon",
+    "name": "flanged mace",
+    "color_scheme": "ashen_ember",
+    "material": "brushed_metal",
+    "prompt": "small stylized game prop flanged spiked mace with short haft and pommel ring, color scheme of ashen grey and ember orange, brushed metal with fine directional scratches, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_recurve_bow",
+    "category": "item",
+    "role": "weapon",
+    "name": "recurve bow",
+    "color_scheme": "emerald_gold",
+    "material": "chrome_mirror",
+    "prompt": "small stylized game prop elegant recurve bow with taut string and decorated grip, color scheme of emerald green and rich gold, mirror polished chrome with reflections, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_crossbow",
+    "category": "item",
+    "role": "weapon",
+    "name": "crossbow",
+    "color_scheme": "charcoal_amber",
+    "material": "crystal",
+    "prompt": "small stylized game prop mechanical crossbow with loaded bolt and carved wooden stock, color scheme of charcoal grey and glowing amber, translucent faceted crystalline surface, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_dagger",
+    "category": "item",
+    "role": "weapon",
+    "name": "dagger",
+    "color_scheme": "arctic_sapphire",
+    "material": "bio_organic",
+    "prompt": "small stylized game prop short double-edged dagger with jewel set in the pommel, color scheme of arctic white and deep sapphire, wet bio-organic tissue with subtle veins, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_war_spear",
+    "category": "item",
+    "role": "weapon",
+    "name": "war spear",
+    "color_scheme": "forest_rust",
+    "material": "matte_plastic",
+    "prompt": "small stylized game prop tall war spear with leaf-shaped steel head and wrapped shaft, color scheme of forest green and rust orange, soft matte plastic with rounded bevels, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_wizard_staff",
+    "category": "item",
+    "role": "weapon",
+    "name": "wizard staff",
+    "color_scheme": "arctic_sapphire",
+    "material": "holographic",
+    "prompt": "small stylized game prop tall wizard staff topped with a glowing gemstone in claw mounting, color scheme of arctic white and deep sapphire, iridescent holographic shimmer, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_magic_wand",
+    "category": "item",
+    "role": "weapon",
+    "name": "magic wand",
+    "color_scheme": "magenta_chrome",
+    "material": "brushed_metal",
+    "prompt": "small stylized game prop short ornate magic wand with a small floating rune at the tip, color scheme of hot magenta and polished chrome, brushed metal with fine directional scratches, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_knight_helm",
+    "category": "item",
+    "role": "armor",
+    "name": "knight helm",
+    "color_scheme": "ashen_ember",
+    "material": "holographic",
+    "prompt": "small stylized game prop full-face knight helmet with movable visor and small plume, color scheme of ashen grey and ember orange, iridescent holographic shimmer, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_chestplate",
+    "category": "item",
+    "role": "armor",
+    "name": "chestplate",
+    "color_scheme": "teal_bronze",
+    "material": "ceramic",
+    "prompt": "small stylized game prop ornate metal chestplate armor piece with embossed crest, color scheme of oxidized teal and antique bronze, smooth matte ceramic porcelain feel, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_gauntlet",
+    "category": "item",
+    "role": "armor",
+    "name": "gauntlet",
+    "color_scheme": "ashen_ember",
+    "material": "bio_organic",
+    "prompt": "small stylized game prop single armored gauntlet glove with layered segmented plates, color scheme of ashen grey and ember orange, wet bio-organic tissue with subtle veins, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_heavy_boots",
+    "category": "item",
+    "role": "armor",
+    "name": "heavy boots",
+    "color_scheme": "obsidian_crimson",
+    "material": "glossy_toy",
+    "prompt": "small stylized game prop pair of heavy armored boots with reinforced toes and straps, color scheme of obsidian black and crimson red, glossy vinyl toy finish with smooth highlights, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_heater_shield",
+    "category": "item",
+    "role": "armor",
+    "name": "heater shield",
+    "color_scheme": "teal_bronze",
+    "material": "chrome_mirror",
+    "prompt": "small stylized game prop heater-shaped shield with a bold painted emblem and metal trim, color scheme of oxidized teal and antique bronze, mirror polished chrome with reflections, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_hooded_cloak",
+    "category": "item",
+    "role": "armor",
+    "name": "hooded cloak",
+    "color_scheme": "cobalt_silver",
+    "material": "crystal",
+    "prompt": "small stylized game prop flowing hooded cloak held by a round metal clasp, color scheme of deep cobalt blue and brushed silver, translucent faceted crystalline surface, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_amulet",
+    "category": "item",
+    "role": "accessory",
+    "name": "amulet",
+    "color_scheme": "violet_cyan",
+    "material": "bio_organic",
+    "prompt": "small stylized game prop ornate amulet with a central gem hanging on a metal chain, color scheme of royal violet and electric cyan, wet bio-organic tissue with subtle veins, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_signet_ring",
+    "category": "item",
+    "role": "accessory",
+    "name": "signet ring",
+    "color_scheme": "lavender_silver",
+    "material": "chrome_mirror",
+    "prompt": "small stylized game prop metal signet ring with a single prominent gem inlay, color scheme of soft lavender and moonlit silver, mirror polished chrome with reflections, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_utility_belt",
+    "category": "item",
+    "role": "accessory",
+    "name": "utility belt",
+    "color_scheme": "cobalt_silver",
+    "material": "matte_plastic",
+    "prompt": "small stylized game prop wide buckled adventurer belt with hanging small pouches, color scheme of deep cobalt blue and brushed silver, soft matte plastic with rounded bevels, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_pauldrons",
+    "category": "item",
+    "role": "armor",
+    "name": "pauldrons",
+    "color_scheme": "violet_cyan",
+    "material": "bio_organic",
+    "prompt": "small stylized game prop pair of spiked shoulder pauldrons connected by short chains, color scheme of royal violet and electric cyan, wet bio-organic tissue with subtle veins, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_hp_potion",
+    "category": "item",
+    "role": "consumable",
+    "name": "hp potion",
+    "color_scheme": "magenta_chrome",
+    "material": "brushed_metal",
+    "prompt": "small stylized game prop red hp potion bottle with cork stopper and small paper label tag, color scheme of hot magenta and polished chrome, brushed metal with fine directional scratches, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_mp_potion",
+    "category": "item",
+    "role": "consumable",
+    "name": "mp potion",
+    "color_scheme": "obsidian_crimson",
+    "material": "neon_energy",
+    "prompt": "small stylized game prop blue mana potion flask with twisted cork and thin handle, color scheme of obsidian black and crimson red, glowing neon energy trim with soft emission, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_spell_scroll",
+    "category": "item",
+    "role": "consumable",
+    "name": "spell scroll",
+    "color_scheme": "ashen_ember",
+    "material": "bio_organic",
+    "prompt": "small stylized game prop rolled parchment spell scroll tied with ribbon and a wax seal, color scheme of ashen grey and ember orange, wet bio-organic tissue with subtle veins, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_cut_gem",
+    "category": "item",
+    "role": "consumable",
+    "name": "cut gem",
+    "color_scheme": "forest_rust",
+    "material": "matte_plastic",
+    "prompt": "small stylized game prop cut faceted gemstone sitting upright, catching inner light, color scheme of forest green and rust orange, soft matte plastic with rounded bevels, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_coin_stack",
+    "category": "item",
+    "role": "consumable",
+    "name": "coin stack",
+    "color_scheme": "violet_cyan",
+    "material": "brushed_metal",
+    "prompt": "small stylized game prop small neat stack of ancient round coins, color scheme of royal violet and electric cyan, brushed metal with fine directional scratches, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_skeleton_key",
+    "category": "item",
+    "role": "consumable",
+    "name": "skeleton key",
+    "color_scheme": "toxic_black",
+    "material": "ceramic",
+    "prompt": "small stylized game prop ornate skeleton key with intricate bow and long shank, color scheme of toxic neon green and matte black, smooth matte ceramic porcelain feel, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_skill_tome",
+    "category": "item",
+    "role": "consumable",
+    "name": "skill tome",
+    "color_scheme": "jade_ivory",
+    "material": "glossy_toy",
+    "prompt": "small stylized game prop thick leather-bound skill tome with metal corners and hanging bookmark, color scheme of jade green and pale ivory, glossy vinyl toy finish with smooth highlights, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_treasure_map",
+    "category": "item",
+    "role": "consumable",
+    "name": "treasure map",
+    "color_scheme": "forest_rust",
+    "material": "weathered_stone",
+    "prompt": "small stylized game prop rolled treasure map partly unfurled with red X visible on the edge, color scheme of forest green and rust orange, weathered ancient carved stone, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_rune_tablet",
+    "category": "item",
+    "role": "consumable",
+    "name": "rune tablet",
+    "color_scheme": "obsidian_crimson",
+    "material": "fabric_leather",
+    "prompt": "small stylized game prop engraved stone rune tablet with a glowing carved symbol in the center, color scheme of obsidian black and crimson red, woven fabric and tooled leather, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_i_mystic_orb",
+    "category": "item",
+    "role": "consumable",
+    "name": "mystic orb",
+    "color_scheme": "teal_bronze",
+    "material": "ceramic",
+    "prompt": "small stylized game prop floating mystical orb with inner swirling energy wisps, color scheme of oxidized teal and antique bronze, smooth matte ceramic porcelain feel, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
   }
 ]

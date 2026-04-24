@@ -65,7 +65,7 @@ const MODELS_ROOT     = resolve(__dirname, '../src/asset/models');
 const TEXT2IMG_PATH   = resolve(__dirname, 'text2img.json');
 const IMG2GLB_PATH    = resolve(__dirname, 'MeshWithTexturing_LowPoly.json');
 
-const VALID_CATEGORIES = new Set(['player', 'enemy', 'npc', 'pickup']);
+const VALID_CATEGORIES = new Set(['player', 'enemy', 'boss', 'npc', 'building', 'pickup', 'item']);
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
