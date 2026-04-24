@@ -6,7 +6,7 @@
 // over time rather than recomputing from scratch.
 //
 // Pause: when the player enters the home's interact range, the game pauses
-// (simulation frozen, rendering continues) and the skill-tree panel opens.
+// and opens the home interaction panel.
 // Closing the panel resumes. A hysteresis flag prevents re-opening while the
 // player stands inside the range after closing — they must leave and return.
 
@@ -17,14 +17,14 @@ import { StaticCamera } from './camera.js';
 import { createScene } from './scene-setup.js';
 import { SphereSurface } from './world/surface.js';
 import { Player } from './entities/player.js';
-import { Home } from './entities/home.js';
+import { HomeNpc } from './npc/home-npc.js';
 import { Spawner } from './systems/spawner.js';
 import { DropSystem } from './systems/drop-system.js';
+import { HomeController } from './systems/home-controller.js';
 import { SkillSystem } from './skills/skill-system.js';
 import { UIRoot } from './ui/ui-root.js';
 import { Hud } from './hud.js';
 import { SkillBar } from './ui/skill-bar.js';
-import { SkillTreePanel } from './ui/skill-tree-panel.js';
 import { preload } from './assets.js';
 
 export class Game {
@@ -47,8 +47,9 @@ export class Game {
         this.camera = new StaticCamera(aspect, this.surface);
         this.input = new InputState();
         this.player = new Player(this.surface);
-        this.home = new Home(this.surface);
+        this.home = new HomeNpc(this.surface);
         this.spawner = new Spawner(this.surface);
+        this.homeController = new HomeController(this.home, this.spawner);
 
         this.skillSystem = new SkillSystem(this.player, this);
         this.drops = new DropSystem(this.surface, this.worldRotator, this.skillSystem);
@@ -58,7 +59,7 @@ export class Game {
         this.ui = new UIRoot();
         this.hud = null;
         this.skillBar = null;
-        this.skillPanel = null;
+        this.homePanel = null;
 
         this.paused = false;
         this._wasInHome = false;
@@ -77,14 +78,13 @@ export class Game {
         await this.player.init(this.worldRotator);
         await this.home.init(this.worldRotator);
 
-        // Pixi is ready → mount UI modules. Panel first so the SkillBar
-        // can receive a reference to it — the bar uses it to decide whether
-        // slot taps should switch tabs or activate the skill.
+        // Pixi is ready. The home panel is opened by NPC/building
+        // interactions; the bottom skill bar only activates equipped skills.
         this.hud = new Hud(this.ui);
-        this.skillPanel = new SkillTreePanel(this.ui, this.skillSystem, {
+        this.homePanel = this.home.createPanel(this.ui, this.homeController, {
             onClose: () => { this.paused = false; },
         });
-        this.skillBar = new SkillBar(this.ui, this.skillSystem, this.skillPanel);
+        this.skillBar = new SkillBar(this.ui, this.skillSystem);
 
         const loading = document.getElementById('loading');
         if (loading) loading.classList.add('hidden');
@@ -107,10 +107,12 @@ export class Game {
             this.skillSystem.update(dt, this.spawner.enemies);
             this.drops.update(dt, this.player);
             this.home.update(dt, this.player);
+            this.homeController.update(dt, this.player);
+            if (this.homeController.success) this.paused = true;
             this._checkHomeProximity();
         }
 
-        this.hud.update(this.player, this.spawner);
+        this.hud.update(this.player, this.spawner, this.homeController);
         this.skillBar.update(dt);
 
         this.renderer.render(this.scene, this.camera.camera);
@@ -148,18 +150,19 @@ export class Game {
         // Reset transient skill state (cooldowns, active swing meshes).
         for (const s of this.skillSystem.skills) s.resetRuntime();
 
-        // Close the tree panel if it was open at the moment of death.
-        if (this.skillPanel?.isOpen()) this.skillPanel.close();
+        this.homeController.resetRuntime();
+        if (this.homePanel?.isOpen()) this.homePanel.close();
         this.paused = false;
         this._wasInHome = false;
     }
 
     _checkHomeProximity() {
+        if (this.homeController.departureState === 'countdown') return;
         const inRange = this.home.isPlayerInRange(this.player);
         if (inRange && !this._wasInHome) {
             this._wasInHome = true;
             this.paused = true;
-            this.skillPanel.open();
+            this.homePanel.open();
         } else if (!inRange) {
             this._wasInHome = false;
         }

@@ -77,6 +77,10 @@ export const CONFIG = {
         maxEnemies: 18,
         spawnArcMin: 10,         // arc distance from player
         spawnArcMax: 18,
+        bossWaveInterval: 0.45,
+        bossWaveMaxEnemies: 34,
+        bossWaveSpawnArcMin: 4,
+        bossWaveSpawnArcMax: 11,
     },
 
     home: {
@@ -84,7 +88,11 @@ export const CONFIG = {
         modelScale: 1.0,
         modelYawOffset: 0,
         spawnArcOffset: 5.5,     // arc distance from player's spawn point
-        interactRange: 2.8,      // entering opens the skill tree panel
+        interactRange: 2.8,
+        questKillTarget: 8,
+        questRewardFuel: 1,
+        fuelCapacity: 3,
+        departureCountdown: 10,
     },
 
     drops: {

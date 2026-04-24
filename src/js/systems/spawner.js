@@ -13,6 +13,9 @@ export class Spawner {
         this.kills = 0;
         this._timer = 0;
         this._spawnPos = new THREE.Vector3();
+        this._bossWave = false;
+        this._bossFocus = null;
+        this._bossSpawnCount = 0;
     }
 
     update(dt, parent, player) {
@@ -27,9 +30,11 @@ export class Spawner {
         this.kills += culled;
 
         // spawn
+        const maxEnemies = this._bossWave ? CONFIG.spawner.bossWaveMaxEnemies : CONFIG.spawner.maxEnemies;
+        const interval = this._bossWave ? CONFIG.spawner.bossWaveInterval : CONFIG.spawner.interval;
         this._timer -= dt;
-        if (this._timer <= 0 && this.enemies.length < CONFIG.spawner.maxEnemies) {
-            this._timer = CONFIG.spawner.interval;
+        if (this._timer <= 0 && this.enemies.length < maxEnemies) {
+            this._timer = interval;
             this._spawn(parent, player);
         }
 
@@ -37,12 +42,41 @@ export class Spawner {
     }
 
     _spawn(parent, player) {
-        const arc =
-            CONFIG.spawner.spawnArcMin +
-            Math.random() * (CONFIG.spawner.spawnArcMax - CONFIG.spawner.spawnArcMin);
-        this.surface.randomPointAtArc(player.position, arc, this._spawnPos);
-        const e = new Enemy(this.surface, this._spawnPos);
+        const center = this._bossWave && this._bossFocus ? this._bossFocus.position : player.position;
+        const minArc = this._bossWave ? CONFIG.spawner.bossWaveSpawnArcMin : CONFIG.spawner.spawnArcMin;
+        const maxArc = this._bossWave ? CONFIG.spawner.bossWaveSpawnArcMax : CONFIG.spawner.spawnArcMax;
+        const arc = minArc + Math.random() * (maxArc - minArc);
+        this.surface.randomPointAtArc(center, arc, this._spawnPos);
+
+        const options = this._bossWave ? this._bossEnemyOptions() : {};
+        const e = new Enemy(this.surface, this._spawnPos, options);
         this.enemies.push(e);
         e.init(parent); // fire-and-forget; mesh appears when loaded
+    }
+
+    startBossWave(focus) {
+        this._bossWave = true;
+        this._bossFocus = focus;
+        this._bossSpawnCount = 0;
+        this._timer = 0;
+    }
+
+    stopBossWave() {
+        this._bossWave = false;
+        this._bossFocus = null;
+        this._bossSpawnCount = 0;
+        this._timer = Math.min(this._timer, CONFIG.spawner.interval);
+    }
+
+    isBossWave() {
+        return this._bossWave;
+    }
+
+    _bossEnemyOptions() {
+        this._bossSpawnCount++;
+        const elite = this._bossSpawnCount % 6 === 0;
+        return elite
+            ? { hpScale: 4, damageScale: 1.9, moveSpeedScale: 0.85, modelScale: 1.7 }
+            : { hpScale: 1.7, damageScale: 1.35, moveSpeedScale: 1.12, modelScale: 1.15 };
     }
 }

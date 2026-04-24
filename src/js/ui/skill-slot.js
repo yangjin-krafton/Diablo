@@ -51,21 +51,11 @@ export class SkillSlot extends Container {
             enabled: true,
             levelUp: false,
             locked: false,
-            selected: false,
         };
 
         // background tile
         this._body = this.addChild(new Graphics());
         this._drawBody();
-
-        // gold bar on the top edge, shown when this slot is the panel's
-        // active tab. Sits above the body border so it reads as a joining
-        // tab-indicator between slot and panel.
-        this._selectedBar = this.addChild(new Graphics());
-        this._selectedBar
-            .rect(0, 0, size, 3).fill(0xffd84f)
-            .rect(0, 0, size, 1).fill(0xffffff);
-        this._selectedBar.visible = false;
 
         // icon sprite (empty until setIcon)
         this._icon = this.addChild(new Sprite(Texture.EMPTY));
@@ -115,8 +105,6 @@ export class SkillSlot extends Container {
 
     _handleDown = (e) => {
         e.stopPropagation();
-        // Fire unconditionally; SkillBar decides what to do based on the
-        // panel-open state (tab switch vs. skill activation vs. ignored).
         this._onActivate?.(this);
     };
 
@@ -239,12 +227,6 @@ export class SkillSlot extends Container {
         this._state.locked = !!on;
         this._lock.visible = !!on;
         this._icon.alpha = on ? 0.25 : (this._state.enabled ? 1 : 0.4);
-    }
-
-    setSelected(on) {
-        if (this._state.selected === on) return;
-        this._state.selected = !!on;
-        this._selectedBar.visible = !!on;
     }
 
     /** Called each frame by SkillBar to animate the rotating emphasis ring. */

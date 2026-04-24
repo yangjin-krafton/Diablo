@@ -1,4 +1,5 @@
-// Pixi HUD. Fixed top-left: HP bar + label, KILLS / ENEMIES counters.
+// Pixi HUD. Fixed top-left: HP bar + label, KILLS / ENEMIES counters,
+// and mission/departure state.
 // Pure display; no input — rendered into uiRoot.hudLayer.
 
 import { Container, Graphics, Text } from 'pixi.js';
@@ -43,6 +44,9 @@ export class Hud {
         this._enemiesLabel = this._addText('ENEMIES', LABEL_STYLE, 0, 54);
         this._enemiesValue = this._addText('0', VALUE_STYLE, 62, 52);
 
+        this._missionLabel = this._addText('HOME', LABEL_STYLE, 0, 82);
+        this._missionValue = this._addText('', VALUE_STYLE, 0, 100);
+
         this._lastHpPct = -1;
     }
 
@@ -62,7 +66,7 @@ export class Hud {
             .stroke({ color: 0x3a2a18, width: 1 });
     }
 
-    update(player, spawner) {
+    update(player, spawner, homeController = null) {
         const hp = Math.ceil(player.hp);
         const max = player.maxHp;
         const pct = max > 0 ? Math.max(0, hp / max) : 0;
@@ -83,5 +87,42 @@ export class Hud {
 
         this._killsValue.text = String(spawner.kills);
         this._enemiesValue.text = String(spawner.enemies.length);
+        this._updateMission(homeController);
+    }
+
+    _updateMission(homeController) {
+        if (!homeController) {
+            this._missionValue.text = '';
+            return;
+        }
+
+        const state = homeController.getPanelState();
+        if (state.success) {
+            this._missionValue.text = 'SUCCESS';
+            this._missionValue.style.fill = 0x62d27f;
+            return;
+        }
+        if (state.departureState === 'failed') {
+            this._missionValue.text = 'DEPARTURE FAILED';
+            this._missionValue.style.fill = 0xff6464;
+            return;
+        }
+        if (state.departureState === 'countdown') {
+            this._missionValue.text = `DEPART ${state.departureRemaining.toFixed(1)}s`;
+            this._missionValue.style.fill = 0xff6464;
+            return;
+        }
+        if (state.questState === 'active') {
+            this._missionValue.text = `QUEST ${state.questProgress}/${state.questTarget}`;
+            this._missionValue.style.fill = 0xffd84f;
+            return;
+        }
+        if (state.questState === 'complete') {
+            this._missionValue.text = 'QUEST COMPLETE';
+            this._missionValue.style.fill = 0x62d27f;
+            return;
+        }
+        this._missionValue.text = `FUEL ${state.loadedFuel}/${state.fuelCapacity}`;
+        this._missionValue.style.fill = state.canDepart ? 0x62d27f : 0xe6e6e6;
     }
 }

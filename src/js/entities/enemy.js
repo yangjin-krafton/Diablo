@@ -6,7 +6,7 @@ import { CONFIG } from '../config.js';
 import { loadGLB } from '../assets.js';
 
 export class Enemy {
-    constructor(surface, position) {
+    constructor(surface, position, options = {}) {
         this.surface = surface;
         this.position = new THREE.Vector3().copy(position);
         this.surface.snapToSurface(this.position);
@@ -14,7 +14,10 @@ export class Enemy {
         // derive a valid initial tangent forward at our position
         this.surface.projectToTangent(this.position, this.forward, this.forward);
 
-        this.hp = CONFIG.enemy.maxHp;
+        this.hp = CONFIG.enemy.maxHp * (options.hpScale ?? 1);
+        this.moveSpeed = CONFIG.enemy.moveSpeed * (options.moveSpeedScale ?? 1);
+        this.contactDamage = CONFIG.enemy.contactDamage * (options.damageScale ?? 1);
+        this.modelScale = CONFIG.enemy.modelScale * (options.modelScale ?? 1);
         this.alive = true;
         this.mesh = null;
 
@@ -23,7 +26,7 @@ export class Enemy {
 
     async init(parent) {
         this.mesh = await loadGLB(CONFIG.enemy.modelPath);
-        this.mesh.scale.setScalar(CONFIG.enemy.modelScale);
+        this.mesh.scale.setScalar(this.modelScale);
         parent.add(this.mesh);
         this._orientMesh();
     }
@@ -37,12 +40,12 @@ export class Enemy {
             // chase — tangent toward player
             this.surface.tangentTo(this.position, player.position, this._tangent);
             if (this._tangent.lengthSq() > 1e-8) {
-                this.surface.moveAlong(this.position, this._tangent, CONFIG.enemy.moveSpeed * dt);
+                this.surface.moveAlong(this.position, this._tangent, this.moveSpeed * dt);
                 this.forward.copy(this._tangent);
             }
         } else {
             // touching player
-            player.takeDamage(CONFIG.enemy.contactDamage * dt);
+            player.takeDamage(this.contactDamage * dt);
             // still face player
             this.surface.tangentTo(this.position, player.position, this.forward);
         }
