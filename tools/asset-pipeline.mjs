@@ -21,7 +21,8 @@
  *   node tools/asset-pipeline.mjs --ids id1,id2      # 특정 항목만
  *   node tools/asset-pipeline.mjs --category enemy   # 카테고리 필터
  *   node tools/asset-pipeline.mjs --retry-failed     # 실패 재시도
- *   node tools/asset-pipeline.mjs --reset            # checkpoint 초기화
+ *   node tools/asset-pipeline.mjs --reset            # checkpoint 전체 초기화
+ *   node tools/asset-pipeline.mjs --reset-phase2     # GLB만 재생성 (이미지 보존)
  */
 
 import { readFile, writeFile, mkdir, copyFile } from 'node:fs/promises';
@@ -45,6 +46,7 @@ const CONFIG = {
   categoryFilter: flag('category', ''),            // 'player' | 'enemy' | 'npc' | ''
   retryFailed:    args.includes('--retry-failed'),
   reset:          args.includes('--reset'),
+  resetPhase2:    args.includes('--reset-phase2'),
   imgBatchSize:   Number(flag('img-batch', '10')),
   glbBatchSize:   Number(flag('glb-batch', '3')),
   killWorkerCmd:  flag('kill-cmd', 'wsl docker restart comfyui'),
@@ -63,7 +65,7 @@ const MODELS_ROOT     = resolve(__dirname, '../src/asset/models');
 const TEXT2IMG_PATH   = resolve(__dirname, 'text2img.json');
 const IMG2GLB_PATH    = resolve(__dirname, 'Better_Texture_Trellis2.json');
 
-const VALID_CATEGORIES = new Set(['player', 'enemy', 'npc']);
+const VALID_CATEGORIES = new Set(['player', 'enemy', 'npc', 'pickup']);
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -455,6 +457,24 @@ async function main() {
   if (CONFIG.reset) {
     await saveCheckpoint(checkpoint);
     console.log('   checkpoint 초기화 완료');
+  }
+
+  if (CONFIG.resetPhase2 && !CONFIG.reset) {
+    const idSet = CONFIG.ids ? new Set(CONFIG.ids.split(',')) : null;
+    const catFilter = CONFIG.categoryFilter || null;
+    const productIndex = new Map(products.map(p => [p.id, p]));
+
+    const before = Object.keys(checkpoint.phase2).length;
+    for (const id of Object.keys(checkpoint.phase2)) {
+      const prod = productIndex.get(id);
+      if (idSet && !idSet.has(id)) continue;
+      if (catFilter && prod?.category !== catFilter) continue;
+      delete checkpoint.phase2[id];
+      checkpoint.completed = checkpoint.completed.filter(x => x !== id);
+    }
+    const removed = before - Object.keys(checkpoint.phase2).length;
+    await saveCheckpoint(checkpoint);
+    console.log(`   phase2 체크포인트 초기화: ${removed}개 항목 (phase1 및 이미지는 보존)`);
   }
 
   await mkdir(IMG_DIR, { recursive: true });

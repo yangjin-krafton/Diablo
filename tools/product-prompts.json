@@ -2,61 +2,210 @@
   {
     "id": "fig_space_ranger_stylized",
     "category": "player",
-    "name": "우주 레인저 (스타일라이즈드)",
-    "prompt": "4-head-tall stylized cartoon space ranger hero in sleek white and cyan exosuit armor with glowing energy lines, holding a humming plasma blade, determined heroic pose, helmet off showing short hair, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+    "role": "melee",
+    "name": "우주 레인저 — 근딜 (플라즈마 블레이드)",
+    "prompt": "4-head-tall stylized cartoon space ranger hero in sleek white and cyan exosuit armor with glowing energy lines, holding a humming plasma blade, determined heroic pose, helmet off showing short hair and confident face, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
     "id": "fig_astro_sorceress_chibi",
     "category": "player",
-    "name": "우주 마법사 (치비)",
+    "role": "caster",
+    "name": "우주 마법사 — 캐스터 (성운 지팡이)",
     "prompt": "2-head-tall super deformed chibi cosmic sorceress in starry navy blue robe with constellation patterns, wielding a glowing nebula staff topped with a floating tiny planet, big sparkling violet eyes, pointed hat with crescent moon, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
+    "id": "fig_void_huntress_stylized",
+    "category": "player",
+    "role": "ranged",
+    "name": "보이드 헌트리스 — 원딜 (플라즈마 보우)",
+    "prompt": "4-head-tall stylized cartoon space huntress in sleek dark purple stealth suit with glowing magenta trim, drawing a compact plasma energy bow with arrow of light, hooded cape, sharp focused eyes, agile archer stance, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_cyber_paladin_stylized",
+    "category": "player",
+    "role": "tank",
+    "name": "사이버 팔라딘 — 탱커 (망치+실드)",
+    "prompt": "4-head-tall stylized cartoon heroic cyber paladin in bulky white and gold plate armor with glowing holy circuit sigils, wielding a massive powered warhammer in one hand and an energy tower shield in the other, confident stance, clean helmeted head with visor open, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_shadow_operative_stylized",
+    "category": "player",
+    "role": "rogue",
+    "name": "섀도우 오퍼레이티브 — 암살 (듀얼 대거)",
+    "prompt": "4-head-tall stylized cartoon female shadow operative assassin in sleek black bodysuit with glowing red accent lines, dual crystal-blade daggers crossed, half mask over lower face, sharp cunning eyes, crouching sneak-attack pose, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+
+  {
     "id": "fig_alien_slime_chibi",
     "category": "enemy",
-    "name": "외계 슬라임 (치비)",
+    "role": "tier1",
+    "name": "외계 슬라임 — 티어1 챠프",
     "prompt": "super deformed chibi glowing bioluminescent alien slime monster, translucent toxic green jelly body, tiny floating bubbles inside, two big dumb googly eyes, pointy antenna, menacing goofy grin, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
     "id": "fig_void_crawler_chibi",
     "category": "enemy",
-    "name": "공허 거미 (치비)",
+    "role": "tier1",
+    "name": "보이드 크롤러 — 티어1 챠프",
     "prompt": "super deformed chibi dark cosmic void crawler, spider-like creature with six glossy black chitin legs, bulbous body dotted with tiny glowing purple star specks, multiple bright magenta eyes, dripping fangs, aggressive pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
+    "id": "fig_swarm_bat_chibi",
+    "category": "enemy",
+    "role": "tier1",
+    "name": "스웜 배트 — 티어1 비행 챠프",
+    "prompt": "super deformed chibi alien space bat creature, leathery teal-purple wings spread wide, tiny rounded body, two big glowing yellow eyes, stubby fangs, hovering flapping pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_parasite_pod_chibi",
+    "category": "enemy",
+    "role": "tier1",
+    "name": "패러사이트 포드 — 티어1 저속 챠프",
+    "prompt": "super deformed chibi crawling parasite pod creature, plump round segmented pink-red body with pulsing veins, tiny spiny legs underneath, single glowing green eye in front, dripping tendril mouth, slow menacing crawl pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_dust_mite_chibi",
+    "category": "enemy",
+    "role": "tier1",
+    "name": "더스트 마이트 — 티어1 초고속 챠프",
+    "prompt": "super deformed chibi tiny fast dust mite alien creature, sandy-yellow fuzzy fluff ball body, four spindly insect legs, two antennae, single big angry orange eye, tiny sharp pincers, scurrying pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+
+  {
     "id": "fig_bio_husk_chibi",
     "category": "enemy",
-    "name": "생체 병기 좀비 (치비)",
+    "role": "tier2",
+    "name": "바이오 허스크 — 티어2 엘리트",
     "prompt": "2-head-tall super deformed chibi sci-fi infected biohazard husk zombie soldier in tattered orange hazmat suit, cracked helmet visor leaking sickly green gas, exposed mutated clawed hand, glowing yellow infected eyes, menacing hunched pose, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
     "id": "fig_rogue_bot_chibi",
     "category": "enemy",
-    "name": "해적 로봇 (치비)",
+    "role": "tier2",
+    "name": "로그 봇 — 티어2 엘리트 원거리",
     "prompt": "2-head-tall super deformed chibi rogue space pirate robot, scratched matte red metal plating with yellow hazard stripes, single glowing red camera eye, stubby clawed arms holding a rusty laser cutter, stumpy mechanical legs, aggressive stance, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
     "id": "fig_plasma_wraith_chibi",
     "category": "enemy",
-    "name": "플라즈마 망령 (치비)",
+    "role": "tier2",
+    "name": "플라즈마 렌스 — 티어2 엘리트 캐스터",
     "prompt": "super deformed chibi ghostly cosmic plasma wraith, ethereal hooded specter made of swirling blue and violet plasma energy, wispy flowing tail instead of legs, hollow glowing cyan eye sockets, skeletal clawed hands, haunting pose, single creature only, one figure, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
+    "id": "fig_mutant_brute_chibi",
+    "category": "enemy",
+    "role": "tier2",
+    "name": "뮤턴트 브루트 — 티어2 엘리트 근딜",
+    "prompt": "2-head-tall super deformed chibi mutant brute monster, bulky asymmetric gray-purple muscular body, oversized right fist, smaller left arm, tiny head with four glowing red eyes, jagged teeth, heavy stomping pose, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+
+  {
+    "id": "fig_hive_queen_chibi",
+    "category": "enemy",
+    "role": "tier3",
+    "name": "하이브 퀸 — 티어3 미니보스 (소환형)",
+    "prompt": "super deformed chibi alien hive queen monster, bloated abdomen with glowing orange egg sacs, upper torso with four slender insectoid arms, regal crown of bony spikes, piercing compound eyes, menacing majestic pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_war_mech_chibi",
+    "category": "enemy",
+    "role": "tier3",
+    "name": "워 메크 — 티어3 미니보스 (탱커/샷)",
+    "prompt": "2-head-tall super deformed chibi heavy war mech walker, thick armored matte gray plating with red military markings, two shoulder-mounted gatling cannons, tiny cockpit visor glowing orange, stumpy bipedal legs, intimidating stance, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_corrupted_seer_chibi",
+    "category": "enemy",
+    "role": "tier3",
+    "name": "커럽티드 시어 — 티어3 미니보스 (텔레포트 캐스터)",
+    "prompt": "2-head-tall super deformed chibi corrupted cosmic seer warlock, tattered dark indigo robes covered in glowing rune-scripts, floating cracked mask with glowing green slit eyes, hovering slightly, skeletal hands casting a swirling dark orb, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+
+  {
+    "id": "fig_moon_tyrant_chibi",
+    "category": "enemy",
+    "role": "boss",
+    "name": "문 타이런트 — 보스 (대형 오버로드)",
+    "prompt": "super deformed chibi colossal moon tyrant boss monster, imposing bulky bone-white armored humanoid with glowing crescent crown, four massive clawed arms, one holding a jagged moonblade, cape of cosmic starry void, tiny glowing yellow eyes, dominating pose, single character only, one figure, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_rift_leviathan_chibi",
+    "category": "enemy",
+    "role": "boss",
+    "name": "리프트 레비아탄 — 보스 (거대 코스믹 웜)",
+    "prompt": "super deformed chibi massive cosmic space worm leviathan boss, thick coiling serpentine body with deep purple and black segments, glowing violet energy cracks along the spine, gaping circular maw ringed with rows of teeth, tiny pair of star-glow eyes, rearing coiled pose, single creature only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
+  },
+
+  {
     "id": "fig_outpost_dome",
     "category": "npc",
-    "name": "전진 기지 돔 (NPC 허브)",
+    "role": "hub",
+    "name": "전진 기지 돔 — 허브 (귀환 장소)",
     "prompt": "small stylized sci-fi planetary outpost habitation dome, curved white and orange paneled shell with glowing teal window ring, antenna array on top, small airlock hatch at front, tiny solar panels on side, charming collectible base for an RPG hub, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
   },
   {
     "id": "fig_repair_drone_chibi",
     "category": "npc",
-    "name": "수리 드론 (치비)",
+    "role": "wander",
+    "name": "수리 드론 — 떠도는 도우미 NPC",
     "prompt": "super deformed chibi friendly floating spherical repair drone, polished white and blue shell with rounded edges, single big glowing cyan lens eye, two tiny articulated claw arms holding a wrench, small hover thrusters glowing underneath, cheerful tilted pose, single character only, full body visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo"
   },
   {
     "id": "fig_beacon_totem",
     "category": "npc",
-    "name": "신호 등대 토템",
+    "role": "interact",
+    "name": "신호 등대 토템 — 체크포인트",
     "prompt": "small stylized sci-fi planetary signal beacon totem, stacked weathered metal panels forming a totem pole shape, glowing neon cyan rune-circuit inscriptions running down the surface, rotating holographic hex ring at the top, faint energy wisps, mystical tech aura, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_merchant_kiosk",
+    "category": "npc",
+    "role": "shop",
+    "name": "머천트 키오스크 — 상점",
+    "prompt": "small stylized sci-fi holographic merchant kiosk, rounded matte black counter with glowing amber display screen showing floating item icons, small canopy roof with striped awning pattern, sign pole with blinking shop icon, tiny crates stacked beside, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_skill_altar",
+    "category": "npc",
+    "role": "upgrade",
+    "name": "스킬 제단 — 성장 상호작용",
+    "prompt": "small stylized sci-fi skill upgrade altar, octagonal crystalline pedestal with floating hovering rune cube on top emitting soft golden light, glowing circuit patterns etched into the stone base, faint orbiting particle motes, mystical tech shrine look, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+
+  {
+    "id": "fig_exp_shard",
+    "category": "pickup",
+    "role": "exp",
+    "name": "경험치 샤드 — 기본 드랍",
+    "prompt": "small glowing crystalline exp shard pickup, sharp faceted yellow-gold gem crystal cluster, radiant inner glow, simple clean silhouette, small stylized game drop prop, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_health_orb",
+    "category": "pickup",
+    "role": "heal",
+    "name": "체력 오브 — 힐 드랍",
+    "prompt": "small glossy red health orb pickup sphere, bright ruby-red glass ball with soft inner glow and tiny white highlight, floating slightly above a small rune-etched base plate, simple clean game drop silhouette, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_loot_crate",
+    "category": "pickup",
+    "role": "chest",
+    "name": "전리품 크레이트 — 상자 드랍",
+    "prompt": "small stylized sci-fi loot cargo crate pickup, cube-shaped metal box with rounded edges, gray and orange color scheme, glowing teal latch panel with lock icon on front, yellow hazard stripes on corners, small feet underneath, simple clean game drop silhouette, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_magnet_crystal",
+    "category": "pickup",
+    "role": "magnet",
+    "name": "자석 크리스탈 — 범위 수집 드랍",
+    "prompt": "small glowing sci-fi magnet crystal pickup, pink-magenta U-shaped horseshoe magnet made of shimmering faceted crystal, arcing energy sparks between the two poles, tiny floating base ring, simple clean game drop silhouette, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_relic_artifact",
+    "category": "pickup",
+    "role": "relic",
+    "name": "고대 유물 — 희귀 드랍",
+    "prompt": "small stylized ancient cosmic relic artifact pickup, ornate dark bronze metal sphere cradled in a curved four-pronged claw stand, glowing violet rune core visible inside, intricate filigree engravings, mystical collectible prop, isolated on pure white background, no environment, no floor shadow, centered composition, collectible game prop, high quality, 3d render style, studio lighting, product photo"
   }
 ]

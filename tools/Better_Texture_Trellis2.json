@@ -14,10 +14,10 @@
   },
   "19": {
     "inputs": {
-      "filename_prefix": "Trellis2BetterTextured",
+      "filename_prefix": "Trellis2BetterTextured_LowPoly",
       "file_format": "glb",
       "trimesh": [
-        "164",
+        "170",
         0
       ]
     },
@@ -107,7 +107,7 @@
   },
   "138": {
     "inputs": {
-      "target_face_num": 2000000,
+      "target_face_num": 20000,
       "method": "Cumesh",
       "mesh": [
         "160",
@@ -116,7 +116,7 @@
     },
     "class_type": "Trellis2SimplifyMesh",
     "_meta": {
-      "title": "Trellis2 - Simplify Mesh"
+      "title": "Trellis2 - Simplify Mesh (Low-Poly 20k)"
     }
   },
   "155": {
@@ -149,8 +149,8 @@
       "remesh_band": 1,
       "remesh_project": 0,
       "dual_contouring_resolution": "512",
-      "remove_floaters": 0.03,
-      "remove_inner_faces": "1024",
+      "remove_floaters": true,
+      "remove_inner_faces": true,
       "mesh": [
         "45",
         0
@@ -168,8 +168,8 @@
       "texture_guidance_strength": 3,
       "texture_guidance_rescale": 0.2,
       "texture_rescale_t": 3,
-      "resolution": 1024,
-      "texture_size": 1024,
+      "resolution": 2048,
+      "texture_size": 2048,
       "texture_alpha_mode": "OPAQUE",
       "double_side_material": true,
       "texture_guidance_interval_start": 0,
@@ -195,7 +195,19 @@
     },
     "class_type": "Trellis2MeshTexturing",
     "_meta": {
-      "title": "Trellis2 - Mesh Texturing"
+      "title": "Trellis2 - Mesh Texturing (2K)"
+    }
+  },
+  "170": {
+    "inputs": {
+      "trimesh": [
+        "164",
+        0
+      ]
+    },
+    "class_type": "Trellis2SmoothNormals",
+    "_meta": {
+      "title": "Trellis2 - Smooth Normals (Low-Poly 마감)"
     }
   }
 }
