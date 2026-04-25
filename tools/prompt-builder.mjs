@@ -65,6 +65,47 @@ const MATERIALS = {
   matte_plastic:   'soft matte plastic with rounded bevels',
 };
 
+// ─── 2-PLANET) 행성 전용 3-톤 팔레트 (16) ────────────────────
+// 행성은 표면 색이 의미적으로 정해지므로 자체 팔레트 셋을 둔다.
+const PLANET_PALETTES = {
+  mars_dust:        'rust red, ochre tan, and dark crimson',
+  arctic_ice:       'pale icy cyan, white, and deep navy',
+  molten_core:      'charcoal black, lava orange, and glowing yellow',
+  ocean_world:      'deep oceanic blue, teal, and bright white clouds',
+  verdant_emerald:  'emerald green, earthy brown, and soft sky blue',
+  gas_swirl:        'pale yellow, cream, and soft tan',
+  obsidian_crack:   'matte black, magma red, and ash grey',
+  crystal_amethyst: 'royal violet, pale white, and soft pink',
+  swamp_marsh:      'muddy brown, sickly green, and fog grey',
+  lunar_grey:       'ashen grey, pale white, and deep crater black',
+  saturn_pastel:    'pale gold, ivory, and soft tan',
+  toxic_brew:       'toxic neon green, bruise purple, and sickly yellow',
+  iron_industrial:  'gunmetal grey, copper, and rust orange',
+  red_savanna:      'warm amber, rust orange, and charcoal',
+  cloud_pearl:      'soft pink, lavender, and pearl white',
+  void_singularity: 'deep void black, violet glow, and starlight white',
+};
+
+// 행성 전용 표면 재질 (16) — 구체 위에 드러나는 지형 패턴
+const PLANET_SURFACES = {
+  cratered:         'pockmarked cratered surface with impact basins',
+  icy_glaciers:     'vast cracked glaciers and frozen seas',
+  lava_seams:       'glowing molten lava seams running through dark crust',
+  oceanic:          'deep oceans with scattered green land masses and swirling clouds',
+  forested:         'lush forested continents and shallow turquoise seas',
+  gas_bands:        'horizontal swirling gas giant cloud bands',
+  shattered:        'shattered cracked hemisphere with glowing inner core peeking out',
+  crystalline:      'protruding crystalline shard formations across the surface',
+  swampy_fog:       'mossy swamp continents wreathed in thick low fog',
+  pockmarked_dust:  'fine grey dust plains and shallow craters',
+  ringed:           'narrow orbital debris ring tilted around the equator',
+  toxic_fog:        'thick toxic fog clouds wrapping the surface',
+  metallic_plating: 'smooth metallic plating with circuit-like seams',
+  windswept_dunes:  'sweeping windswept dune patterns',
+  pearl_clouds:     'soft pearlescent cloud cover hiding the surface',
+  void_corruption:  'void-corrupted surface with glowing reality cracks',
+};
+
 // ─── 3) 공용 suffix (TRELLIS 가 깨끗한 메쉬를 뽑도록) ─────────
 // 캐릭터/몬스터용 (전신 프레이밍)
 const SUFFIX_FIGURE = 'single subject only, full body visible from head to toe, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible figure, high quality, 3d render style, studio lighting, product photo';
@@ -85,6 +126,8 @@ const TEMPLATES = {
     `small stylized diorama ${concept}, color scheme of ${palette}, ${material}, complete compact structure, ${SUFFIX_PROP}`,
   item:     ({ concept, palette, material }) =>
     `small stylized game prop ${concept}, color scheme of ${palette}, ${material}, simple clean silhouette, centered orientation, ${SUFFIX_PROP}`,
+  planet:   ({ concept, palette, surface }) =>
+    `perfect spherical miniature ${concept}, complete round orb sphere shape, three-tone color palette of ${palette}, surface detail showing ${surface}, sci-fi collectible desktop planet model, ${SUFFIX_PROP}`,
 };
 
 // ─── 5) 게임 요소: 카테고리별 [slug, role, concept] 리스트 ────
@@ -195,6 +238,28 @@ const BUILDINGS = [
   ['wooden_barricade','fortress', 'defensive wooden barricade wall of sharpened logs with a small watch platform'],
 ];
 
+// Planet — 16 종 (행성 표면 / 게임 terrain 용도)
+//   [slug, palette_key, surface_key, concept]
+//   행성은 색·표면이 컨셉과 의미적으로 연결되므로 명시적 1:1 매칭.
+const PLANETS = [
+  ['mars_dust',         'mars_dust',        'cratered',         'red dusty desert planet'],
+  ['frozen_world',      'arctic_ice',       'icy_glaciers',     'frozen ice planet'],
+  ['molten_forge',      'molten_core',      'lava_seams',       'molten lava planet with cooling crust'],
+  ['blue_ocean',        'ocean_world',      'oceanic',          'water-covered ocean planet'],
+  ['verdant_garden',    'verdant_emerald',  'forested',         'lush garden planet of green continents'],
+  ['gas_giant',         'gas_swirl',        'gas_bands',        'banded gas giant planet'],
+  ['shattered_remnant', 'obsidian_crack',   'shattered',        'half-destroyed broken planet sphere'],
+  ['crystal_world',     'crystal_amethyst', 'crystalline',      'crystal-encrusted gem planet'],
+  ['swamp_bog',         'swamp_marsh',      'swampy_fog',       'fog-shrouded swamp planet'],
+  ['lunar_grey',        'lunar_grey',       'pockmarked_dust',  'grey moon-like rocky world'],
+  ['ringed_pastel',     'saturn_pastel',    'ringed',           'pastel gas planet with thin orbital ring'],
+  ['toxic_haze',        'toxic_brew',       'toxic_fog',        'toxic poisoned planet shrouded in haze'],
+  ['iron_industrial',   'iron_industrial',  'metallic_plating', 'industrial mechanical planet wrapped in metal plating'],
+  ['savanna_dunes',     'red_savanna',      'windswept_dunes',  'arid savanna planet of dunes and hot winds'],
+  ['cloud_veil',        'cloud_pearl',      'pearl_clouds',     'pearlescent cloud-covered planet'],
+  ['void_anomaly',      'void_singularity', 'void_corruption',  'void-corrupted singularity planet'],
+];
+
 // Item — 30 종 (무기 10 + 방어구/장비 10 + 소비품/유물 10)
 const ITEMS = [
   // weapons
@@ -268,6 +333,28 @@ function buildProduct(category, filePrefix, entry) {
   };
 }
 
+// 행성은 별도 — 명시적 팔레트·표면 매칭 + terrain 용 high-poly 플래그
+function buildPlanet(entry) {
+  const [slug, paletteKey, surfaceKey, concept] = entry;
+  const id = `fig_w_${slug}`;
+  const palette = PLANET_PALETTES[paletteKey];
+  const surface = PLANET_SURFACES[surfaceKey];
+  if (!palette) throw new Error(`unknown planet palette: ${paletteKey}`);
+  if (!surface) throw new Error(`unknown planet surface: ${surfaceKey}`);
+  const prompt = TEMPLATES.planet({ concept, palette, surface });
+  return {
+    id,
+    category: 'planet',
+    role: 'terrain',
+    name: slug.replace(/_/g, ' '),
+    color_scheme: paletteKey,
+    surface: surfaceKey,
+    // 게임 terrain 으로 사용 → 파이프라인이 이 값을 보고 Low Poly Face Number 를 오버라이드
+    target_face_count: 100000,
+    prompt,
+  };
+}
+
 const GROUPS = [
   { category: 'player',   prefix: 'fig_p', list: PLAYERS   },
   { category: 'enemy',    prefix: 'fig_m', list: MONSTERS  },
@@ -283,6 +370,9 @@ function buildAll() {
     for (const entry of list) {
       products.push(buildProduct(category, prefix, entry));
     }
+  }
+  for (const entry of PLANETS) {
+    products.push(buildPlanet(entry));
   }
   return products;
 }

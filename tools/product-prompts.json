@@ -1042,5 +1042,165 @@
     "color_scheme": "teal_bronze",
     "material": "ceramic",
     "prompt": "small stylized game prop floating mystical orb with inner swirling energy wisps, color scheme of oxidized teal and antique bronze, smooth matte ceramic porcelain feel, simple clean silhouette, centered orientation, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_mars_dust",
+    "category": "planet",
+    "role": "terrain",
+    "name": "mars dust",
+    "color_scheme": "mars_dust",
+    "surface": "cratered",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature red dusty desert planet, complete round orb sphere shape, three-tone color palette of rust red, ochre tan, and dark crimson, surface detail showing pockmarked cratered surface with impact basins, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_frozen_world",
+    "category": "planet",
+    "role": "terrain",
+    "name": "frozen world",
+    "color_scheme": "arctic_ice",
+    "surface": "icy_glaciers",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature frozen ice planet, complete round orb sphere shape, three-tone color palette of pale icy cyan, white, and deep navy, surface detail showing vast cracked glaciers and frozen seas, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_molten_forge",
+    "category": "planet",
+    "role": "terrain",
+    "name": "molten forge",
+    "color_scheme": "molten_core",
+    "surface": "lava_seams",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature molten lava planet with cooling crust, complete round orb sphere shape, three-tone color palette of charcoal black, lava orange, and glowing yellow, surface detail showing glowing molten lava seams running through dark crust, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_blue_ocean",
+    "category": "planet",
+    "role": "terrain",
+    "name": "blue ocean",
+    "color_scheme": "ocean_world",
+    "surface": "oceanic",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature water-covered ocean planet, complete round orb sphere shape, three-tone color palette of deep oceanic blue, teal, and bright white clouds, surface detail showing deep oceans with scattered green land masses and swirling clouds, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_verdant_garden",
+    "category": "planet",
+    "role": "terrain",
+    "name": "verdant garden",
+    "color_scheme": "verdant_emerald",
+    "surface": "forested",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature lush garden planet of green continents, complete round orb sphere shape, three-tone color palette of emerald green, earthy brown, and soft sky blue, surface detail showing lush forested continents and shallow turquoise seas, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_gas_giant",
+    "category": "planet",
+    "role": "terrain",
+    "name": "gas giant",
+    "color_scheme": "gas_swirl",
+    "surface": "gas_bands",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature banded gas giant planet, complete round orb sphere shape, three-tone color palette of pale yellow, cream, and soft tan, surface detail showing horizontal swirling gas giant cloud bands, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_shattered_remnant",
+    "category": "planet",
+    "role": "terrain",
+    "name": "shattered remnant",
+    "color_scheme": "obsidian_crack",
+    "surface": "shattered",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature half-destroyed broken planet sphere, complete round orb sphere shape, three-tone color palette of matte black, magma red, and ash grey, surface detail showing shattered cracked hemisphere with glowing inner core peeking out, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_crystal_world",
+    "category": "planet",
+    "role": "terrain",
+    "name": "crystal world",
+    "color_scheme": "crystal_amethyst",
+    "surface": "crystalline",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature crystal-encrusted gem planet, complete round orb sphere shape, three-tone color palette of royal violet, pale white, and soft pink, surface detail showing protruding crystalline shard formations across the surface, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_swamp_bog",
+    "category": "planet",
+    "role": "terrain",
+    "name": "swamp bog",
+    "color_scheme": "swamp_marsh",
+    "surface": "swampy_fog",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature fog-shrouded swamp planet, complete round orb sphere shape, three-tone color palette of muddy brown, sickly green, and fog grey, surface detail showing mossy swamp continents wreathed in thick low fog, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_lunar_grey",
+    "category": "planet",
+    "role": "terrain",
+    "name": "lunar grey",
+    "color_scheme": "lunar_grey",
+    "surface": "pockmarked_dust",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature grey moon-like rocky world, complete round orb sphere shape, three-tone color palette of ashen grey, pale white, and deep crater black, surface detail showing fine grey dust plains and shallow craters, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_ringed_pastel",
+    "category": "planet",
+    "role": "terrain",
+    "name": "ringed pastel",
+    "color_scheme": "saturn_pastel",
+    "surface": "ringed",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature pastel gas planet with thin orbital ring, complete round orb sphere shape, three-tone color palette of pale gold, ivory, and soft tan, surface detail showing narrow orbital debris ring tilted around the equator, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_toxic_haze",
+    "category": "planet",
+    "role": "terrain",
+    "name": "toxic haze",
+    "color_scheme": "toxic_brew",
+    "surface": "toxic_fog",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature toxic poisoned planet shrouded in haze, complete round orb sphere shape, three-tone color palette of toxic neon green, bruise purple, and sickly yellow, surface detail showing thick toxic fog clouds wrapping the surface, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_iron_industrial",
+    "category": "planet",
+    "role": "terrain",
+    "name": "iron industrial",
+    "color_scheme": "iron_industrial",
+    "surface": "metallic_plating",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature industrial mechanical planet wrapped in metal plating, complete round orb sphere shape, three-tone color palette of gunmetal grey, copper, and rust orange, surface detail showing smooth metallic plating with circuit-like seams, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_savanna_dunes",
+    "category": "planet",
+    "role": "terrain",
+    "name": "savanna dunes",
+    "color_scheme": "red_savanna",
+    "surface": "windswept_dunes",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature arid savanna planet of dunes and hot winds, complete round orb sphere shape, three-tone color palette of warm amber, rust orange, and charcoal, surface detail showing sweeping windswept dune patterns, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_cloud_veil",
+    "category": "planet",
+    "role": "terrain",
+    "name": "cloud veil",
+    "color_scheme": "cloud_pearl",
+    "surface": "pearl_clouds",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature pearlescent cloud-covered planet, complete round orb sphere shape, three-tone color palette of soft pink, lavender, and pearl white, surface detail showing soft pearlescent cloud cover hiding the surface, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
+  },
+  {
+    "id": "fig_w_void_anomaly",
+    "category": "planet",
+    "role": "terrain",
+    "name": "void anomaly",
+    "color_scheme": "void_singularity",
+    "surface": "void_corruption",
+    "target_face_count": 100000,
+    "prompt": "perfect spherical miniature void-corrupted singularity planet, complete round orb sphere shape, three-tone color palette of deep void black, violet glow, and starlight white, surface detail showing void-corrupted surface with glowing reality cracks, sci-fi collectible desktop planet model, single object only, entire object fully visible, no cropping, isolated on pure white background, no environment, no floor shadow, centered composition, collectible diorama piece, high quality, 3d render style, studio lighting, product photo"
   }
 ]

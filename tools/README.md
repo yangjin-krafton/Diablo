@@ -23,7 +23,7 @@ npm run prompts:sample
 npm run prompts:dry
 ```
 
-## 현재 컨셉 리스트 (총 116종)
+## 현재 컨셉 리스트 (총 132종)
 
 | 카테고리 | 개수 | 내용 | ID prefix |
 |---------|------|------|-----------|
@@ -33,10 +33,20 @@ npm run prompts:dry
 | `npc`      | 20 | merchant/blacksmith/alchemist/priest/innkeeper/… | `fig_n_` |
 | `building` | 20 | village_house/inn/church_chapel/castle_keep/… | `fig_s_` |
 | `item`     | 30 | 무기 10 · 방어구/장신구 10 · 소비/유물 10 | `fig_i_` |
+| `planet`   | 16 | mars_dust/frozen_world/molten_forge/blue_ocean/verdant_garden/gas_giant/shattered_remnant/crystal_world/swamp_bog/lunar_grey/ringed_pastel/toxic_haze/iron_industrial/savanna_dunes/cloud_veil/void_anomaly | `fig_w_` |
 
 TRELLIS 가 깨끗한 메쉬를 뽑도록 모든 프롬프트는 다음 구문을 포함:
 `isolated on pure white background`, `no environment`, `no floor shadow`, `centered composition`.
-(캐릭터류는 `full body visible`, 건물/아이템류는 `entire object fully visible` 로 분리)
+(캐릭터류는 `full body visible`, 건물/아이템/행성류는 `entire object fully visible` 로 분리)
+
+### 행성 (planet) 특수 처리
+
+행성은 **실제 게임 terrain 으로 사용**되므로 다른 카테고리와 다르게 취급됩니다:
+
+- **3-톤 전용 팔레트** (`PLANET_PALETTES`, 16개) — `mars_dust` (rust red / ochre tan / dark crimson) 같은 의미 있는 3색 조합
+- **표면 재질 셋** (`PLANET_SURFACES`, 16개) — `cratered`, `icy_glaciers`, `lava_seams`, `gas_bands`, …
+- **명시적 1:1 매칭** — 해시 자동 선택이 아니라 컨셉별로 어울리는 팔레트·표면을 직접 지정
+- **Low-poly face count = 100,000** — `product-prompts.json` 의 `target_face_count` 필드. 파이프라인은 이 값을 보고 `MeshWithTexturing_LowPoly.json` 워크플로우의 노드 258 ("Low Poly Face Number") 을 동적으로 오버라이드. 다른 카테고리는 워크플로우 기본값 (10,000) 을 그대로 사용.
 
 ## 요구 사항
 
@@ -101,8 +111,11 @@ npm run pipeline:reset
 # 특정 항목만
 node asset-pipeline.mjs --ids fig_skeleton_warrior_chibi,fig_goblin_scout_chibi
 
-# 카테고리 필터 (player | enemy | boss | npc | building | item | pickup)
+# 카테고리 필터 (player | enemy | boss | npc | building | planet | item | pickup)
 node asset-pipeline.mjs --category enemy
+
+# 행성만 (terrain 용 100k face GLB)
+node asset-pipeline.mjs --category planet
 
 # ComfyUI URL 오버라이드
 node asset-pipeline.mjs --comfy-url http://localhost:8188
