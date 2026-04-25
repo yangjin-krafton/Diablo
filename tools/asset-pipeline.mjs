@@ -25,7 +25,7 @@
  *   node tools/asset-pipeline.mjs --reset-phase2     # GLB만 재생성 (이미지 보존)
  */
 
-import { readFile, writeFile, mkdir, copyFile, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, copyFile, rm, access } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFile, execSync } from 'node:child_process';
@@ -72,9 +72,13 @@ const MODELS_ROOT     = resolve(__dirname, '../src/asset/models');
 const TEXT2IMG_PATH   = resolve(__dirname, 'text2img.json');
 const IMG2GLB_PATH    = resolve(__dirname, 'MeshWithTexturing_LowPoly.json');
 
-const VALID_CATEGORIES = new Set(['player', 'enemy', 'boss', 'npc', 'building', 'pickup', 'item']);
+const VALID_CATEGORIES = new Set(['player', 'enemy', 'boss', 'npc', 'building', 'planet', 'pickup', 'item']);
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function exists(path) {
+  try { await access(path); return true; } catch { return false; }
+}
 
 function categoryDir(category) {
   if (!VALID_CATEGORIES.has(category)) {
@@ -338,8 +342,23 @@ async function runPhase2(products, checkpoint) {
   const workflow = JSON.parse(await readFile(IMG2GLB_PATH, 'utf-8'));
   await mkdir(GLB_DIR, { recursive: true });
 
-  const eligible = products.filter(p => checkpoint.phase1[p.id] === 'done');
-  console.log(`   대상: ${eligible.length}개 (Phase 1 완료 기준)\n`);
+  // 1차 검수: phase1 완료된 항목 중 generated-img/{id}.png 가 실제로 존재하는 것만.
+  // 사용자가 png 를 삭제한 항목은 "검수 탈락" 으로 보고 GLB 에서 제외한다.
+  const phase1Done = products.filter(p => checkpoint.phase1[p.id] === 'done');
+  const eligible = [];
+  let removedByReview = 0;
+  for (const p of phase1Done) {
+    if (await exists(resolve(IMG_DIR, `${p.id}.png`))) {
+      eligible.push(p);
+    } else {
+      removedByReview++;
+    }
+  }
+  console.log(`   Phase 1 완료: ${phase1Done.length}개`);
+  if (removedByReview > 0) {
+    console.log(`   검수 삭제 (png 없음): ${removedByReview}개 → GLB 단계 제외`);
+  }
+  console.log(`   GLB 대상: ${eligible.length}개\n`);
 
   let count = 0;
   let success = 0;
@@ -347,7 +366,7 @@ async function runPhase2(products, checkpoint) {
 
   for (const product of eligible) {
     count++;
-    const { id, category } = product;
+    const { id, category, target_face_count } = product;
 
     if (checkpoint.phase2[id] === 'done') {
       console.log(`   [${count}/${eligible.length}] ${id} — 이미 완료, 건너뜀`);
@@ -380,6 +399,12 @@ async function runPhase2(products, checkpoint) {
       const wf = JSON.parse(JSON.stringify(workflow));
       wf['6'].inputs.image = `pipeline/${id}.png`;
       wf['219'].inputs.value = id;
+
+      // 행성처럼 게임 terrain 용도면 product 가 target_face_count 를 명시 →
+      // 워크플로우의 "Low Poly Face Number" (PrimitiveInt 노드 258) 를 오버라이드
+      if (Number.isFinite(target_face_count) && wf['258']?.inputs) {
+        wf['258'].inputs.value = target_face_count;
+      }
 
       const promptId = await queuePrompt(wf);
       const outputs = await waitForCompletion(promptId);

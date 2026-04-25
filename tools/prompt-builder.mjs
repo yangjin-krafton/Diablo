@@ -1,22 +1,29 @@
 #!/usr/bin/env node
 /**
  * ╔══════════════════════════════════════════════════════════════╗
- * ║  Prompt Builder — 조립형 프롬프트 생성기                     ║
- * ║  (색상 팔레트) + (재질감) + (게임요소 컨셉) → prompt         ║
+ * ║  Prompt Builder — 조립형 프롬프트 생성기 (베리에이션 모드)   ║
+ * ║  (색상 팔레트) × (재질감) × (게임요소 컨셉) → prompt 풀     ║
  * ╚══════════════════════════════════════════════════════════════╝
  *
- * 3개의 리스트를 조합해서 product-prompts.json 을 자동 생성한다.
- *   - PALETTES  : 2-tone 색상 조합
- *   - MATERIALS : 재질/피니시
- *   - 카테고리별 컨셉 목록 (player / enemy / boss / npc / building / item)
+ * 컨셉마다 (팔레트 × 재질) 조합을 결정적으로 N개 뽑아서 풀을 만든다.
+ * 1차로 이 풀의 모든 이미지를 뽑고, 사람이 generated-img/ 에서 안 좋은
+ * png 만 삭제하면, 2차 GLB 단계는 살아남은 png 만 변환한다.
  *
- * 각 항목의 id 를 해싱해서 팔레트·재질을 결정적으로 선택하므로
- * 다시 빌드해도 결과가 동일. 새 항목만 추가하면 그 줄만 달라진다.
+ *   - PALETTES         : 2-tone 색상 조합 (16) — 캐릭터/오브젝트용
+ *   - MATERIALS        : 재질/피니시 (12) — 캐릭터/오브젝트용
+ *   - PLANET_PALETTES  : 행성 전용 3-tone (16)
+ *   - PLANET_SURFACES  : 행성 전용 표면 (16)
+ *
+ * ID 형식:
+ *   캐릭터/오브젝트: fig_p_knight__obsidian_crimson__brushed_metal
+ *   행성 (1:1 매칭): fig_w_mars_dust
  *
  * 실행:
- *   node tools/prompt-builder.mjs           # product-prompts.json 덮어쓰기
- *   node tools/prompt-builder.mjs --dry     # 콘솔로만 미리보기
- *   node tools/prompt-builder.mjs --sample  # 카테고리별 1개만 출력
+ *   node tools/prompt-builder.mjs                       # 컨셉당 4 베리에이션
+ *   node tools/prompt-builder.mjs --variations 8        # 컨셉당 8 베리에이션
+ *   node tools/prompt-builder.mjs --full-combo          # 모든 16×12 조합 (≈ 22K)
+ *   node tools/prompt-builder.mjs --dry                 # 통계만, 파일 안 씀
+ *   node tools/prompt-builder.mjs --sample              # 카테고리별 첫 1개 출력
  */
 
 import { writeFile } from 'node:fs/promises';
@@ -28,6 +35,14 @@ const OUT_PATH = resolve(__dirname, 'product-prompts.json');
 const args = process.argv.slice(2);
 const DRY = args.includes('--dry');
 const SAMPLE = args.includes('--sample');
+const FULL_COMBO = args.includes('--full-combo');
+function flagInt(name, fallback) {
+  const i = args.indexOf(`--${name}`);
+  if (i === -1) return fallback;
+  const n = Number(args[i + 1]);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+const VARIATIONS = flagInt('variations', 4);
 
 // ─── 1) 색상 팔레트 (16) ─────────────────────────────────────
 const PALETTES = {
@@ -314,23 +329,51 @@ function pick(list, key) {
 const paletteKeys = Object.keys(PALETTES);
 const materialKeys = Object.keys(MATERIALS);
 
-function buildProduct(category, filePrefix, entry) {
-  const [slug, role, concept] = entry;
-  const id = `${filePrefix}_${slug}`;
-  const paletteKey = pick(paletteKeys, `${id}|palette`);
-  const materialKey = pick(materialKeys, `${id}|material`);
-  const palette = PALETTES[paletteKey];
-  const material = MATERIALS[materialKey];
-  const prompt = TEMPLATES[category]({ concept, palette, material });
-  return {
-    id,
-    category,
-    role,
-    name: `${slug.replace(/_/g, ' ')}`,
-    color_scheme: paletteKey,
-    material: materialKey,
-    prompt,
+// 컨셉당 베리에이션 (palette, material) 조합을 결정적으로 추출.
+// 모든 16×12 조합을 시드 셔플 후 앞에서 N 개만 가져온다 → 같은 N 이면
+// 같은 결과, N 늘리면 기존 베리에이션은 유지하고 뒤에 추가됨.
+function pickVariations(seedKey, n) {
+  const all = [];
+  for (const p of paletteKeys) {
+    for (const m of materialKeys) {
+      all.push([p, m]);
+    }
+  }
+  if (FULL_COMBO) return all;
+
+  // Linear congruential generator with stable seed
+  let seed = hash(seedKey) || 1;
+  const lcg = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed;
   };
+  for (let i = all.length - 1; i > 0; i--) {
+    const j = lcg() % (i + 1);
+    [all[i], all[j]] = [all[j], all[i]];
+  }
+  return all.slice(0, Math.min(n, all.length));
+}
+
+function buildProductVariations(category, filePrefix, entry) {
+  const [slug, role, concept] = entry;
+  const baseId = `${filePrefix}_${slug}`;
+  const combos = pickVariations(baseId, VARIATIONS);
+  return combos.map(([paletteKey, materialKey]) => {
+    const id = `${baseId}__${paletteKey}__${materialKey}`;
+    const palette = PALETTES[paletteKey];
+    const material = MATERIALS[materialKey];
+    const prompt = TEMPLATES[category]({ concept, palette, material });
+    return {
+      id,
+      base_id: baseId,
+      category,
+      role,
+      name: `${slug.replace(/_/g, ' ')} · ${paletteKey} · ${materialKey}`,
+      color_scheme: paletteKey,
+      material: materialKey,
+      prompt,
+    };
+  });
 }
 
 // 행성은 별도 — 명시적 팔레트·표면 매칭 + terrain 용 high-poly 플래그
@@ -368,9 +411,10 @@ function buildAll() {
   const products = [];
   for (const { category, prefix, list } of GROUPS) {
     for (const entry of list) {
-      products.push(buildProduct(category, prefix, entry));
+      products.push(...buildProductVariations(category, prefix, entry));
     }
   }
+  // 행성은 컨셉이 색·표면을 의미적으로 함의하므로 베리에이션 X (1:1 매칭)
   for (const entry of PLANETS) {
     products.push(buildPlanet(entry));
   }
@@ -390,7 +434,8 @@ async function main() {
   console.log('║  Prompt Builder — 조립 결과                ║');
   console.log('╚════════════════════════════════════════════╝');
   console.log(`   팔레트: ${paletteKeys.length}개 / 재질: ${materialKeys.length}개`);
-  console.log(`   총 ${products.length}개 프롬프트`);
+  console.log(`   베리에이션 모드: ${FULL_COMBO ? `FULL ${paletteKeys.length}×${materialKeys.length}` : `컨셉당 ${VARIATIONS}개`}`);
+  console.log(`   총 ${products.length}개 프롬프트 (행성 16 + 베리에이션)`);
   for (const [cat, n] of Object.entries(byCat)) {
     console.log(`     - ${cat}: ${n}`);
   }
@@ -402,7 +447,7 @@ async function main() {
       if (seen.has(p.category)) continue;
       seen.add(p.category);
       console.log(`\n[${p.category}] ${p.id}`);
-      console.log(`  color: ${p.color_scheme}  |  material: ${p.material}`);
+      console.log(`  color: ${p.color_scheme}  |  ${p.material ? `material: ${p.material}` : `surface: ${p.surface}`}`);
       console.log(`  ${p.prompt}`);
     }
     return;
