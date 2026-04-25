@@ -19,11 +19,12 @@ export class Spawner {
     }
 
     update(dt, parent, player) {
+        this._parent = parent;
         // cull dead, accumulate kill count, fire onDeath callback
         let culled = 0;
         this.enemies = this.enemies.filter((e) => {
             if (e.alive) return true;
-            this.onDeath?.(e.position);
+            this.onDeath?.(e.position, e);
             culled++;
             return false;
         });
@@ -70,6 +71,27 @@ export class Spawner {
 
     isBossWave() {
         return this._bossWave;
+    }
+
+    /** Spawn a regular enemy at a random arc-distance point from `centerPos`.
+     *  Returns the created Enemy (not yet rendered, init() runs async). Used
+     *  by hostile buildings (fortress guards / portal emissions) to inject
+     *  enemies into the live world without going through the player-anchored
+     *  scheduler. */
+    spawnAt(centerPos, arcRadius, options = {}) {
+        const parent = this._parent;
+        if (!parent) return null;
+        this.surface.randomPointAtArc(centerPos, Math.max(0.5, arcRadius), this._spawnPos);
+        const e = new Enemy(this.surface, this._spawnPos, options);
+        this.enemies.push(e);
+        e.init(parent);
+        return e;
+    }
+
+    /** Push an already-constructed entity (e.g. a HostileBuilding) into the
+     *  enemies array so the existing damage path applies. */
+    addExternalTarget(entity) {
+        this.enemies.push(entity);
     }
 
     _bossEnemyOptions() {

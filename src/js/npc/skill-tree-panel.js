@@ -1,6 +1,7 @@
 // NPC/building-owned skill tree panel, rendered in the neon UI style.
 
 import { Container, Graphics } from 'pixi.js';
+import { ELEMENT_KEYS, ELEMENTS, ELEMENT_HEX } from '../data/elements.js';
 import { FONT_MONO, FONT_UI, NEON, fitText, makeText, neonButton, neonPanel } from '../ui/neon-theme.js';
 
 const DEFAULT_SKILL_ID = 'sword';
@@ -26,10 +27,20 @@ class Button extends Container {
 }
 
 export class SkillTreePanel {
-    constructor(uiRoot, skillSystem, { onClose } = {}) {
+    constructor(uiRoot, skillSystem, {
+        onClose,
+        paymentMode = 'points',
+        wallet = null,
+        skillId = DEFAULT_SKILL_ID,
+        sourceTitle = '',
+    } = {}) {
         this.uiRoot = uiRoot;
         this.skillSystem = skillSystem;
         this._onClose = onClose ?? (() => {});
+        this._paymentMode = paymentMode;
+        this._wallet = wallet;
+        this._defaultSkillId = skillId;
+        this._sourceTitle = sourceTitle;
 
         this._open = false;
         this._sourceId = null;
@@ -59,7 +70,7 @@ export class SkillTreePanel {
         return this._open;
     }
 
-    open({ sourceId = 'home', skillId = DEFAULT_SKILL_ID } = {}) {
+    open({ sourceId = 'home', skillId = this._defaultSkillId } = {}) {
         const skill = this.skillSystem.getSkillById(skillId) ?? this.skillSystem.firstTrainableSkill();
         if (!skill || skill.isEmpty) return;
 
@@ -210,7 +221,7 @@ export class SkillTreePanel {
         this.modal.addChild(desc);
 
         const rowY = y + H - 42;
-        const allocateW = this._selectedNode ? 128 : 0;
+        const allocateW = this._selectedNode ? (this._paymentMode === 'ores' ? 158 : 128) : 0;
         if (this._selectedNode) {
             this._renderAllocateButton(x + W - 18 - allocateW, rowY, allocateW, 30);
         }
@@ -235,7 +246,7 @@ export class SkillTreePanel {
         const rank = skill.rankOf(node.id);
         const full = rank >= node.maxRank;
         const reqMet = skill._requirementsMet(node);
-        const canBuy = skill.canAllocate(node.id);
+        const canBuy = this._canAllocate(node.id);
         const enabled = canBuy && !full;
 
         const btn = new Button({
@@ -243,7 +254,7 @@ export class SkillTreePanel {
             height: h,
             cursor: enabled ? 'pointer' : 'default',
             onClick: () => {
-                if (enabled && skill.allocate(node.id)) this._render();
+                if (enabled && this._allocate(node.id)) this._render();
             },
         });
         btn.position.set(x, y);
@@ -252,7 +263,7 @@ export class SkillTreePanel {
         neonButton(bg, 0, 0, w, h, { primary: true, enabled, cut: 9 });
         btn.addChild(bg);
 
-        const label = full ? '최대' : (reqMet ? `배분 ${skill.getNextNodeCost()}p` : '잠김');
+        const label = full ? '최대' : (reqMet ? this._buyLabel(node) : '잠김');
         const txt = makeText(label, {
             fontFamily: FONT_UI,
             fontSize: 12,
@@ -288,7 +299,11 @@ export class SkillTreePanel {
         });
         this.modal.addChild(catcher);
 
-        this._renderResetButton(x + 12, y + 12);
+        if (this._paymentMode === 'points') {
+            this._renderResetButton(x + 12, y + 12);
+        } else {
+            this._renderOreWallet(x + 12, y + 12);
+        }
 
         const nodes = skill.getNodes();
         if (nodes.length === 0) {
@@ -370,7 +385,7 @@ export class SkillTreePanel {
         const rank = skill.rankOf(node.id);
         const full = rank >= node.maxRank;
         const unlocked = skill._requirementsMet(node);
-        const canAllocate = skill.canAllocate(node.id);
+        const canAllocate = this._canAllocate(node.id);
         const selected = this._selectedNode?.id === node.id;
 
         const btn = new Button({
@@ -455,6 +470,9 @@ export class SkillTreePanel {
     _statusText(node) {
         const skill = this._currentSkill;
         if (!node) {
+            if (this._paymentMode === 'ores') {
+                return `${this._sourceTitle || skill.displayName}  |  보유 재료 ${this._oreSummary()}`;
+            }
             return `포인트 ${skill.points}  |  다음 ${skill.getNextNodeCost()}p  |  경험치 ${Math.floor(skill.exp)}/${skill.getExpForLevel(skill.level)}`;
         }
 
@@ -462,16 +480,90 @@ export class SkillTreePanel {
         if (!skill._requirementsMet(node)) {
             return `${rank}/${node.maxRank}  |  선행 노드가 필요합니다`;
         }
-        if (skill.canAllocate(node.id)) {
-            return `${rank}/${node.maxRank}  |  배분 가능`;
+        if (this._canAllocate(node.id)) {
+            return `${rank}/${node.maxRank}  |  강화 가능  |  비용 ${this._costText(node)}`;
         }
-        return `${rank}/${node.maxRank}  |  포인트 부족`;
+        return `${rank}/${node.maxRank}  |  ${this._paymentMode === 'ores' ? `재료 부족  |  비용 ${this._costText(node)}` : '포인트 부족'}`;
     }
 
     _statusColor(node) {
         if (!node) return NEON.CYAN_LT;
         if (!this._currentSkill._requirementsMet(node)) return NEON.TEXT_FT;
-        return this._currentSkill.canAllocate(node.id) ? NEON.MAGENTA_LT : NEON.TEXT_DM;
+        return this._canAllocate(node.id) ? NEON.MAGENTA_LT : NEON.TEXT_DM;
+    }
+
+    _renderOreWallet(x, y) {
+        let ox = x;
+        for (const key of ELEMENT_KEYS) {
+            const amount = this._wallet?.ores?.[key] ?? 0;
+            const w = 58;
+            const g = this.modal.addChild(new Graphics());
+            neonPanel(g, ox, y, w, 28, {
+                fill: NEON.PANEL_2,
+                stroke: ELEMENT_HEX[key],
+                alpha: 0.82,
+                strokeAlpha: 0.42,
+                cut: 8,
+            });
+            const dot = this.modal.addChild(new Graphics());
+            dot.circle(ox + 11, y + 14, 4).fill({ color: ELEMENT_HEX[key], alpha: 0.96 });
+            const label = makeText(`${ELEMENTS[key].label} ${amount}`, {
+                fontFamily: FONT_MONO,
+                fontSize: 11,
+                fontWeight: '900',
+                fill: NEON.TEXT,
+            });
+            label.position.set(ox + 19, y + 7);
+            this.modal.addChild(label);
+            ox += w + 6;
+        }
+    }
+
+    _oreCostFor(node) {
+        const rank = this._currentSkill.rankOf(node.id);
+        const totalRanks = this._currentSkill.totalRanks();
+        const key = ELEMENT_KEYS[(node.col + node.row + rank) % ELEMENT_KEYS.length];
+        return {
+            key,
+            amount: this._currentSkill.costForRankIndex(totalRanks),
+        };
+    }
+
+    _costText(node) {
+        if (this._paymentMode !== 'ores') return `${this._currentSkill.getNextNodeCost()}p`;
+        const cost = this._oreCostFor(node);
+        return `${ELEMENTS[cost.key].label} ${cost.amount}`;
+    }
+
+    _buyLabel(node) {
+        return this._paymentMode === 'ores' ? `강화 ${this._costText(node)}` : `배분 ${this._currentSkill.getNextNodeCost()}p`;
+    }
+
+    _oreSummary() {
+        return ELEMENT_KEYS.map((key) => `${ELEMENTS[key].label}${this._wallet?.ores?.[key] ?? 0}`).join(' ');
+    }
+
+    _canAllocate(nodeId) {
+        const skill = this._currentSkill;
+        if (this._paymentMode !== 'ores') return skill.canAllocate(nodeId);
+        const node = skill.nodeById(nodeId);
+        if (!node) return false;
+        if (skill.rankOf(nodeId) >= node.maxRank) return false;
+        if (!skill._requirementsMet(node)) return false;
+        const cost = this._oreCostFor(node);
+        return this._wallet?.canSpendOre?.(cost.key, cost.amount) ?? false;
+    }
+
+    _allocate(nodeId) {
+        const skill = this._currentSkill;
+        if (this._paymentMode !== 'ores') return skill.allocate(nodeId);
+        if (!this._canAllocate(nodeId)) return false;
+        const node = skill.nodeById(nodeId);
+        const cost = this._oreCostFor(node);
+        if (!this._wallet.spendOre(cost.key, cost.amount)) return false;
+        skill.spent[nodeId] = skill.rankOf(nodeId) + 1;
+        skill.onNodeChanged();
+        return true;
     }
 
     _nodeColors({ full, rank, unlocked, canAllocate, selected }) {

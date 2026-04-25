@@ -38,6 +38,18 @@ export class DropSystem {
         this.shards.push(s);
     }
 
+    /** Force-spawn N shards at `position`, using planet bias for color. Used
+     *  by hostile-building destruction to grant a guaranteed reward bundle. */
+    spawnBundle(position, count = 1) {
+        const bias = this._activePlanet().bias;
+        for (let i = 0; i < count; i++) {
+            const element = rollElementByBias(bias);
+            const s = new SkillShard(this.surface, position, element);
+            s.attach(this.parent);
+            this.shards.push(s);
+        }
+    }
+
     update(dt, player) {
         this._time += dt;
         for (let i = this.shards.length - 1; i >= 0; i--) {
@@ -56,7 +68,8 @@ export class DropSystem {
             if (s.isCollecting()) continue;
 
             const d = this.surface.arcDistance(s.position, player.position);
-            if (d < CONFIG.drops.pickupRange) {
+            const range = CONFIG.drops.pickupRange * (this.statsProgression?.pickupRangeMul() ?? 1);
+            if (d < range) {
                 this.skillSystem.grantShardExp(CONFIG.drops.shardExp);
                 if (this.homeController) this.homeController.gainOre(s.element, 1);
                 s.startCollect(player.position);

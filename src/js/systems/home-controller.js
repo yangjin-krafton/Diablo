@@ -65,6 +65,17 @@ export class HomeController {
         this.ores[element] = (this.ores[element] ?? 0) + amount;
     }
 
+    canSpendOre(element, amount = 1) {
+        if (!ELEMENT_KEYS.includes(element)) return false;
+        return (this.ores[element] ?? 0) >= amount;
+    }
+
+    spendOre(element, amount = 1) {
+        if (!this.canSpendOre(element, amount)) return false;
+        this.ores[element] -= amount;
+        return true;
+    }
+
     acceptQuest() {
         if (this.questState !== QUEST_IDLE || this.success) return false;
         this.questState = QUEST_ACTIVE;

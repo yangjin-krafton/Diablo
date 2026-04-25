@@ -18,9 +18,14 @@ import { createScene } from './scene-setup.js';
 import { SphereSurface } from './world/surface.js';
 import { Player } from './entities/player.js';
 import { HomeNpc } from './npc/home-npc.js';
+import { SkillTrainerNpc } from './npc/skill-trainer-npc.js';
+import { StatTrainerNpc } from './npc/stat-trainer-npc.js';
 import { Spawner } from './systems/spawner.js';
 import { DropSystem } from './systems/drop-system.js';
 import { HomeController } from './systems/home-controller.js';
+import { NpcBuildingPlacement } from './systems/npc-building-placement.js';
+import { PlayerStatsProgression } from './systems/player-stats-progression.js';
+import { HostileBuildingSystem } from './systems/hostile-building-system.js';
 import { SkillSystem } from './skills/skill-system.js';
 import { UIRoot } from './ui/ui-root.js';
 import { Hud } from './hud.js';
@@ -52,16 +57,30 @@ export class Game {
         this.home = new HomeNpc(this.surface);
         this.spawner = new Spawner(this.surface);
         this.homeController = new HomeController(this.home, this.spawner);
+        this.statsProgression = new PlayerStatsProgression(this.player);
 
         this.skillSystem = new SkillSystem(this.player, this);
         this.drops = new DropSystem(this.surface, this.worldRotator, this.skillSystem, this.homeController);
-        this.spawner.onDeath = (pos) => this.drops.rollDrop(pos);
+        this.drops.statsProgression = this.statsProgression;
+        this.hostiles = new HostileBuildingSystem(
+            this.surface, this.worldRotator, this.spawner, this.drops, this.player,
+        );
+        this.spawner.onDeath = (pos, entity) => {
+            // Standard ore-shard roll for everything that dies (incl. hostile
+            // buildings — bonus drops layer on top via hostiles.onDeath).
+            this.drops.rollDrop(pos);
+            this.hostiles.onDeath(pos, entity);
+        };
 
         // UI is mounted after Pixi finishes initializing (async, see start()).
         this.ui = new UIRoot();
         this.hud = null;
         this.skillBar = null;
         this.homePanel = null;
+
+        // npcBuildings — populated by start() from CONFIG.npcBuildings.
+        // Each entry: { id, def, npc, panel, _wasInRange }.
+        this.npcBuildings = [];
 
         this.paused = false;
         this._wasInHome = false;
@@ -73,10 +92,17 @@ export class Game {
     }
 
     async start() {
+        const registry = CONFIG.npcBuildings ?? {};
+        const hostiles = CONFIG.hostileBuildings ?? {};
+        const registryModelPaths = Object.values(registry).map((def) => def.modelPath).filter(Boolean);
+        const hostileModelPaths = Object.values(hostiles).map((def) => def.modelPath).filter(Boolean);
+
         await Promise.all([
             preload([
                 CONFIG.player.modelPath,
                 CONFIG.home.modelPath,
+                ...registryModelPaths,
+                ...hostileModelPaths,
                 CONFIG.enemy.modelPath,
                 ...(CONFIG.enemy.modelPaths ?? []),
                 ...(CONFIG.enemy.eliteModelPaths ?? []),
@@ -84,7 +110,52 @@ export class Game {
             this.ui.ready,
         ]);
         await this.player.init(this.worldRotator);
+
+        // Home is anchored at the start area (fixed by HomeNpc.place()).
+        // Other NPC buildings flow through the placement system, which respects
+        // rarity-based distance bands and minimum spacing.
+        // See docs/npc-building-distribution-balancing.md.
         await this.home.init(this.worldRotator);
+
+        const playerSpawn = new THREE.Vector3(0, this.surface.radius, 0);
+        const placement = new NpcBuildingPlacement(this.surface, playerSpawn);
+        placement.register('home', this.home.position, 'home');
+
+        // Walk the registry, instantiate each NPC by `kind`, place it through
+        // the placement system, and register stat trainers with the
+        // progression controller. `count: { min, max }` lets a single entry
+        // produce multiple instances per planet (§6-3 of the design doc).
+        for (const [id, def] of Object.entries(registry)) {
+            if (def.kind === 'statTrainer') this.statsProgression.register(def.statId, def);
+
+            const instanceCount = pickInstanceCount(def.count);
+            for (let i = 0; i < instanceCount; i++) {
+                const npc = this._buildNpcFromDef(def);
+                if (!npc) {
+                    console.warn(`[Diablo] unknown npcBuilding kind: ${def.kind} (id=${id})`);
+                    break;
+                }
+                const instId = instanceCount > 1 ? `${id}#${i + 1}` : id;
+                const pos = placement.placeBuilding(instId, def);
+                await npc.init(this.worldRotator, pos);
+                this.npcBuildings.push({ id: instId, def, npc, panel: null, _wasInRange: false });
+            }
+        }
+
+        // Hostile buildings (요새 / 차원문). Placed in their own bands; the
+        // dropship event has no permanent structure and is driven by the
+        // HostileBuildingSystem's internal timer.
+        for (const [hostileId, def] of Object.entries(hostiles)) {
+            if (def.kind !== 'fortress' && def.kind !== 'portal') continue;
+            const cnt = pickInstanceCount(def.count);
+            for (let i = 0; i < cnt; i++) {
+                const instId = cnt > 1 ? `${hostileId}#${i + 1}` : hostileId;
+                const pos = placement.placeBuilding(instId, def);
+                await this.hostiles.addBuilding(def, pos);
+            }
+        }
+
+        this.placement = placement;
 
         // Pixi is ready. The home panel is opened by NPC/building
         // interactions; the bottom skill bar only activates equipped skills.
@@ -92,6 +163,17 @@ export class Game {
         this.homePanel = this.home.createPanel(this.ui, this.homeController, {
             onClose: () => { this.paused = false; },
         });
+
+        const npcCtx = {
+            skillSystem: this.skillSystem,
+            homeController: this.homeController,
+            statsProgression: this.statsProgression,
+            onClose: () => { this.paused = false; },
+        };
+        for (const entry of this.npcBuildings) {
+            entry.panel = entry.npc.createPanel(this.ui, npcCtx);
+        }
+
         this.skillBar = new SkillBar(this.ui, this.skillSystem);
 
         const loading = document.getElementById('loading');
@@ -99,6 +181,12 @@ export class Game {
 
         this._last = performance.now();
         requestAnimationFrame(this._tick);
+    }
+
+    _buildNpcFromDef(def) {
+        if (def.kind === 'skillTrainer') return new SkillTrainerNpc(this.surface, def);
+        if (def.kind === 'statTrainer')  return new StatTrainerNpc(this.surface, def);
+        return null;
     }
 
     _tick = (now) => {
@@ -115,9 +203,12 @@ export class Game {
             this.skillSystem.update(dt, this.spawner.enemies);
             this.drops.update(dt, this.player);
             this.home.update(dt, this.player);
+            for (const entry of this.npcBuildings) entry.npc.update(dt, this.player);
+            this.hostiles.update(dt);
             this.homeController.update(dt, this.player);
             if (this.homeController.success) this.paused = true;
             this._checkHomeProximity();
+            this._checkNpcBuildingProximity();
         }
 
         this.hud.update(this.player, this.spawner, this.homeController);
@@ -160,11 +251,23 @@ export class Game {
         // and the sun/landmarks return to their original angles.
         this.worldRotator.quaternion.identity();
 
-        // Despawn every enemy.
+        // Despawn enemies but keep hostile-building entities so the world
+        // structure persists across player respawns. Mark wiped enemies as
+        // not-alive so any holders (e.g. Fortress.guards) drop their refs.
+        const survivors = [];
         for (const e of this.spawner.enemies) {
+            if (e.isHostileBuilding) {
+                survivors.push(e);
+                continue;
+            }
+            e.alive = false;
             if (e.mesh?.parent) e.mesh.parent.remove(e.mesh);
         }
-        this.spawner.enemies.length = 0;
+        this.spawner.enemies = survivors;
+        // Drop stale guard refs so fortresses immediately start reinforcing.
+        for (const b of survivors) {
+            if (Array.isArray(b.guards)) b.guards.length = 0;
+        }
         this.spawner.kills = 0;
         this.spawner._timer = 0;
 
@@ -177,7 +280,12 @@ export class Game {
         for (const s of this.skillSystem.skills) s.resetRuntime();
 
         this.homeController.resetRuntime();
+        this.hostiles?.resetForRespawn();
         if (this.homePanel?.isOpen()) this.homePanel.close();
+        for (const entry of this.npcBuildings) {
+            if (entry.panel?.isOpen?.()) entry.panel.close();
+            entry._wasInRange = false;
+        }
         this.paused = false;
         this._wasInHome = false;
     }
@@ -194,6 +302,20 @@ export class Game {
         }
     }
 
+    _checkNpcBuildingProximity() {
+        for (const entry of this.npcBuildings) {
+            const inRange = entry.npc.isPlayerInRange(this.player);
+            if (inRange && !entry._wasInRange) {
+                entry._wasInRange = true;
+                this.paused = true;
+                entry.panel?.open?.({ sourceId: entry.id, skillId: entry.def.targetSkillId });
+                return; // only one panel at a time
+            } else if (!inRange) {
+                entry._wasInRange = false;
+            }
+        }
+    }
+
     /** Apply a small delta rotation to worldRotator based on input.
      *  Returns the world-space forward direction (unit vector) the player is
      *  moving in, or null if idle.
@@ -207,7 +329,8 @@ export class Game {
         const uz = m.z / mag;
         // axis = cross((ux, 0, uz), (0, 1, 0)) = (-uz, 0, ux)
         _axis.set(-uz, 0, ux);
-        const angle = (mag * CONFIG.player.moveSpeed * dt) / this.surface.radius;
+        const speed = CONFIG.player.moveSpeed * (this.statsProgression?.moveSpeedMul() ?? 1);
+        const angle = (mag * speed * dt) / this.surface.radius;
         _deltaQ.setFromAxisAngle(_axis, angle);
         this.worldRotator.quaternion.premultiply(_deltaQ);
         this.worldRotator.quaternion.normalize(); // guard against drift
@@ -231,3 +354,10 @@ export class Game {
 const _axis = new THREE.Vector3();
 const _deltaQ = new THREE.Quaternion();
 const _worldForward = new THREE.Vector3();
+
+function pickInstanceCount(range) {
+    if (!range) return 1;
+    const min = Math.max(0, range.min ?? 1);
+    const max = Math.max(min, range.max ?? min);
+    return min + Math.floor(Math.random() * (max - min + 1));
+}

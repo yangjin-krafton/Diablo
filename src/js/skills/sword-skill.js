@@ -136,7 +136,7 @@ export class SwordSkill extends Skill {
                 surface: this.game.surface,
                 position: pos,
                 forward,
-                damage: this.damage * this.beamDmgMult,
+                damage: this.damage * this.beamDmgMult * this._damageMul(),
                 critChance: 0,
                 range: this.beamRange,
                 pierce: this.beamPierce,
@@ -187,10 +187,15 @@ export class SwordSkill extends Skill {
                 dmg *= 2;
             }
             const isCrit = forceCrit || Math.random() < crit;
-            e.damage(isCrit ? dmg * 2 : dmg);
+            const finalDmg = (isCrit ? dmg * 2 : dmg) * this._damageMul();
+            e.damage(finalDmg);
             hitSet.add(e);
         }
         return hitSet;
+    }
+
+    _damageMul() {
+        return this.game?.statsProgression?.damageMul?.() ?? 1;
     }
 
     _nearestEnemyInRange(enemies) {

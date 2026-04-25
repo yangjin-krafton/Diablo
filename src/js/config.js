@@ -131,6 +131,179 @@ export const CONFIG = {
         departureCountdown: 10,
     },
 
+    // NPC building distribution. See docs/npc-building-distribution-balancing.md.
+    // `home` stays anchored at the start area; everything else is placed by the
+    // placement system using rarity, distance band, and minimum spacing.
+    npcDistribution: {
+        startSafeRadius: 7,
+        bands: {
+            near: { min: 8,  max: 14 },
+            mid:  { min: 15, max: 24 },
+            far:  { min: 25, max: 38 },
+            edge: { min: 39, max: 52 },
+        },
+        minSpacing: {
+            npcToNpc:    6,
+            npcToHome:   8,
+            rareToRare: 12,
+            fortressToHome: 14,
+            portalToHome:   10,
+            fortressToFortress: 18,
+        },
+        placementMaxAttempts: 24,
+    },
+
+    // 적대 건물 등록 (요새 / 차원문 / 운송선). See §7-8 of
+    // docs/npc-building-distribution-balancing.md.
+    hostileBuildings: {
+        fortress: {
+            kind: 'fortress',
+            modelPath: './asset/models/building/fig_s_castle_keep.glb',
+            modelScale: 3.4,
+            modelLift: 1.3,
+            modelYawOffset: 0,
+            band: 'mid',
+            count: { min: 1, max: 2 },
+            hp: 450,
+            regenPerSecond: 1.5,
+            bodyRadius: 1.2,
+            maxGuards: 6,
+            patrolRadius: 6,
+            reinforceCooldown: 18,
+            rewardDrops: 6,        // bonus shard rolls on destruction
+        },
+        portal: {
+            kind: 'portal',
+            modelPath: './asset/models/building/fig_s_magic_portal.glb',
+            modelScale: 2.6,
+            modelLift: 0.9,
+            modelYawOffset: 0,
+            band: 'near',
+            count: { min: 2, max: 3 },
+            hp: 220,
+            regenPerSecond: 0,
+            bodyRadius: 0.8,
+            spawnInterval: 16,
+            spawnCount: 2,
+            spawnArc: 1.8,
+            reopenDelay: 90,
+            reopenedHpRatio: 0.6,
+            rewardDrops: 2,        // bonus shard rolls when closed
+        },
+        // No fixed structure — the system runs the timer + warning ring + group
+        // spawn based on these values whenever activePlanet has dropShip set.
+        dropShip: {
+            kind: 'dropShip',
+            eventCooldown: { min: 90, max: 180 },
+            warningTime: 3,
+            spawnCount: { min: 5, max: 8 },
+            impactArcDistance: { min: 8, max: 16 },
+            impactRadius: 2.4,
+            eliteChance: 0.12,
+        },
+    },
+
+    // Registry of placeable NPC buildings. Each entry is self-contained:
+    // it owns its model + scale + interact range AND its placement metadata
+    // (rarity / band / element). game.js iterates this registry and
+    // dispatches by `kind`. See docs/npc-building-distribution-balancing.md.
+    npcBuildings: {
+        'skillTrainer:sword': {
+            kind: 'skillTrainer',
+            targetSkillId: 'sword',
+            sourceTitle: '검술 대장간',
+            modelPath: './asset/models/building/fig_s_blacksmith_shop.glb',
+            modelScale: 3.15,
+            modelLift: 1.05,
+            modelYawOffset: 0,
+            interactRange: 2.8,
+            rarity: 'uncommon',
+            role: 'weapon',
+            element: 'physical',
+            band: 'mid',
+        },
+        'statTrainer:maxHp': {
+            kind: 'statTrainer',
+            statId: 'maxHp',
+            sourceTitle: '체력 단련소',
+            modelPath: './asset/models/building/fig_s_grain_silo.glb',
+            modelScale: 2.85,
+            modelLift: 1.0,
+            modelYawOffset: 0,
+            interactRange: 2.6,
+            rarity: 'common',
+            role: 'stat',
+            element: 'green',
+            band: 'near',
+            count: { min: 1, max: 2 },
+            maxRank: 10,
+            amountPerRank: 12,        // +12 max HP per rank
+            baseCost: 2,
+            costGrowth: 1.5,
+            costElements: ['green', 'blue'],
+        },
+        'statTrainer:moveSpeed': {
+            kind: 'statTrainer',
+            statId: 'moveSpeed',
+            sourceTitle: '주행 단련소',
+            modelPath: './asset/models/building/fig_s_windmill.glb',
+            modelScale: 2.65,
+            modelLift: 1.05,
+            modelYawOffset: 0,
+            interactRange: 2.6,
+            rarity: 'common',
+            role: 'stat',
+            element: 'yellow',
+            band: 'near',
+            count: { min: 1, max: 1 },
+            maxRank: 6,
+            amountPerRank: 0.04,      // +4% move speed per rank (read via *Mul)
+            baseCost: 2,
+            costGrowth: 1.6,
+            costElements: ['yellow'],
+        },
+        'statTrainer:pickupRange': {
+            kind: 'statTrainer',
+            statId: 'pickupRange',
+            sourceTitle: '집석 단련소',
+            modelPath: './asset/models/building/fig_s_apothecary.glb',
+            modelScale: 2.65,
+            modelLift: 1.0,
+            modelYawOffset: 0,
+            interactRange: 2.6,
+            rarity: 'common',
+            role: 'stat',
+            element: 'yellow',
+            band: 'near',
+            count: { min: 1, max: 1 },
+            maxRank: 5,
+            amountPerRank: 0.10,      // +10% pickup radius per rank (read via *Mul)
+            baseCost: 2,
+            costGrowth: 1.55,
+            costElements: ['yellow', 'green'],
+        },
+        'statTrainer:damage': {
+            kind: 'statTrainer',
+            statId: 'damage',
+            sourceTitle: '단조 시설',
+            modelPath: './asset/models/building/fig_s_forest_shrine.glb',
+            modelScale: 2.7,
+            modelLift: 1.0,
+            modelYawOffset: 0,
+            interactRange: 2.6,
+            rarity: 'uncommon',
+            role: 'stat',
+            element: 'red',
+            band: 'mid',
+            count: { min: 1, max: 1 },
+            maxRank: 8,
+            amountPerRank: 0.05,      // +5% damage per rank
+            baseCost: 3,
+            costGrowth: 1.55,
+            costElements: ['red', 'yellow'],
+        },
+    },
+
     materials: {
         player: {
             tint: '#ffffff',

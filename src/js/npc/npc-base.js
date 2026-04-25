@@ -14,7 +14,7 @@ export class NpcBase {
         this._t = 0;
     }
 
-    async init(parent) {
+    async init(parent, externalPosition = null) {
         this.mesh = await loadGLB(this.config.modelPath);
         applyMaterialPreset(this.mesh, CONFIG.materials.home);
         this.mesh.scale.setScalar(this.config.modelScale ?? 1);
@@ -23,7 +23,21 @@ export class NpcBase {
         this.ring = this._buildRing();
         parent.add(this.ring);
 
-        this.place();
+        if (externalPosition) {
+            this.placeAt(externalPosition);
+        } else {
+            this.place();
+        }
+    }
+
+    /** Place this NPC at an externally chosen position (typically supplied by
+     *  the NPC placement system). Forward orients toward the planet's start
+     *  point so the building faces the player's spawn. */
+    placeAt(position) {
+        this.position.copy(position);
+        const toAnchor = _v.set(0, this.surface.radius, 0).sub(this.position);
+        this.surface.projectToTangent(this.position, toAnchor, this.forward);
+        this.orientSelf();
     }
 
     update(dt, player) {
