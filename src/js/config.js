@@ -51,6 +51,7 @@ export const CONFIG = {
     player: {
         modelPath: './asset/models/player/fig_p_knight.glb',
         modelScale: 3.0,
+        modelLift: 1.05,
         modelYawOffset: 0,       // radians, add if imported model faces wrong way
         moveSpeed: 5.5,          // linear speed along sphere surface
         maxHp: 100,
@@ -72,6 +73,7 @@ export const CONFIG = {
             './asset/models/boss/fig_b_lich_king.glb',
         ],
         modelScale: 2.85,
+        modelLift: 0.95,
         modelYawOffset: 0,
         moveSpeed: 2.4,
         maxHp: 30,
@@ -119,6 +121,7 @@ export const CONFIG = {
     home: {
         modelPath: './asset/models/building/fig_s_campfire_tent.glb',
         modelScale: 3.45,
+        modelLift: 1.2,
         modelYawOffset: 0,
         spawnArcOffset: 5.5,     // arc distance from player's spawn point
         interactRange: 2.8,

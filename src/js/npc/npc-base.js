@@ -54,6 +54,10 @@ export class NpcBase {
 
     orientSelf(yawOffset = this.config.modelYawOffset ?? 0) {
         this.surface.orient(this.mesh, this.position, this.forward, yawOffset);
+        if (this.config.modelLift) {
+            const up = _v.copy(this.position).normalize();
+            this.mesh.position.addScaledVector(up, this.config.modelLift);
+        }
         if (!this.ring) return;
 
         this.surface.orient(this.ring, this.position, this.forward);

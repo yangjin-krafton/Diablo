@@ -68,6 +68,10 @@ export class Player {
 
     _orientMesh() {
         this.surface.orient(this.mesh, this.position, this.forward, CONFIG.player.modelYawOffset);
+        if (CONFIG.player.modelLift) {
+            _up.copy(this.position).normalize();
+            this.mesh.position.addScaledVector(_up, CONFIG.player.modelLift);
+        }
     }
 
     _nearest(enemies, maxDist = Infinity) {
@@ -86,3 +90,4 @@ export class Player {
 }
 
 const _invQ = new THREE.Quaternion();
+const _up = new THREE.Vector3();

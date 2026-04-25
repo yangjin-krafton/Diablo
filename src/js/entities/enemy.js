@@ -19,6 +19,7 @@ export class Enemy {
         this.moveSpeed = CONFIG.enemy.moveSpeed * (options.moveSpeedScale ?? 1);
         this.contactDamage = CONFIG.enemy.contactDamage * (options.damageScale ?? 1);
         this.modelScale = CONFIG.enemy.modelScale * (options.modelScale ?? 1);
+        this.modelLift = CONFIG.enemy.modelLift * (options.modelScale ?? 1);
         this.modelPath = options.modelPath ?? randomFrom(CONFIG.enemy.modelPaths) ?? CONFIG.enemy.modelPath;
         this.alive = true;
         this.mesh = null;
@@ -69,6 +70,10 @@ export class Enemy {
 
     _orientMesh() {
         this.surface.orient(this.mesh, this.position, this.forward, CONFIG.enemy.modelYawOffset);
+        if (this.modelLift) {
+            _up.copy(this.position).normalize();
+            this.mesh.position.addScaledVector(_up, this.modelLift);
+        }
     }
 }
 
@@ -76,3 +81,5 @@ function randomFrom(list) {
     if (!Array.isArray(list) || list.length === 0) return null;
     return list[Math.floor(Math.random() * list.length)];
 }
+
+const _up = new THREE.Vector3();
