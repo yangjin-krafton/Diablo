@@ -25,12 +25,14 @@
  *   node tools/asset-pipeline.mjs --reset-phase2     # GLB만 재생성 (이미지 보존)
  */
 
-import { readFile, writeFile, mkdir, copyFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, copyFile, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { execFile, execSync } from 'node:child_process';
+import { promisify } from 'node:util';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const execFileAsync = promisify(execFile);
 
 // ─── 설정 ───────────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -55,6 +57,11 @@ const CONFIG = {
   cooldownMs:     3000,
   maxRetries:     3,
   vramThreshold:  0.80,
+  optimizeGlb:    !args.includes('--no-glb-optimize'),
+  glbCompress:    flag('glb-compress', 'meshopt'),
+  glbTextureFormat: flag('glb-texture-format', 'webp'),
+  glbTextureSize: Number(flag('glb-texture-size', '1024')),
+  glbSimplify:    args.includes('--glb-simplify'),
 };
 
 const PROMPTS_PATH    = resolve(__dirname, 'product-prompts.json');
@@ -129,6 +136,47 @@ async function downloadOutput(filename, subfolder, type, destPath) {
   const buffer = Buffer.from(await res.arrayBuffer());
   await writeFile(destPath, buffer);
   return destPath;
+}
+
+async function optimizeGLB(sourcePath, targetPath) {
+  if (!CONFIG.optimizeGlb) {
+    await copyFile(sourcePath, targetPath);
+    return false;
+  }
+
+  const tmpPath = `${targetPath}.tmp`;
+  const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const optimizeArgs = [
+    '--yes',
+    '@gltf-transform/cli@4.3.0',
+    'optimize',
+    sourcePath,
+    tmpPath,
+    '--compress',
+    CONFIG.glbCompress,
+    '--texture-compress',
+    CONFIG.glbTextureFormat,
+    '--texture-size',
+    String(CONFIG.glbTextureSize),
+    '--simplify',
+    CONFIG.glbSimplify ? 'true' : 'false',
+  ];
+
+  try {
+    await execFileAsync(npx, optimizeArgs, {
+      cwd: __dirname,
+      windowsHide: true,
+      maxBuffer: 10 * 1024 * 1024,
+    });
+    await copyFile(tmpPath, targetPath);
+    await rm(tmpPath, { force: true });
+    return true;
+  } catch (e) {
+    await rm(tmpPath, { force: true });
+    console.warn(`   [WARN] GLB optimize failed, keeping original: ${e.message.split('\n')[0]}`);
+    await copyFile(sourcePath, targetPath);
+    return false;
+  }
 }
 
 async function freeVRAM() {
@@ -368,13 +416,13 @@ async function runPhase2(products, checkpoint) {
       const targetDir = categoryDir(category);
       await mkdir(targetDir, { recursive: true });
       const glbFinal = resolve(targetDir, `${id}.glb`);
-      await copyFile(glbDest, glbFinal);
+      const optimized = await optimizeGLB(glbDest, glbFinal);
 
       checkpoint.phase2[id] = 'done';
       if (!checkpoint.completed.includes(id)) checkpoint.completed.push(id);
       await saveCheckpoint(checkpoint);
       success++;
-      console.log(`✅ → ${category}/`);
+      console.log(`✅ → ${category}/${optimized ? ' (optimized)' : ''}`);
     } catch (e) {
       const newFails = failures + 1;
       checkpoint.phase2[id] = `fail:${newFails}`;
