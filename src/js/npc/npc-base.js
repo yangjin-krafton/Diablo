@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { loadGLB } from '../assets.js';
+import { CONFIG } from '../config.js';
+import { applyMaterialPreset } from '../material-controls.js';
 
 export class NpcBase {
     constructor(surface, config) {
@@ -14,6 +16,7 @@ export class NpcBase {
 
     async init(parent) {
         this.mesh = await loadGLB(this.config.modelPath);
+        applyMaterialPreset(this.mesh, CONFIG.materials.home);
         this.mesh.scale.setScalar(this.config.modelScale ?? 1);
         parent.add(this.mesh);
 

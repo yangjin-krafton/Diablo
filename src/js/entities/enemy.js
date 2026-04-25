@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { loadGLB } from '../assets.js';
+import { applyMaterialPreset } from '../material-controls.js';
 
 export class Enemy {
     constructor(surface, position, options = {}) {
@@ -18,6 +19,7 @@ export class Enemy {
         this.moveSpeed = CONFIG.enemy.moveSpeed * (options.moveSpeedScale ?? 1);
         this.contactDamage = CONFIG.enemy.contactDamage * (options.damageScale ?? 1);
         this.modelScale = CONFIG.enemy.modelScale * (options.modelScale ?? 1);
+        this.modelPath = options.modelPath ?? randomFrom(CONFIG.enemy.modelPaths) ?? CONFIG.enemy.modelPath;
         this.alive = true;
         this.mesh = null;
 
@@ -25,7 +27,8 @@ export class Enemy {
     }
 
     async init(parent) {
-        this.mesh = await loadGLB(CONFIG.enemy.modelPath);
+        this.mesh = await loadGLB(this.modelPath);
+        applyMaterialPreset(this.mesh, CONFIG.materials.enemy);
         this.mesh.scale.setScalar(this.modelScale);
         parent.add(this.mesh);
         this._orientMesh();
@@ -67,4 +70,9 @@ export class Enemy {
     _orientMesh() {
         this.surface.orient(this.mesh, this.position, this.forward, CONFIG.enemy.modelYawOffset);
     }
+}
+
+function randomFrom(list) {
+    if (!Array.isArray(list) || list.length === 0) return null;
+    return list[Math.floor(Math.random() * list.length)];
 }

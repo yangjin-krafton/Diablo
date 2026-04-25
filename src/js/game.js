@@ -39,9 +39,11 @@ export class Game {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         this.surface = new SphereSurface(CONFIG.world.planetRadius);
-        const { scene, worldRotator } = createScene(this.surface);
+        const { scene, worldRotator, skyScene, skybox } = createScene(this.surface);
         this.scene = scene;
         this.worldRotator = worldRotator;
+        this.skyScene = skyScene;
+        this.skybox = skybox;
 
         const aspect = this._sizePixels().w / this._sizePixels().h;
         this.camera = new StaticCamera(aspect, this.surface);
@@ -52,7 +54,7 @@ export class Game {
         this.homeController = new HomeController(this.home, this.spawner);
 
         this.skillSystem = new SkillSystem(this.player, this);
-        this.drops = new DropSystem(this.surface, this.worldRotator, this.skillSystem);
+        this.drops = new DropSystem(this.surface, this.worldRotator, this.skillSystem, this.homeController);
         this.spawner.onDeath = (pos) => this.drops.rollDrop(pos);
 
         // UI is mounted after Pixi finishes initializing (async, see start()).
@@ -72,7 +74,13 @@ export class Game {
 
     async start() {
         await Promise.all([
-            preload([CONFIG.player.modelPath, CONFIG.enemy.modelPath, CONFIG.home.modelPath]),
+            preload([
+                CONFIG.player.modelPath,
+                CONFIG.home.modelPath,
+                CONFIG.enemy.modelPath,
+                ...(CONFIG.enemy.modelPaths ?? []),
+                ...(CONFIG.enemy.eliteModelPaths ?? []),
+            ]),
             this.ui.ready,
         ]);
         await this.player.init(this.worldRotator);
@@ -115,9 +123,27 @@ export class Game {
         this.hud.update(this.player, this.spawner, this.homeController);
         this.skillBar.update(dt);
 
-        this.renderer.render(this.scene, this.camera.camera);
+        this._render();
         requestAnimationFrame(this._tick);
     };
+
+    _render() {
+        if (this.skybox) {
+            this.skybox.quaternion.copy(this.worldRotator.quaternion);
+            this.skybox.rotateY(this.skybox.userData.yawOffset ?? 0);
+            this.camera.skyCamera.quaternion.copy(this.camera.camera.quaternion);
+
+            this.renderer.autoClear = true;
+            this.renderer.render(this.skyScene, this.camera.skyCamera);
+            this.renderer.autoClear = false;
+            this.renderer.clearDepth();
+            this.renderer.render(this.scene, this.camera.camera);
+            this.renderer.autoClear = true;
+            return;
+        }
+
+        this.renderer.render(this.scene, this.camera.camera);
+    }
 
     /** Respawn the player and clear the transient world state. Skill progression
      *  (level, exp, points, allocated ranks) is preserved across deaths so the

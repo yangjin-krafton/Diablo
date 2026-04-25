@@ -76,7 +76,18 @@ export class Spawner {
         this._bossSpawnCount++;
         const elite = this._bossSpawnCount % 6 === 0;
         return elite
-            ? { hpScale: 4, damageScale: 1.9, moveSpeedScale: 0.85, modelScale: 1.7 }
+            ? {
+                hpScale: 4,
+                damageScale: 1.9,
+                moveSpeedScale: 0.85,
+                modelScale: 1.7,
+                modelPath: randomFrom(CONFIG.enemy.eliteModelPaths),
+            }
             : { hpScale: 1.7, damageScale: 1.35, moveSpeedScale: 1.12, modelScale: 1.15 };
     }
+}
+
+function randomFrom(list) {
+    if (!Array.isArray(list) || list.length === 0) return null;
+    return list[Math.floor(Math.random() * list.length)];
 }

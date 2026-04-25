@@ -15,12 +15,29 @@
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { buildPaintedPlanetGeometry } from './world/terrain.js';
+import { planetPalette } from './world/planet-palette.js';
+
+/** Resolve the active planet's palette, or null when no planet entry is
+ *  configured (legacy CONFIG.world colors stay in charge). Single source of
+ *  truth for per-session environment tone — see docs/drop-resource-design.md
+ *  §3-5. */
+function activePalette() {
+    const id = CONFIG.activePlanet;
+    const planet = CONFIG.planets?.[id];
+    return planet ? planetPalette(planet) : null;
+}
 
 export function createScene(surface) {
+    const palette = activePalette();
+    const skyboxPath = selectSkyboxPath();
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(CONFIG.world.bgColor);
+    const skyScene = new THREE.Scene();
+    scene.background = skyboxPath ? null : new THREE.Color(palette?.bg ?? CONFIG.world.bgColor);
+    if (palette?.fog != null) {
+        scene.fog = new THREE.Fog(palette.fog, surface.radius * 1.6, surface.radius * 4.2);
+    }
 
-    addLighting(scene);
+    addLighting(scene, palette);
 
     // rotating world — everything that should spin when the player walks
     // (planet, landmarks, player, enemies, sword arc, sun, directional light)
@@ -28,7 +45,8 @@ export function createScene(surface) {
     const worldRotator = new THREE.Group();
     scene.add(worldRotator);
 
-    addSun(worldRotator);
+    const skybox = addSkyboxEnvironment(scene, skyScene, skyboxPath);
+    addSun(worldRotator, palette);
 
     const planet = new THREE.Mesh(
         buildPaintedPlanetGeometry(
@@ -48,28 +66,89 @@ export function createScene(surface) {
 
     scatterLandmarks(worldRotator, surface);
 
-    scene.add(buildStars());
+    if (!skyboxPath) scene.add(buildStars());
 
-    return { scene, worldRotator };
+    return { scene, worldRotator, skyScene, skybox };
 }
 
-function addLighting(scene) {
-    const { ambientSky, ambientGround, ambientIntensity } = CONFIG.world.sun;
-    scene.add(new THREE.HemisphereLight(ambientSky, ambientGround, ambientIntensity));
+function addSkyboxEnvironment(scene, skyScene, skyboxPath) {
+    if (!skyboxPath) return null;
+
+    const sky = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 64, 32),
+        new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.BackSide,
+            depthWrite: false,
+            fog: false,
+            toneMapped: false,
+        }),
+    );
+    sky.name = 'skybox';
+    sky.userData.yawOffset = selectSkyboxYaw();
+    skyScene.add(sky);
+
+    const loader = new THREE.TextureLoader();
+    loader.load(
+        skyboxPath,
+        (texture) => {
+            texture.colorSpace = THREE.SRGBColorSpace;
+            const envTexture = texture.clone();
+            envTexture.mapping = THREE.EquirectangularReflectionMapping;
+            envTexture.colorSpace = THREE.SRGBColorSpace;
+            envTexture.needsUpdate = true;
+            scene.environment = envTexture;
+
+            sky.material.map = texture;
+            sky.material.needsUpdate = true;
+        },
+        undefined,
+        (err) => {
+            console.warn('[Diablo] skybox environment failed to load:', skyboxPath, err);
+        },
+    );
+    return sky;
+}
+
+function selectSkyboxPath() {
+    const paths = CONFIG.world.skyboxPaths ?? [];
+    if (paths.length === 0) return CONFIG.world.skyboxPath ?? null;
+    if (!CONFIG.world._selectedSkyboxPath) {
+        CONFIG.world._selectedSkyboxPath = paths[Math.floor(Math.random() * paths.length)];
+    }
+    return CONFIG.world._selectedSkyboxPath;
+}
+
+function selectSkyboxYaw() {
+    if (CONFIG.world._selectedSkyboxYaw === undefined) {
+        const randomYaw = CONFIG.world.skyboxRandomYaw ? Math.random() * Math.PI * 2 : 0;
+        CONFIG.world._selectedSkyboxYaw = (CONFIG.world.skyboxYawOffset ?? 0) + randomYaw;
+    }
+    return CONFIG.world._selectedSkyboxYaw;
+}
+
+function addLighting(scene, palette) {
+    const { ambientIntensity } = CONFIG.world.sun;
+    const sky    = palette?.ambientSky    ?? CONFIG.world.sun.ambientSky;
+    const ground = palette?.ambientGround ?? CONFIG.world.sun.ambientGround;
+    scene.add(new THREE.HemisphereLight(sky, ground, ambientIntensity));
 }
 
 // The sun + its directional light live INSIDE the worldRotator group so that
 // when the planet rotates under the player, the light direction rotates with
 // it — the same biome on the planet keeps the same lighting angle.
-function addSun(worldRotator) {
+function addSun(worldRotator, palette) {
     const cfg = CONFIG.world.sun;
     const sunPos = new THREE.Vector3(cfg.position.x, cfg.position.y, cfg.position.z);
     const sunDist = sunPos.length();
 
+    const sunColor  = palette?.sun     ?? cfg.color;
+    const haloColor = palette?.sunHalo ?? cfg.haloColor;
+
     // --- visible sun sphere (unshaded, always bright) ---
     const sun = new THREE.Mesh(
         new THREE.SphereGeometry(cfg.size, 32, 32),
-        new THREE.MeshBasicMaterial({ color: cfg.color, toneMapped: false }),
+        new THREE.MeshBasicMaterial({ color: sunColor, toneMapped: false }),
     );
     sun.position.copy(sunPos);
     worldRotator.add(sun);
@@ -78,7 +157,7 @@ function addSun(worldRotator) {
     const halo = new THREE.Mesh(
         new THREE.SphereGeometry(cfg.size * cfg.haloScale, 32, 32),
         new THREE.MeshBasicMaterial({
-            color: cfg.haloColor,
+            color: haloColor,
             transparent: true,
             opacity: 0.18,
             side: THREE.BackSide,

@@ -152,7 +152,8 @@ export class SwordSkill extends Skill {
         const pos = this.player.position;
         const forward = this.player.forward;
         const halfArc = this.arc / 2;
-        const rangeSq = this.range * this.range;
+        const inner = this.range * CONFIG.sword.hitInnerRatio;
+        const outer = this.range * CONFIG.sword.hitOuterRatio;
         _up.copy(pos).normalize();
 
         const hitSet = new Set();
@@ -161,12 +162,12 @@ export class SwordSkill extends Skill {
             _dv.subVectors(e.position, pos);
             _tan.copy(_dv).addScaledVector(_up, -_dv.dot(_up));
             const distSq = _tan.lengthSq();
-            if (distSq > rangeSq) continue;
+            const bodyRadius = e.radius ?? CONFIG.enemy.radius ?? 0;
+            if (distSq > (outer + bodyRadius) * (outer + bodyRadius)) continue;
             let inArc = false;
             const dist = Math.sqrt(distSq);
-            if (dist < 1e-4) {
-                inArc = true;
-            } else {
+            if (dist + bodyRadius < inner) continue;
+            if (dist >= 1e-4) {
                 const cos = forward.dot(_tan) / dist;
                 const ang = Math.acos(Math.max(-1, Math.min(1, cos)));
                 inArc = ang <= halfArc;
@@ -194,7 +195,7 @@ export class SwordSkill extends Skill {
 
     _nearestEnemyInRange(enemies) {
         const surface = this.game.surface;
-        const maxDist = this.range + CONFIG.enemy.radius;
+        const maxDist = this.range * CONFIG.sword.hitOuterRatio + CONFIG.enemy.radius;
         let best = null;
         let bestD = maxDist;
         for (const e of enemies) {

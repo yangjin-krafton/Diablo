@@ -2,6 +2,9 @@
 // the radial up axis so it floats above the surface and spins. Picked up by
 // walking over it (see DropSystem).
 //
+// Each shard carries an `element` key (red/yellow/green/blue/purple) that
+// determines its color and which slot increments on pickup.
+//
 // Three-state life cycle for juiciness:
 //   dropping    — brief scale-up + vertical hop so the drop is noticeable
 //   idle        — steady bob + spin while waiting to be picked up
@@ -10,6 +13,7 @@
 
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
+import { ELEMENTS, ELEMENT_HEX } from '../data/elements.js';
 
 const DROP_DUR    = 0.28;
 const COLLECT_DUR = 0.35;
@@ -17,20 +21,24 @@ const BASE_LIFT   = 0.5;
 const BOB_AMP     = 0.18;
 
 export class SkillShard {
-    constructor(surface, position) {
+    constructor(surface, position, element = 'yellow') {
         this.surface = surface;
         this.position = new THREE.Vector3().copy(position);
         this.surface.snapToSurface(this.position);
         this.alive = true;
+        this.element = element;
         this._phase = Math.random() * Math.PI * 2;
 
         this._state = 'dropping';
         this._stateT = 0;
 
+        const tint = ELEMENT_HEX[element] ?? CONFIG.drops.shardColor;
+        const emissive = ELEMENTS[element]?.emissive ?? CONFIG.drops.shardEmissive;
+
         const geo = new THREE.IcosahedronGeometry(CONFIG.drops.shardSize, 0);
         const mat = new THREE.MeshStandardMaterial({
-            color: CONFIG.drops.shardColor,
-            emissive: CONFIG.drops.shardEmissive,
+            color: tint,
+            emissive,
             emissiveIntensity: 0.9,
             metalness: 0.4,
             roughness: 0.3,

@@ -1,4 +1,5 @@
 import { CONFIG } from '../config.js';
+import { ELEMENT_KEYS, emptyOreMap } from '../data/elements.js';
 
 const QUEST_IDLE = 'idle';
 const QUEST_ACTIVE = 'active';
@@ -14,13 +15,7 @@ export class HomeController {
         this.carriedFuel = 0;
         this.loadedFuel = 0;
 
-        this.ores = {
-            red: 0,
-            yellow: 0,
-            green: 0,
-            blue: 0,
-            purple: 0,
-        };
+        this.ores = emptyOreMap();
 
         this.departureState = 'idle';
         this.departureRemaining = CONFIG.home.departureCountdown;
@@ -61,6 +56,13 @@ export class HomeController {
 
     get canDepart() {
         return this.isFuelFull && this.departureState !== 'countdown' && !this.success;
+    }
+
+    /** Add `amount` to the ore counter for `element`. No-op if the key is
+     *  not one of the canonical ELEMENT_KEYS. */
+    gainOre(element, amount = 1) {
+        if (!ELEMENT_KEYS.includes(element)) return;
+        this.ores[element] = (this.ores[element] ?? 0) + amount;
     }
 
     acceptQuest() {

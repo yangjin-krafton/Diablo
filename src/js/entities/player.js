@@ -14,6 +14,7 @@
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { loadGLB } from '../assets.js';
+import { applyMaterialPreset } from '../material-controls.js';
 
 export class Player {
     constructor(surface) {
@@ -30,6 +31,7 @@ export class Player {
 
     async init(parent) {
         this.mesh = await loadGLB(CONFIG.player.modelPath);
+        applyMaterialPreset(this.mesh, CONFIG.materials.player);
         this.mesh.scale.setScalar(CONFIG.player.modelScale);
         parent.add(this.mesh);
         this._orientMesh();
