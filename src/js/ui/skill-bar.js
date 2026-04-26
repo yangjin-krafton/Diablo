@@ -22,11 +22,15 @@ export class SkillBar {
 
         this._frame = this.root.addChild(new Graphics());
 
+        // Bind activate to the slot index, not to the skill instance: the
+        // skill at a given index can be replaced (EmptySkill → real skill)
+        // when a trainer NPC teaches the player a new skill, and clicking the
+        // slot must activate whatever lives there *now*.
         this.slots = skillSystem.skills.map((skill, i) => {
             const slot = new SkillSlot({
                 id: skill.id,
                 size: SLOT_SIZE,
-                onActivate: () => this._handleActivate(i, skill),
+                onActivate: () => this._handleActivate(i),
             });
             slot.setIcon(skill.iconPath);
             this.root.addChild(slot);
@@ -36,8 +40,9 @@ export class SkillBar {
         this._unsubscribeResize = uiRoot.onResize((w, h) => this._layout(w, h));
     }
 
-    _handleActivate(i, skill) {
-        if (skill.isEmpty) return;
+    _handleActivate(i) {
+        const skill = this.skillSystem.skills[i];
+        if (!skill || skill.isEmpty) return;
         skill.activate();
     }
 
@@ -45,10 +50,14 @@ export class SkillBar {
         const n = this.slots.length;
         const total = n * SLOT_SIZE + (n - 1) * SLOT_GAP;
         const framePad = 12;
-        const frameW = total + framePad * 2;
-        const frameH = SLOT_SIZE + framePad * 2;
-        const startX = Math.round((w - total) / 2);
-        const y = Math.round(h - SLOT_SIZE - BOTTOM_INSET);
+        const scale = Math.min(1, Math.max(0.72, (w - framePad * 2 - 12) / total));
+        const scaledTotal = total * scale;
+        const scaledSlot = SLOT_SIZE * scale;
+        const scaledGap = SLOT_GAP * scale;
+        const frameW = scaledTotal + framePad * 2;
+        const frameH = scaledSlot + framePad * 2;
+        const startX = Math.round((w - scaledTotal) / 2);
+        const y = Math.round(h - scaledSlot - BOTTOM_INSET);
         const frameX = startX - framePad;
         const frameY = y - framePad;
 
@@ -67,7 +76,8 @@ export class SkillBar {
         });
 
         for (let i = 0; i < n; i++) {
-            this.slots[i].position.set(startX + i * (SLOT_SIZE + SLOT_GAP), y);
+            this.slots[i].scale.set(scale);
+            this.slots[i].position.set(startX + i * (scaledSlot + scaledGap), y);
         }
     }
 
@@ -76,6 +86,9 @@ export class SkillBar {
         for (let i = 0; i < skills.length; i++) {
             const skill = skills[i];
             const slot = this.slots[i];
+            // setIcon short-circuits when the URL hasn't changed, so calling
+            // it every tick is cheap and lets newly-learned skills show up.
+            slot.setIcon(skill.iconPath);
             slot.setLocked(skill.isEmpty);
             slot.setEmphasis(skill.isEmphasis());
             slot.setEnabled(!skill.isEmpty);

@@ -55,8 +55,8 @@ export function createScene(surface) {
     // the material once the GPU program is ready, avoiding any first-frame
     // stall when the upgrade lands.
     const planetMat = createPlanetMaterial({
-        tint: palette?.accent ?? 0xffffff,
-        tintStrength: 0.5,
+        tint: 0xffb0a0,         // bright warm red — uniform multiplier over texture
+        tintStrength: 1.0,
         noiseScale: 0.16,
         patchContrast: 0.45,
         flatShading: true,
@@ -111,11 +111,11 @@ async function upgradePlanetMaterialAsync(scene, planetMesh, palette, renderer, 
     if (!tex.albedoMaps.length && !tex.noiseMap) return null;
 
     const upgraded = createPlanetMaterial({
-        tint: palette?.accent ?? 0xffffff,
-        tintStrength: 0.5,
+        tint: 0xffb0a0,         // bright warm red — uniform multiplier over texture
+        tintStrength: 1.0,
         noiseScale: 0.05,
         materialScale: 0.42,
-        aoStrength: 0.95,
+        aoStrength: 0.55,
         // CPU baked terrain (terrain.js#displaceTerrain) handles macro
         // relief, so PBR displacement maps aren't loaded — keeps us under
         // the 16-sampler WebGL cap. flatShading=true is per-face

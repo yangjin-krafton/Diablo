@@ -42,7 +42,7 @@ const TEX_LOADER = new THREE.TextureLoader();
  */
 export function createPlanetMaterial(opts = {}) {
     const {
-        tint = 0xffffff,
+        tint = 0xffb0a0,        // default to a bright warm red — uniformly multiplied into albedo
         albedoMaps = [],
         normalMaps = [],
         roughnessMaps = [],
@@ -51,9 +51,9 @@ export function createPlanetMaterial(opts = {}) {
         noiseMap = null,
         noiseScale = 0.16,
         materialScale = 0.4,
-        tintStrength = 0.45,
-        patchContrast = 0.45,   // ± lightness modulation from noise
-        aoStrength = 0.85,      // 0 = AO ignored, 1 = full multiplicative AO
+        tintStrength = 1.0,     // 1.0 = full multiplication of tint over texture
+        patchContrast = 0.45,   // ± lightness modulation from noise (procedural fallback only)
+        aoStrength = 0.55,      // 0 = AO ignored, 1 = full multiplicative AO
         displacementScale = 0.45,
         flatShading = true,
     } = opts;
@@ -297,11 +297,6 @@ vec3 pmSampleTriplanar(sampler2D tex, vec3 localPos, vec3 blend, float scale) {
 #include <color_fragment>
 {
     float n = pmNoiseSample(vPlanetLocalPos);
-    // Second, slower noise octave gives non-uniform "patches" where the
-    // tint and lightness modulation kick in harder — much more visible
-    // than a single fbm.
-    float n2 = pmFbm((vPlanetLocalPos + vec3(31.7, 5.1, 9.2)) * uNoiseScale * 0.45);
-    float patches = smoothstep(0.42, 0.62, n2);
 
     vec3 baseAlbedo = diffuseColor.rgb;
 ${usePbrTextures ? `
@@ -316,23 +311,20 @@ ${usePbrTextures ? `
     }
     if (uSlotCount > 2.5) {
         vec3 a2 = pmSampleTriplanar(uAlbedo2, vPlanetLocalPos, blend, uMaterialScale);
+        float n2 = pmFbm((vPlanetLocalPos + vec3(31.7, 5.1, 9.2)) * uNoiseScale * 0.45);
         float w2 = smoothstep(0.55, 0.85, n2);
         albedo = mix(albedo, a2, w2);
     }
-    // Multiply biome color into the PBR albedo so the Voronoi paint still
-    // contributes regional variation.
-    baseAlbedo = albedo * mix(vec3(0.85), baseAlbedo * 1.4, 0.6);
+    // Use the PBR texture color directly — no biome/vertex-color tinting.
+    baseAlbedo = albedo;
 ` : `
     // Procedural-only path: bigger lightness modulation so the surface
     // visibly looks textured instead of a flat painted polygon.
     float mod_ = mix(1.0 - uPatchContrast, 1.0 + uPatchContrast, n);
     baseAlbedo = baseAlbedo * mod_;
 `}
-    // Tint the planet palette into the result. Stronger in patch areas
-    // so the planet's colour pools in 'weathered' patches rather than
-    // being a uniform wash.
-    float tintAmt = uTintStrength * (0.55 + 0.85 * patches);
-    vec3 tinted = mix(baseAlbedo, baseAlbedo * uTint, tintAmt);
+    // Uniform palette tint multiplied across the whole surface (no patches).
+    vec3 tinted = mix(baseAlbedo, baseAlbedo * uTint, uTintStrength);
 
 ${useAo ? `
     // Ambient-occlusion: triplanar-sample whichever slots provide AO,

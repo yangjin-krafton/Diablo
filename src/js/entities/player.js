@@ -29,6 +29,7 @@ export class Player {
         this.alive = true;
 
         this.mesh = null;
+        this.headLight = null;
         this.hitSparks = null;
         this._hitSparkCooldown = 0;
         this.motion = new TransformMotion({
@@ -43,6 +44,20 @@ export class Player {
         applyMaterialPreset(this.mesh, CONFIG.materials.player);
         this.mesh.scale.setScalar(CONFIG.player.modelScale);
         parent.add(this.mesh);
+
+        const lightCfg = CONFIG.player.headLight;
+        if (lightCfg) {
+            this.headLight = new THREE.PointLight(
+                lightCfg.color ?? 0xfff0c8,
+                lightCfg.intensity ?? 1.6,
+                lightCfg.distance ?? 8,
+                lightCfg.decay ?? 1.8,
+            );
+            this.headLight.name = 'player-head-light';
+            this.headLight.castShadow = false;
+            parent.add(this.headLight);
+        }
+
         this._orientMesh();
     }
 
@@ -94,6 +109,7 @@ export class Player {
         if (this.hp <= 0) {
             this.alive = false;
             if (this.mesh) this.mesh.visible = false;
+            if (this.headLight) this.headLight.visible = false;
         }
     }
 
@@ -105,6 +121,12 @@ export class Player {
         }
         this.mesh.scale.setScalar(CONFIG.player.modelScale);
         this.motion.apply(this.mesh, { up: _up, baseScale: CONFIG.player.modelScale });
+
+        if (this.headLight) {
+            const lift = CONFIG.player.headLight?.lift ?? 4.2;
+            this.headLight.visible = this.alive;
+            this.headLight.position.copy(this.position).addScaledVector(_up, lift);
+        }
     }
 
     _nearest(enemies, maxDist = Infinity) {

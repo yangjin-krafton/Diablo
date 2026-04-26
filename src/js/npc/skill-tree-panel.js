@@ -71,13 +71,31 @@ export class SkillTreePanel {
     }
 
     open({ sourceId = 'home', skillId = this._defaultSkillId } = {}) {
-        const skill = this.skillSystem.getSkillById(skillId) ?? this.skillSystem.firstTrainableSkill();
-        if (!skill || skill.isEmpty) return;
+        const equipped = this.skillSystem.getSkillById(skillId);
+        const isLearned = !!(equipped && !equipped.isEmpty);
+
+        let learnInfo = null;
+        let skill = equipped;
+        if (!isLearned) {
+            // Targeted skill not yet learned — try to render the learn prompt
+            // from the class registry. If the skill id isn't learnable at all
+            // (e.g. legacy data), fall back to the first equipped skill.
+            const info = this.skillSystem.getLearnableInfo?.(skillId);
+            if (info) {
+                learnInfo = info;
+                skill = null;
+            } else {
+                skill = this.skillSystem.firstTrainableSkill();
+                if (!skill || skill.isEmpty) return;
+            }
+        }
 
         this.uiRoot.setSkillBarVisible(false);
         this._open = true;
         this._sourceId = sourceId;
         this._currentSkill = skill;
+        this._learnInfo = learnInfo;
+        this._learnSkillId = learnInfo ? skillId : null;
         this._hoverNode = null;
         this._selectedNode = null;
         this.root.visible = true;
@@ -88,6 +106,8 @@ export class SkillTreePanel {
         this._open = false;
         this._sourceId = null;
         this._selectedNode = null;
+        this._learnInfo = null;
+        this._learnSkillId = null;
         this.root.visible = false;
         this.uiRoot.setSkillBarVisible(true);
         this._onClose();
@@ -117,12 +137,17 @@ export class SkillTreePanel {
 
     _render() {
         this.modal.removeChildren();
+        this._drawChassis();
+        this._drawCloseButton();
+
+        if (this._learnInfo) {
+            this._renderLearnPrompt();
+            return;
+        }
         if (!this._currentSkill) return;
 
         const w = this._modalW;
         const h = this._modalH;
-        this._drawChassis();
-        this._drawCloseButton();
 
         const bodyY = PAD;
         const bodyH = h - PAD * 2;
@@ -132,6 +157,122 @@ export class SkillTreePanel {
 
         this._renderDetails(PAD, bodyY, w - PAD * 2, upperH);
         this._renderTree(PAD, lowerY, w - PAD * 2, lowerH);
+    }
+
+    _renderLearnPrompt() {
+        const info = this._learnInfo;
+        const skillSystem = this.skillSystem;
+        const skillId = this._learnSkillId;
+        const slotsFull = !skillSystem.hasEmptySlot();
+        const canLearn = skillSystem.canLearn(skillId);
+        const w = this._modalW;
+        const h = this._modalH;
+
+        const headingY = Math.round(h * 0.18);
+        const heading = makeText(this._sourceTitle || '스킬 교관', {
+            fontFamily: FONT_MONO,
+            fontSize: 13,
+            fontWeight: '900',
+            fill: NEON.CYAN_LT,
+        });
+        heading.anchor.set(0.5, 0);
+        heading.position.set(w / 2, headingY);
+        this.modal.addChild(heading);
+
+        const title = fitText({
+            text: info.displayName,
+            style: {
+                fontFamily: FONT_UI,
+                fontSize: 40,
+                fontWeight: '900',
+                fill: NEON.MAGENTA_LT,
+                align: 'center',
+            },
+            maxW: w - 80,
+        });
+        title.anchor.set(0.5, 0);
+        title.position.set(w / 2, headingY + 28);
+        this.modal.addChild(title);
+
+        const desc = fitText({
+            text: info.description || '',
+            style: {
+                fontFamily: FONT_UI,
+                fontSize: 16,
+                fill: NEON.TEXT,
+                lineHeight: 24,
+                align: 'center',
+            },
+            maxW: w - 100,
+            maxH: 140,
+        });
+        desc.anchor.set(0.5, 0);
+        desc.position.set(w / 2, headingY + 96);
+        this.modal.addChild(desc);
+
+        let reasonText;
+        let reasonColor = NEON.CYAN_LT;
+        if (slotsFull) {
+            reasonText = '스킬 슬롯이 가득 찼습니다 (최대 4개) — 새 스킬을 배울 수 없습니다.';
+            reasonColor = NEON.TEXT_FT;
+        } else if (!canLearn) {
+            reasonText = '이 스킬은 이미 보유 중입니다.';
+            reasonColor = NEON.TEXT_FT;
+        } else {
+            const filled = skillSystem.skills.filter((s) => !s.isEmpty).length;
+            reasonText = `습득 후 이 건물에서 스킬 트리를 강화할 수 있습니다.   슬롯 ${filled} / ${skillSystem.maxSlots}`;
+        }
+
+        const reason = fitText({
+            text: reasonText,
+            style: {
+                fontFamily: FONT_MONO,
+                fontSize: 13,
+                fontWeight: '800',
+                fill: reasonColor,
+                align: 'center',
+            },
+            maxW: w - 100,
+        });
+        reason.anchor.set(0.5, 0);
+        reason.position.set(w / 2, Math.round(h * 0.62));
+        this.modal.addChild(reason);
+
+        const btnW = 220;
+        const btnH = 50;
+        const btnX = Math.round((w - btnW) / 2);
+        const btnY = Math.round(h * 0.72);
+
+        const btn = new Button({
+            width: btnW,
+            height: btnH,
+            cursor: canLearn ? 'pointer' : 'default',
+            onClick: () => {
+                if (!canLearn) return;
+                const learned = this.skillSystem.learnSkill(skillId);
+                if (!learned) return;
+                this._learnInfo = null;
+                this._learnSkillId = null;
+                this._currentSkill = learned;
+                this._hoverNode = null;
+                this._selectedNode = null;
+                this._render();
+            },
+        });
+        btn.position.set(btnX, btnY);
+        const bg = new Graphics();
+        neonButton(bg, 0, 0, btnW, btnH, { primary: true, enabled: canLearn, cut: 14 });
+        btn.addChild(bg);
+        const label = makeText(canLearn ? '스킬 습득' : '습득 불가', {
+            fontFamily: FONT_UI,
+            fontSize: 16,
+            fontWeight: '900',
+            fill: canLearn ? 0x160014 : NEON.TEXT_FT,
+        });
+        label.anchor.set(0.5);
+        label.position.set(btnW / 2, btnH / 2);
+        btn.addChild(label);
+        this.modal.addChild(btn);
     }
 
     _drawChassis() {

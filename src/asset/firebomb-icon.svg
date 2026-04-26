@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="54%" r="48%">
+      <stop offset="0%" stop-color="#fff0a8"/>
+      <stop offset="42%" stop-color="#ff7a1f"/>
+      <stop offset="100%" stop-color="#2a0804"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="26" y1="70" x2="64" y2="32">
+      <stop offset="0%" stop-color="#14362f"/>
+      <stop offset="100%" stop-color="#63d0a1"/>
+    </linearGradient>
+  </defs>
+  <rect width="96" height="96" rx="18" fill="#090912"/>
+  <circle cx="48" cy="52" r="36" fill="url(#glow)" opacity="0.7"/>
+  <path d="M56 13c8 11 1 15 8 24 4 5 4 12-1 18 1-11-11-12-8-25-8 6-11 15-8 25-13-8-10-25 9-42z" fill="#ffd45a"/>
+  <path d="M53 24c5 7 0 10 5 16 3 4 1 9-3 12 0-8-8-9-5-18-6 5-7 11-5 18-10-7-6-19 8-28z" fill="#ff4a16"/>
+  <g transform="rotate(-31 48 56)">
+    <rect x="38" y="24" width="16" height="13" rx="3" fill="#35251b"/>
+    <rect x="34" y="34" width="24" height="42" rx="9" fill="url(#glass)" stroke="#b8ffe0" stroke-width="2"/>
+    <path d="M39 39h11c4 7 4 21-2 31H38c5-9 6-20 1-31z" fill="#ffffff" opacity="0.22"/>
+    <path d="M37 62h21v7c0 5-4 9-9 9h-3c-5 0-9-4-9-9v-7z" fill="#ff3b12" opacity="0.55"/>
+  </g>
+  <path d="M21 72c13 9 40 9 54 0" fill="none" stroke="#ffb13b" stroke-width="4" stroke-linecap="round" opacity="0.75"/>
+</svg>

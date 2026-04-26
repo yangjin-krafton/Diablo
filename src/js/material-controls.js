@@ -48,6 +48,9 @@ function applyPresetToMaterial(material, preset) {
     if ('envMapIntensity' in material && preset.envMapIntensity !== undefined) {
         material.envMapIntensity = preset.envMapIntensity;
     }
+    if (preset.indirectLightIntensity !== undefined) {
+        applyIndirectLightScale(material, preset.indirectLightIntensity);
+    }
     if (preset.opacity !== undefined) {
         material.opacity = preset.opacity;
         material.transparent = preset.opacity < 1;
@@ -60,4 +63,22 @@ function applyPresetToMaterial(material, preset) {
         material.toneMapped = preset.toneMapped;
     }
     material.needsUpdate = true;
+}
+
+function applyIndirectLightScale(material, scale) {
+    if (!material.isMeshStandardMaterial && !material.isMeshPhysicalMaterial) return;
+
+    const clamped = Math.max(0, Math.min(1, scale));
+    material.userData.indirectLightIntensity = clamped;
+    material.customProgramCacheKey = () => `indirectLight:${clamped.toFixed(3)}`;
+    material.onBeforeCompile = (shader) => {
+        shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <lights_fragment_end>',
+            `
+#include <lights_fragment_end>
+reflectedLight.indirectDiffuse *= ${clamped.toFixed(3)};
+reflectedLight.indirectSpecular *= ${clamped.toFixed(3)};
+`,
+        );
+    };
 }

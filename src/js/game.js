@@ -20,6 +20,7 @@ import { Player } from './entities/player.js';
 import { HomeNpc } from './npc/home-npc.js';
 import { SkillTrainerNpc } from './npc/skill-trainer-npc.js';
 import { StatTrainerNpc } from './npc/stat-trainer-npc.js';
+import { HealShrineNpc } from './npc/heal-shrine-npc.js';
 import { Spawner } from './systems/spawner.js';
 import { DropSystem } from './systems/drop-system.js';
 import { HomeController } from './systems/home-controller.js';
@@ -84,6 +85,7 @@ export class Game {
         this.statsProgression = new PlayerStatsProgression(this.player);
 
         this.skillSystem = new SkillSystem(this.player, this);
+        this.spawner.getAggroTargets = () => this.skillSystem.aggroTargets();
         this.drops = new DropSystem(this.surface, this.worldRotator, this.skillSystem, this.homeController);
         this.drops.statsProgression = this.statsProgression;
         this.drops.tier = this.tier;
@@ -157,13 +159,35 @@ export class Game {
         // the placement system, and register stat trainers with the
         // progression controller. `count: { min, max }` lets a single entry
         // produce multiple instances per planet (§6-3 of the design doc).
+        //
+        // Skill trainers are *sampled*: each planet randomly picks a small
+        // subset (2 or 3 distinct skill types) so the available learnable
+        // skills vary by planet. Stat trainers and other npc kinds always
+        // appear as registered.
         const npcMul = this.tier?.npcCountMul ?? 1;
         const hostileMul = this.tier?.hostileCountMul ?? 1;
 
-        for (const [id, def] of Object.entries(registry)) {
+        const skillTrainerEntries = [];
+        const otherNpcEntries = [];
+        for (const entry of Object.entries(registry)) {
+            if (entry[1].kind === 'skillTrainer') skillTrainerEntries.push(entry);
+            else otherNpcEntries.push(entry);
+        }
+        const trainerSampleSize = Math.min(skillTrainerEntries.length, 2 + Math.floor(Math.random() * 2));
+        const sampledTrainers = pickRandomEntries(skillTrainerEntries, trainerSampleSize);
+        const activeNpcEntries = [...sampledTrainers, ...otherNpcEntries];
+
+        for (const [id, def] of activeNpcEntries) {
             if (def.kind === 'statTrainer') this.statsProgression.register(def.statId, def);
 
-            const instanceCount = scaleCount(pickInstanceCount(def.count), npcMul);
+            // Heal shrines aren't tier-scaled — the per-tier `count` ranges
+            // (minor 1-2, major 1-2, elite 1) already pin the planet-wide
+            // total to 3-5. Letting npcCountMul stretch that breaks the
+            // design intent on small/large planets.
+            const baseCount = pickInstanceCount(def.count);
+            const instanceCount = def.kind === 'healShrine'
+                ? baseCount
+                : scaleCount(baseCount, npcMul);
             for (let i = 0; i < instanceCount; i++) {
                 const npc = this._buildNpcFromDef(def);
                 if (!npc) {
@@ -200,6 +224,7 @@ export class Game {
         });
 
         const npcCtx = {
+            player: this.player,
             skillSystem: this.skillSystem,
             homeController: this.homeController,
             statsProgression: this.statsProgression,
@@ -221,6 +246,7 @@ export class Game {
     _buildNpcFromDef(def) {
         if (def.kind === 'skillTrainer') return new SkillTrainerNpc(this.surface, def);
         if (def.kind === 'statTrainer')  return new StatTrainerNpc(this.surface, def);
+        if (def.kind === 'healShrine')   return new HealShrineNpc(this.surface, def);
         return null;
     }
 
@@ -428,6 +454,19 @@ function pickInstanceCount(range) {
 function scaleCount(baseCount, mul) {
     if (baseCount <= 0) return 0;
     return Math.max(1, Math.round(baseCount * (mul ?? 1)));
+}
+
+/** Sample `n` entries from `entries` without replacement. */
+function pickRandomEntries(entries, n) {
+    if (n >= entries.length) return entries.slice();
+    const pool = entries.slice();
+    const out = [];
+    for (let i = 0; i < n && pool.length > 0; i++) {
+        const idx = Math.floor(Math.random() * pool.length);
+        out.push(pool[idx]);
+        pool.splice(idx, 1);
+    }
+    return out;
 }
 
 /** Pick a planet size tier from CONFIG.planetSize.tiers using `weight`. */

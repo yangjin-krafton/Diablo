@@ -63,7 +63,8 @@ export class Spawner {
             this._spawnBoss(parent, player);
         }
 
-        for (const e of this.enemies) e.update(dt, player);
+        const aggroTargets = this.getAggroTargets?.() ?? null;
+        for (const e of this.enemies) e.update(dt, player, aggroTargets);
     }
 
     _spawn(parent, player) {

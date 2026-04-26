@@ -10,7 +10,7 @@ export class HomeController {
         this.home = home;
         this.spawner = spawner;
 
-        this.questState = QUEST_IDLE;
+        this.questState = CONFIG.home.startWithQuest ? QUEST_ACTIVE : QUEST_IDLE;
         this.questStartKills = 0;
         this.carriedFuel = 0;
         this.loadedFuel = 0;

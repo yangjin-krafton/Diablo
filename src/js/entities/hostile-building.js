@@ -79,6 +79,7 @@ export class HostileBuilding {
 
     damage(amount, sourcePosition = null) {
         if (!this.alive) return;
+        amount *= this.blackHoleDamageTakenMultiplier ?? 1;
         this._setHitDirection(sourcePosition);
         this.motion.shake(this._hitDir, Math.min(1.5, 0.5 + amount / this.maxHp));
         this.hitSparks?.emit(this.position, this._hitDir, {
