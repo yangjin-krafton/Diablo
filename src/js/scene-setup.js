@@ -34,9 +34,7 @@ export function createScene(surface) {
     const scene = new THREE.Scene();
     const skyScene = new THREE.Scene();
     scene.background = skyboxPath ? null : new THREE.Color(palette?.bg ?? CONFIG.world.bgColor);
-    if (palette?.fog != null) {
-        scene.fog = new THREE.Fog(palette.fog, surface.radius * 1.6, surface.radius * 4.2);
-    }
+    applySceneFog(scene, surface, palette, skyboxPath);
 
     addLighting(scene, palette);
 
@@ -84,6 +82,34 @@ export function createScene(surface) {
         upgradePlanetMaterialAsync(scene, planet, palette, renderer, camera);
 
     return { scene, worldRotator, skyScene, skybox, upgradePlanetMaterial };
+}
+
+function applySceneFog(scene, surface, palette, skyboxPath) {
+    const cfg = CONFIG.world.fog;
+    if (!cfg?.enabled) return;
+
+    const color = cfg.color ?? fogColorForSkybox(skyboxPath) ?? palette?.fog ?? palette?.bg ?? CONFIG.world.bgColor;
+    const near = THREE.MathUtils.clamp(
+        surface.radius * (cfg.nearRadiusMul ?? 1.15),
+        cfg.nearMin ?? 34,
+        cfg.nearMax ?? 48,
+    );
+    const far = THREE.MathUtils.clamp(
+        surface.radius * (cfg.farRadiusMul ?? 2.1),
+        cfg.farMin ?? 70,
+        cfg.farMax ?? 115,
+    );
+    scene.fog = new THREE.Fog(color, near, Math.max(near + 1, far));
+}
+
+function fogColorForSkybox(path) {
+    if (!path) return null;
+    const colors = CONFIG.world.fog?.skyboxColors ?? {};
+    const normalized = path.toLowerCase();
+    for (const [key, color] of Object.entries(colors)) {
+        if (normalized.includes(key.toLowerCase())) return color;
+    }
+    return null;
 }
 
 /** Async PBR material upgrade. Loads textures, builds the upgraded

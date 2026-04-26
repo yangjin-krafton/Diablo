@@ -51,6 +51,20 @@ export const CONFIG = {
         // entry (see Game constructor).
         planetRadius: 30,
         bgColor: 0x050510,
+        fog: {
+            enabled: true,
+            color: null,          // null = derive from selected skybox texture
+            skyboxColors: {
+                space_green: 0x18382c,
+                space_red: 0x3a1720,
+            },
+            nearMin: 14,
+            nearMax: 24,
+            nearRadiusMul: 0.75,
+            farMin: 48,
+            farMax: 78,
+            farRadiusMul: 1.35,
+        },
         skyboxPaths: [
             './asset/skybox/space_green.png',
             './asset/skybox/space_red.png',
@@ -104,7 +118,7 @@ export const CONFIG = {
         radius: 0.4,
         headLight: {
             color: 0xfff0c8,
-            intensity: 10,
+            intensity: 5,
             distance: 16,
             decay: 1.2,
             lift: 3.4,
@@ -721,8 +735,8 @@ export const CONFIG = {
             metalness: 0,
             emissive: '#000000',
             emissiveIntensity: 0,
-            envMapIntensity: 0.1,
-            indirectLightIntensity: 0.22,
+            envMapIntensity: 0.02,
+            indirectLightIntensity: 0.08,
             opacity: 1,
             wireframe: false,
             toneMapped: true,
