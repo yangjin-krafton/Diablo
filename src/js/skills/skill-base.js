@@ -10,6 +10,7 @@ export class Skill {
         this.displayName = this.constructor.displayName ?? '스킬';
         this.iconPath = this.constructor.iconPath ?? null;
         this.description = this.constructor.description ?? '';
+        this.attackDirectionMode = this.constructor.attackDirectionMode ?? 'moveDirection';
 
         this.level = 1;
         this.exp = 0;

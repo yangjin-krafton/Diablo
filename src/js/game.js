@@ -26,10 +26,13 @@ import { HomeController } from './systems/home-controller.js';
 import { NpcBuildingPlacement } from './systems/npc-building-placement.js';
 import { PlayerStatsProgression } from './systems/player-stats-progression.js';
 import { HostileBuildingSystem } from './systems/hostile-building-system.js';
+import { HitSparkSystem } from './systems/hit-spark-system.js';
 import { SkillSystem } from './skills/skill-system.js';
 import { UIRoot } from './ui/ui-root.js';
 import { Hud } from './hud.js';
 import { SkillBar } from './ui/skill-bar.js';
+import { PlayerHpBar } from './ui/player-hp-bar.js';
+import { ScreenDamageEffect } from './ui/screen-damage-effect.js';
 import { preload } from './assets.js';
 
 export class Game {
@@ -43,8 +46,15 @@ export class Game {
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        this.surface = new SphereSurface(CONFIG.world.planetRadius);
-        const { scene, worldRotator, skyScene, skybox } = createScene(this.surface);
+        // Pick the planet tier (소/중/대) and sample a radius from its band.
+        // This drives every downstream multiplier: building counts, enemy
+        // difficulty, drop rewards, and the actual sphere geometry.
+        this.tier = pickPlanetTier();
+        const radius = pickPlanetRadius(this.tier);
+        console.log(`[Diablo] planet tier=${this.tier?.label ?? '—'} (${this.tier?.key}) radius=${radius.toFixed(1)}`);
+
+        this.surface = new SphereSurface(radius);
+        const { scene, worldRotator, skyScene, skybox, upgradePlanetMaterial } = createScene(this.surface);
         this.scene = scene;
         this.worldRotator = worldRotator;
         this.skyScene = skyScene;
@@ -52,19 +62,35 @@ export class Game {
 
         const aspect = this._sizePixels().w / this._sizePixels().h;
         this.camera = new StaticCamera(aspect, this.surface);
+
+        // Camera now exists — kick off the async PBR planet material
+        // upgrade. Texture loading + shader pre-compile run in the
+        // background; the procedural material renders meanwhile, and the
+        // swap happens once the GPU program is hot. Avoids the ~1s
+        // shader-compile stall that would otherwise hit the first frame
+        // after the new material is bound.
+        upgradePlanetMaterial(this.renderer, this.camera.camera).then((mat) => {
+            if (mat) console.log('[Diablo] planet material upgraded (precompiled)');
+        }).catch(() => {});
         this.input = new InputState();
         this.player = new Player(this.surface);
         this.home = new HomeNpc(this.surface);
         this.spawner = new Spawner(this.surface);
+        this.spawner.tier = this.tier;
+        this.hitSparks = new HitSparkSystem(this.surface, this.worldRotator);
+        this.spawner.hitSparks = this.hitSparks;
+        this.player.hitSparks = this.hitSparks;
         this.homeController = new HomeController(this.home, this.spawner);
         this.statsProgression = new PlayerStatsProgression(this.player);
 
         this.skillSystem = new SkillSystem(this.player, this);
         this.drops = new DropSystem(this.surface, this.worldRotator, this.skillSystem, this.homeController);
         this.drops.statsProgression = this.statsProgression;
+        this.drops.tier = this.tier;
         this.hostiles = new HostileBuildingSystem(
-            this.surface, this.worldRotator, this.spawner, this.drops, this.player,
+            this.surface, this.worldRotator, this.spawner, this.drops, this.player, this.camera.camera,
         );
+        this.hostiles.tier = this.tier;
         this.spawner.onDeath = (pos, entity) => {
             // Standard ore-shard roll for everything that dies (incl. hostile
             // buildings — bonus drops layer on top via hostiles.onDeath).
@@ -77,6 +103,8 @@ export class Game {
         this.hud = null;
         this.skillBar = null;
         this.homePanel = null;
+        this.screenDamage = new ScreenDamageEffect();
+        this._lastPlayerHp = this.player.hp;
 
         // npcBuildings — populated by start() from CONFIG.npcBuildings.
         // Each entry: { id, def, npc, panel, _wasInRange }.
@@ -96,6 +124,7 @@ export class Game {
         const hostiles = CONFIG.hostileBuildings ?? {};
         const registryModelPaths = Object.values(registry).map((def) => def.modelPath).filter(Boolean);
         const hostileModelPaths = Object.values(hostiles).map((def) => def.modelPath).filter(Boolean);
+        const enemyModelPaths = collectEnemyModelPaths();
 
         await Promise.all([
             preload([
@@ -103,13 +132,16 @@ export class Game {
                 CONFIG.home.modelPath,
                 ...registryModelPaths,
                 ...hostileModelPaths,
-                CONFIG.enemy.modelPath,
-                ...(CONFIG.enemy.modelPaths ?? []),
-                ...(CONFIG.enemy.eliteModelPaths ?? []),
+                ...enemyModelPaths,
             ]),
             this.ui.ready,
         ]);
         await this.player.init(this.worldRotator);
+
+        // 3D HP bar floats over the player's head. Lives in the scene root
+        // (NOT worldRotator) so it stays at the static visual player slot
+        // while the planet rotates beneath.
+        this.playerHpBar = new PlayerHpBar(this.scene, this.camera.camera, this.surface, this.player);
 
         // Home is anchored at the start area (fixed by HomeNpc.place()).
         // Other NPC buildings flow through the placement system, which respects
@@ -125,10 +157,13 @@ export class Game {
         // the placement system, and register stat trainers with the
         // progression controller. `count: { min, max }` lets a single entry
         // produce multiple instances per planet (§6-3 of the design doc).
+        const npcMul = this.tier?.npcCountMul ?? 1;
+        const hostileMul = this.tier?.hostileCountMul ?? 1;
+
         for (const [id, def] of Object.entries(registry)) {
             if (def.kind === 'statTrainer') this.statsProgression.register(def.statId, def);
 
-            const instanceCount = pickInstanceCount(def.count);
+            const instanceCount = scaleCount(pickInstanceCount(def.count), npcMul);
             for (let i = 0; i < instanceCount; i++) {
                 const npc = this._buildNpcFromDef(def);
                 if (!npc) {
@@ -147,7 +182,7 @@ export class Game {
         // HostileBuildingSystem's internal timer.
         for (const [hostileId, def] of Object.entries(hostiles)) {
             if (def.kind !== 'fortress' && def.kind !== 'portal') continue;
-            const cnt = pickInstanceCount(def.count);
+            const cnt = scaleCount(pickInstanceCount(def.count), hostileMul);
             for (let i = 0; i < cnt; i++) {
                 const instId = cnt > 1 ? `${hostileId}#${i + 1}` : hostileId;
                 const pos = placement.placeBuilding(instId, def);
@@ -209,10 +244,15 @@ export class Game {
             if (this.homeController.success) this.paused = true;
             this._checkHomeProximity();
             this._checkNpcBuildingProximity();
+        } else {
+            this.player.updateMotion(dt);
         }
+        this.hitSparks.update(dt);
+        this._updateScreenDamage(dt);
 
         this.hud.update(this.player, this.spawner, this.homeController);
         this.skillBar.update(dt);
+        this.playerHpBar?.update();
 
         this._render();
         requestAnimationFrame(this._tick);
@@ -243,6 +283,8 @@ export class Game {
         // Player: heal, reset facing, bring mesh back, snap to north pole.
         this.player.hp = this.player.maxHp;
         this.player.alive = true;
+        this._lastPlayerHp = this.player.hp;
+        this.screenDamage.reset(this.player.hp, this.player.maxHp);
         if (this.player.mesh) this.player.mesh.visible = true;
         this.player.position.set(0, this.surface.radius, 0);
         this.player.forward.set(0, 0, -1);
@@ -270,11 +312,19 @@ export class Game {
         }
         this.spawner.kills = 0;
         this.spawner._timer = 0;
+        this.spawner._bossTimer = CONFIG.spawner.bossInterval ?? 60;
+        this.spawner._patternTimer = CONFIG.spawner.patternInitialDelay ?? 5;
+        this.spawner._patternCursor = 0;
+        this.spawner._waveTimer = 0;
+        this.spawner._waveIndex = 0;
+        this.spawner._waveModelPath = null;
+        this.spawner._sourceWaveModelPaths?.clear?.();
 
         // Clear every shard (including ones mid-collect).
         for (const s of this.drops.shards) s.detach();
         this.drops.shards.length = 0;
         this.drops._time = 0;
+        this.hitSparks.clear();
 
         // Reset transient skill state (cooldowns, active swing meshes).
         for (const s of this.skillSystem.skills) s.resetRuntime();
@@ -295,6 +345,7 @@ export class Game {
         const inRange = this.home.isPlayerInRange(this.player);
         if (inRange && !this._wasInHome) {
             this._wasInHome = true;
+            this.player.motion?.bounce(0.9);
             this.paused = true;
             this.homePanel.open();
         } else if (!inRange) {
@@ -307,6 +358,7 @@ export class Game {
             const inRange = entry.npc.isPlayerInRange(this.player);
             if (inRange && !entry._wasInRange) {
                 entry._wasInRange = true;
+                this.player.motion?.bounce(0.9);
                 this.paused = true;
                 entry.panel?.open?.({ sourceId: entry.id, skillId: entry.def.targetSkillId });
                 return; // only one panel at a time
@@ -314,6 +366,14 @@ export class Game {
                 entry._wasInRange = false;
             }
         }
+    }
+
+    _updateScreenDamage(dt) {
+        if (this.player.hp < this._lastPlayerHp) {
+            this.screenDamage.hit();
+        }
+        this._lastPlayerHp = this.player.hp;
+        this.screenDamage.update(dt, this.player.hp, this.player.maxHp);
     }
 
     /** Apply a small delta rotation to worldRotator based on input.
@@ -360,4 +420,59 @@ function pickInstanceCount(range) {
     const min = Math.max(0, range.min ?? 1);
     const max = Math.max(min, range.max ?? min);
     return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+/** Multiply an integer count by a tier multiplier and round, but never drop
+ *  below 1 if the original count was at least 1 (so smaller planets still
+ *  see at least one of each registered building type). */
+function scaleCount(baseCount, mul) {
+    if (baseCount <= 0) return 0;
+    return Math.max(1, Math.round(baseCount * (mul ?? 1)));
+}
+
+/** Pick a planet size tier from CONFIG.planetSize.tiers using `weight`. */
+function pickPlanetTier() {
+    const tiers = CONFIG.planetSize?.tiers;
+    if (!tiers) return null;
+    const entries = Object.values(tiers);
+    if (entries.length === 0) return null;
+    let total = 0;
+    for (const t of entries) total += Math.max(0, t.weight ?? 1);
+    let r = Math.random() * total;
+    for (const t of entries) {
+        r -= Math.max(0, t.weight ?? 1);
+        if (r <= 0) return t;
+    }
+    return entries[entries.length - 1];
+}
+
+function pickPlanetRadius(tier) {
+    if (!tier?.radius) return CONFIG.world.planetRadius;
+    const { min, max } = tier.radius;
+    return min + Math.random() * Math.max(0, max - min);
+}
+
+function collectEnemyModelPaths() {
+    const set = new Set([
+        CONFIG.enemy.modelPath,
+        ...(CONFIG.enemy.modelPaths ?? []),
+        ...(CONFIG.enemy.eliteModelPaths ?? []),
+    ].filter(Boolean));
+
+    const walk = (value) => {
+        if (!value) return;
+        if (typeof value === 'string') {
+            set.add(value);
+            return;
+        }
+        if (Array.isArray(value)) {
+            for (const item of value) walk(item);
+            return;
+        }
+        if (typeof value === 'object') {
+            for (const item of Object.values(value)) walk(item);
+        }
+    };
+    walk(CONFIG.enemy.modelGroups);
+    return Array.from(set);
 }

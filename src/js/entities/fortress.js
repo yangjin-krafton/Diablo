@@ -8,6 +8,7 @@
 // onDeath 시 처리).
 
 import { HostileBuilding } from './hostile-building.js';
+import { FortressSmokeEffect } from '../systems/hostile-effects.js';
 
 export class Fortress extends HostileBuilding {
     constructor(surface, position, def, opts = {}) {
@@ -18,11 +19,19 @@ export class Fortress extends HostileBuilding {
         this.patrolRadius = def.patrolRadius ?? 6;
         this.reinforceCooldown = def.reinforceCooldown ?? 18;
         this._reinforceTimer = Math.min(this.reinforceCooldown, 4);  // first guard arrives a bit sooner
+        this.effect = null;
+    }
+
+    async init(parent) {
+        await super.init(parent);
+        this.effect = new FortressSmokeEffect(this.surface, this);
+        this.effect.attach(parent);
     }
 
     update(dt, player) {
         super.update(dt, player);
         if (!this.alive) return;
+        this.effect?.update(dt);
 
         // Cull dead guards
         for (let i = this.guards.length - 1; i >= 0; i--) {
@@ -54,5 +63,6 @@ export class Fortress extends HostileBuilding {
 
     kill() {
         super.kill();
+        this.effect?.detach();
     }
 }

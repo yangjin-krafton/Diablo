@@ -63,10 +63,11 @@ export class SwordBeam {
             if (!e.alive) continue;
             if (this._hitSet.has(e)) continue;
             const d = this.surface.arcDistance(e.position, this.position);
-            if (d < HIT_RADIUS) {
+            const bodyRadius = e.radius ?? 0;
+            if (d < HIT_RADIUS + bodyRadius) {
                 this._hitSet.add(e);
                 const isCrit = Math.random() < this.critChance;
-                e.damage(isCrit ? this.damage * 2 : this.damage);
+                e.damage(isCrit ? this.damage * 2 : this.damage, this.position);
                 this.pierce--;
                 if (this.pierce <= 0) { this.alive = false; break; }
             }

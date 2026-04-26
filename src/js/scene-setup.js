@@ -16,6 +16,7 @@ import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { buildPaintedPlanetGeometry } from './world/terrain.js';
 import { planetPalette } from './world/planet-palette.js';
+import { createPlanetMaterial, loadPlanetSurfaceTextures } from './world/planet-material.js';
 
 /** Resolve the active planet's palette, or null when no planet entry is
  *  configured (legacy CONFIG.world colors stay in charge). Single source of
@@ -48,18 +49,25 @@ export function createScene(surface) {
     const skybox = addSkyboxEnvironment(scene, skyScene, skyboxPath);
     addSun(worldRotator, palette);
 
+    // Procedural-only planet material first so the scene renders immediately.
+    // PBR material slots (ambientcg) load asynchronously; the upgrade
+    // callback below pre-compiles the new shader off-thread and only swaps
+    // the material once the GPU program is ready, avoiding any first-frame
+    // stall when the upgrade lands.
+    const planetMat = createPlanetMaterial({
+        tint: palette?.accent ?? 0xffffff,
+        tintStrength: 0.5,
+        noiseScale: 0.16,
+        patchContrast: 0.45,
+        flatShading: true,
+    });
     const planet = new THREE.Mesh(
         buildPaintedPlanetGeometry(
             surface.radius,
             CONFIG.world.terrainDetail,
             CONFIG.world.terrainSeeds,
         ),
-        new THREE.MeshStandardMaterial({
-            vertexColors: true,
-            roughness: 1.0,
-            metalness: 0.0,
-            flatShading: true,
-        }),
+        planetMat,
     );
     planet.receiveShadow = true;
     worldRotator.add(planet);
@@ -68,7 +76,75 @@ export function createScene(surface) {
 
     if (!skyboxPath) scene.add(buildStars());
 
-    return { scene, worldRotator, skyScene, skybox };
+    // Caller drives the timing — typically game.js calls this after the
+    // camera is set up. It's async (texture loading + shader precompile)
+    // but the returned Promise can be ignored; the upgrade runs in the
+    // background and the procedural material renders meanwhile.
+    const upgradePlanetMaterial = (renderer, camera) =>
+        upgradePlanetMaterialAsync(scene, planet, palette, renderer, camera);
+
+    return { scene, worldRotator, skyScene, skybox, upgradePlanetMaterial };
+}
+
+/** Async PBR material upgrade. Loads textures, builds the upgraded
+ *  material, and pre-compiles its shader program against a *dummy scene*
+ *  using `renderer.compileAsync` BEFORE swapping it onto the real planet
+ *  mesh. That way the swap doesn't trigger a multi-hundred-millisecond
+ *  shader-compile stall on the next render frame.
+ *
+ *  Returns a Promise that resolves to the upgraded material (or null if
+ *  the planet has no `surface` block / texture loading failed). The
+ *  procedural material stays bound until the upgrade lands.
+ */
+async function upgradePlanetMaterialAsync(scene, planetMesh, palette, renderer, camera) {
+    const id = CONFIG.activePlanet;
+    const planetCfg = CONFIG.planets?.[id];
+    if (!planetCfg?.surface) return null;
+
+    let tex;
+    try {
+        tex = await loadPlanetSurfaceTextures(planetCfg);
+    } catch (err) {
+        console.warn('[scene-setup] planet texture load failed:', err);
+        return null;
+    }
+    if (!tex.albedoMaps.length && !tex.noiseMap) return null;
+
+    const upgraded = createPlanetMaterial({
+        tint: palette?.accent ?? 0xffffff,
+        tintStrength: 0.5,
+        noiseScale: 0.05,
+        materialScale: 0.42,
+        aoStrength: 0.95,
+        // CPU baked terrain (terrain.js#displaceTerrain) handles macro
+        // relief, so PBR displacement maps aren't loaded — keeps us under
+        // the 16-sampler WebGL cap. flatShading=true is per-face
+        // derivative, which correctly shades the baked terrain.
+        flatShading: true,
+        ...tex,
+    });
+
+    // Pre-compile the upgraded shader on a background thread (when
+    // KHR_parallel_shader_compile is available). The upgraded material is
+    // attached to a hidden dummy mesh in a stand-in scene, then
+    // compileAsync walks both scenes and warms up every program in
+    // parallel. When this resolves the GPU program is ready.
+    if (renderer?.compileAsync && camera) {
+        try {
+            const dummyScene = new THREE.Scene();
+            const dummyMesh = new THREE.Mesh(planetMesh.geometry, upgraded);
+            dummyScene.add(dummyMesh);
+            await renderer.compileAsync(scene, camera, dummyScene);
+            dummyScene.remove(dummyMesh);
+        } catch (err) {
+            console.warn('[scene-setup] planet material precompile failed:', err);
+        }
+    }
+
+    const old = planetMesh.material;
+    planetMesh.material = upgraded;
+    if (old?.dispose) old.dispose();
+    return upgraded;
 }
 
 function addSkyboxEnvironment(scene, skyScene, skyboxPath) {

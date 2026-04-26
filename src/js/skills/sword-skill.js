@@ -8,6 +8,7 @@ import { SwordBeam } from '../combat/sword-beam.js';
 
 export class SwordSkill extends Skill {
     static id = 'sword';
+    static attackDirectionMode = 'nearestEnemy';
     static displayName = '검술';
     static iconPath = './asset/icon.svg';
     static description = '전방 반원 범위의 적에게 근접 피해를 줍니다. 범위 확장, 연속 공격, 치명타, 공격 속도, 검기를 강화할 수 있습니다.';
@@ -22,7 +23,6 @@ export class SwordSkill extends Skill {
 
         this._autoCast = true;
         this._cdRemaining = 0;
-
         this.onNodeChanged();
     }
 
@@ -107,13 +107,14 @@ export class SwordSkill extends Skill {
         const target = this._nearestEnemyInRange(ctx.enemies);
         if (!target) return;
 
-        this._fire(ctx.enemies);
+        const forward = this._attackForward(ctx.enemies, target);
+        this._fire(ctx.enemies, forward);
     }
 
-    _fire(enemies) {
+    _fire(enemies, forward = this.player.forward) {
         const pos = this.player.position;
-        const forward = this.player.forward;
-        const hitSet = this._resolveHits(enemies);
+        const hitSet = this._resolveHits(enemies, forward);
+        this.player.motion?.bounce(1);
 
         if (this.comboTrackEnabled) {
             for (const enemy of Array.from(this._comboMap.keys())) {
@@ -148,9 +149,8 @@ export class SwordSkill extends Skill {
         this._cdRemaining = this.cooldown;
     }
 
-    _resolveHits(enemies) {
+    _resolveHits(enemies, forward = this.player.forward) {
         const pos = this.player.position;
-        const forward = this.player.forward;
         const halfArc = this.arc / 2;
         const inner = this.range * CONFIG.sword.hitInnerRatio;
         const outer = this.range * CONFIG.sword.hitOuterRatio;
@@ -188,10 +188,23 @@ export class SwordSkill extends Skill {
             }
             const isCrit = forceCrit || Math.random() < crit;
             const finalDmg = (isCrit ? dmg * 2 : dmg) * this._damageMul();
-            e.damage(finalDmg);
+            e.damage(finalDmg, pos);
             hitSet.add(e);
         }
         return hitSet;
+    }
+
+    _attackForward(enemies, target = null) {
+        if (this.attackDirectionMode === 'moveDirection') {
+            return this.player.forward;
+        }
+
+        const aimedTarget = target ?? this._nearestEnemyInRange(enemies);
+        if (!aimedTarget) return this.player.forward;
+
+        this.game.surface.tangentTo(this.player.position, aimedTarget.position, _aimForward);
+        if (_aimForward.lengthSq() < 1e-8) return this.player.forward;
+        return _aimForward;
     }
 
     _damageMul() {
@@ -200,18 +213,27 @@ export class SwordSkill extends Skill {
 
     _nearestEnemyInRange(enemies) {
         const surface = this.game.surface;
-        const maxDist = this.range * CONFIG.sword.hitOuterRatio + CONFIG.enemy.radius;
+        const maxDist = this.range * CONFIG.sword.hitOuterRatio + this._maxEnemyRadius(enemies);
         let best = null;
         let bestD = maxDist;
         for (const e of enemies) {
             if (!e.alive) continue;
             const d = surface.arcDistance(e.position, this.player.position);
-            if (d < bestD) {
+            const bodyRadius = e.radius ?? CONFIG.enemy.radius ?? 0;
+            if (d < bestD && d <= this.range * CONFIG.sword.hitOuterRatio + bodyRadius) {
                 bestD = d;
                 best = e;
             }
         }
         return best;
+    }
+
+    _maxEnemyRadius(enemies) {
+        let max = CONFIG.enemy.radius ?? 0;
+        for (const e of enemies) {
+            if (e.alive) max = Math.max(max, e.radius ?? 0);
+        }
+        return max;
     }
 
     getCooldownRemaining() { return this._cdRemaining; }
@@ -233,3 +255,4 @@ export class SwordSkill extends Skill {
 const _up = new THREE.Vector3();
 const _dv = new THREE.Vector3();
 const _tan = new THREE.Vector3();
+const _aimForward = new THREE.Vector3();

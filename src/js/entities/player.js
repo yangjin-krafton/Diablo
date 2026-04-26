@@ -15,6 +15,7 @@ import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { loadGLB } from '../assets.js';
 import { applyMaterialPreset } from '../material-controls.js';
+import { TransformMotion } from '../animation/transform-motion.js';
 
 export class Player {
     constructor(surface) {
@@ -24,9 +25,17 @@ export class Player {
 
         this.hp = CONFIG.player.maxHp;
         this.maxHp = CONFIG.player.maxHp;
+        this.radius = CONFIG.player.radius ?? 0.4;
         this.alive = true;
 
         this.mesh = null;
+        this.hitSparks = null;
+        this._hitSparkCooldown = 0;
+        this.motion = new TransformMotion({
+            bounceHeight: 0.32,
+            shakeDistance: 0.14,
+            dropDuration: 0.35,
+        });
     }
 
     async init(parent) {
@@ -54,12 +63,34 @@ export class Player {
         }
         this.surface.projectToTangent(this.position, this.forward, this.forward);
 
+        this._hitSparkCooldown = Math.max(0, this._hitSparkCooldown - dt);
+        this.motion.update(dt);
         if (this.mesh) this._orientMesh();
     }
 
-    takeDamage(amount) {
+    updateMotion(dt) {
+        this._hitSparkCooldown = Math.max(0, this._hitSparkCooldown - dt);
+        this.motion.update(dt);
+        if (this.mesh) this._orientMesh();
+    }
+
+    takeDamage(amount, hitDirection = null) {
         if (!this.alive) return;
         this.hp = Math.max(0, this.hp - amount);
+        if (hitDirection) {
+            this.motion.shake(hitDirection, Math.min(1.6, 0.55 + amount / 18));
+            if (this._hitSparkCooldown <= 0) {
+                this.hitSparks?.emit(this.position, hitDirection, {
+                    count: 42,
+                    lift: CONFIG.player.modelLift * 0.75,
+                    speedMin: 6.2,
+                    speedMax: 11.5,
+                    sizeMin: 0.04,
+                    sizeMax: 0.095,
+                });
+                this._hitSparkCooldown = 0.08;
+            }
+        }
         if (this.hp <= 0) {
             this.alive = false;
             if (this.mesh) this.mesh.visible = false;
@@ -68,10 +99,12 @@ export class Player {
 
     _orientMesh() {
         this.surface.orient(this.mesh, this.position, this.forward, CONFIG.player.modelYawOffset);
+        _up.copy(this.position).normalize();
         if (CONFIG.player.modelLift) {
-            _up.copy(this.position).normalize();
             this.mesh.position.addScaledVector(_up, CONFIG.player.modelLift);
         }
+        this.mesh.scale.setScalar(CONFIG.player.modelScale);
+        this.motion.apply(this.mesh, { up: _up, baseScale: CONFIG.player.modelScale });
     }
 
     _nearest(enemies, maxDist = Infinity) {

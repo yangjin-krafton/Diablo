@@ -15,14 +15,17 @@ import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { Fortress } from '../entities/fortress.js';
 import { Portal } from '../entities/portal.js';
+import { DropShipMeteorEffect, ImpactBurstEffect } from './hostile-effects.js';
+import { HostileHpBar } from '../ui/hostile-hp-bar.js';
 
 export class HostileBuildingSystem {
-    constructor(surface, parent, spawner, drops, player) {
+    constructor(surface, parent, spawner, drops, player, camera = null) {
         this.surface = surface;
         this.parent = parent;          // worldRotator
         this.spawner = spawner;
         this.drops = drops;
         this.player = player;
+        this.camera = camera;
 
         this.fortresses = [];
         this.portals = [];
@@ -30,6 +33,7 @@ export class HostileBuildingSystem {
         this._dropShipCfg = CONFIG.hostileBuildings?.dropShip ?? null;
         this._dropShipState = null;
         this._dropShipNextEvent = this._dropShipCooldown(true);
+        this._impactEffects = [];
     }
 
     /** Spawn helper for hostile buildings: routes to spawner.spawnAt with the
@@ -51,6 +55,10 @@ export class HostileBuildingSystem {
         }
         if (!building) return null;
         await building.init(this.parent);
+        if (this.camera) {
+            building.hpBar = new HostileHpBar(this.parent, this.camera, this.surface, building);
+            building.hpBar.update();
+        }
         // Register as a damageable target in the live enemies pool.
         this.spawner.addExternalTarget(building);
         return building;
@@ -61,6 +69,7 @@ export class HostileBuildingSystem {
      *  dropship event scheduler. */
     update(dt) {
         this._updateDropShip(dt);
+        this._updateImpactEffects(dt);
         this._cullDeadPortals();
     }
 
@@ -71,6 +80,11 @@ export class HostileBuildingSystem {
         if (this._dropShipState?.ring?.parent) {
             this._dropShipState.ring.parent.remove(this._dropShipState.ring);
         }
+        this._dropShipState?.meteor?.detach();
+        for (const fx of this._impactEffects) {
+            if (fx.group?.parent) fx.group.parent.remove(fx.group);
+        }
+        this._impactEffects.length = 0;
         this._dropShipState = null;
         this._dropShipNextEvent = this._dropShipCooldown(true);
     }
@@ -82,10 +96,13 @@ export class HostileBuildingSystem {
     }
 
     /** Called by Spawner.onDeath when an entity is pruned. Awards the
-     *  hostile-building bonus drop. Returns true if it consumed the death. */
+     *  hostile-building bonus drop, scaled by the active planet tier so
+     *  larger planets pay better. Returns true if it consumed the death. */
     onDeath(pos, entity) {
         if (!entity?.isHostileBuilding) return false;
-        const bonus = entity.dropBonus ?? 0;
+        const baseBonus = entity.dropBonus ?? 0;
+        const mul = this.tier?.rewardMul ?? 1;
+        const bonus = Math.max(0, Math.round(baseBonus * mul));
         if (bonus > 0) this.drops.spawnBundle(pos, bonus);
         return true;
     }
@@ -110,7 +127,7 @@ export class HostileBuildingSystem {
         // Active warning → impact transition
         if (this._dropShipState) {
             this._dropShipState.timer -= dt;
-            this._tickWarningRing(this._dropShipState);
+            this._tickWarningRing(this._dropShipState, dt);
             if (this._dropShipState.timer <= 0) {
                 this._dropShipImpact(this._dropShipState);
                 this._dropShipState = null;
@@ -136,11 +153,15 @@ export class HostileBuildingSystem {
         const ring = this._buildWarningRing(cfg);
         ring.userData.impactPos = impactPos.clone();
         this.parent.add(ring);
+        const duration = cfg.warningTime ?? 3;
+        const meteor = new DropShipMeteorEffect(this.surface, impactPos, duration);
+        meteor.attach(this.parent);
 
         this._dropShipState = {
-            timer: cfg.warningTime ?? 3,
-            duration: cfg.warningTime ?? 3,
+            timer: duration,
+            duration,
             ring,
+            meteor,
             impactPos: ring.userData.impactPos,
             spawnCount: pickInt(cfg.spawnCount ?? { min: 5, max: 8 }),
             eliteChance: cfg.eliteChance ?? 0.12,
@@ -150,6 +171,10 @@ export class HostileBuildingSystem {
 
     _dropShipImpact(state) {
         if (state.ring && state.ring.parent) state.ring.parent.remove(state.ring);
+        state.meteor?.detach();
+        const impactFx = new ImpactBurstEffect(this.surface, state.impactPos);
+        impactFx.attach(this.parent);
+        this._impactEffects.push(impactFx);
         for (let i = 0; i < state.spawnCount; i++) {
             const elite = Math.random() < state.eliteChance;
             const opts = elite ? eliteOptions() : {};
@@ -185,12 +210,21 @@ export class HostileBuildingSystem {
         ring.position.copy(pos).addScaledVector(up, 0.05);
     }
 
-    _tickWarningRing(state) {
+    _tickWarningRing(state, dt) {
         const t = 1 - Math.max(0, state.timer / state.duration);
         const pulse = 0.45 + 0.55 * Math.sin(t * Math.PI * 6);
         state.ring.material.opacity = 0.35 + pulse * 0.55;
         const s = 1 + 0.18 * Math.sin(t * Math.PI * 4);
         state.ring.scale.setScalar(s);
+        state.meteor?.update(dt);
+    }
+
+    _updateImpactEffects(dt) {
+        for (let i = this._impactEffects.length - 1; i >= 0; i--) {
+            const fx = this._impactEffects[i];
+            fx.update(dt);
+            if (!fx.alive) this._impactEffects.splice(i, 1);
+        }
     }
 }
 
@@ -202,6 +236,7 @@ function pickInt(range) {
 
 function eliteOptions() {
     return {
+        modelTier: 'elite',
         hpScale: 2.4,
         damageScale: 1.5,
         moveSpeedScale: 0.95,

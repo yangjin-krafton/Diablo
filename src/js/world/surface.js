@@ -91,6 +91,20 @@ export class SphereSurface {
         if (yawOffset !== 0) mesh.rotateY(yawOffset);
     }
 
+    /** Uniformly random point on the sphere surface (independent of any
+     *  anchor). Useful for placement systems that need to spread entities
+     *  across the full planet rather than within a ring around a center. */
+    randomPointOnSphere(out = new THREE.Vector3()) {
+        // cos(theta) uniform in [-1, 1], phi uniform in [0, 2π) → uniform
+        // distribution over the unit sphere (Marsaglia / archimedes hat-box).
+        const u = Math.random() * 2 - 1;
+        const phi = Math.random() * Math.PI * 2;
+        const s = Math.sqrt(Math.max(0, 1 - u * u));
+        out.set(s * Math.cos(phi), u, s * Math.sin(phi));
+        out.multiplyScalar(this.radius);
+        return out;
+    }
+
     /** Random point on surface at given arc distance from center. */
     randomPointAtArc(center, arcDist, out = new THREE.Vector3()) {
         const up = _v1.copy(center).normalize();
@@ -102,6 +116,41 @@ export class SphereSurface {
         r.addScaledVector(up, -r.dot(up));
         if (r.lengthSq() < 1e-6) r.set(1, 0, 0).addScaledVector(up, -up.x);
         r.normalize();
+
+        out.copy(center);
+        this.moveAlong(out, r, arcDist);
+        return out;
+    }
+
+    /** Point on surface at `arcDist` from `center`, in tangent direction
+     *  rotated `bearing` radians around the radial axis at `center`.
+     *  Bearing 0 corresponds to the same baseline tangent every time, so
+     *  callers can deterministically spread points across angles
+     *  (e.g. divide a circle into N equal sectors). */
+    pointAtArcAndBearing(center, arcDist, bearing, out = new THREE.Vector3()) {
+        const up = _v1.copy(center).normalize();
+        // Stable baseline tangent: project world +Y onto tangent plane,
+        // fall back to +X if the up axis itself is +Y/-Y.
+        const r = _v2.set(0, 1, 0).addScaledVector(up, -up.y);
+        if (r.lengthSq() < 1e-4) r.set(1, 0, 0).addScaledVector(up, -up.x);
+        r.normalize();
+        // Rotate baseline tangent around the radial up by `bearing`.
+        const ax = up.x, ay = up.y, az = up.z;
+        const c = Math.cos(bearing);
+        const s = Math.sin(bearing);
+        const rx = r.x, ry = r.y, rz = r.z;
+        // Rodrigues' rotation around `up`
+        const dot = ax * rx + ay * ry + az * rz;
+        const cx = ay * rz - az * ry;
+        const cy = az * rx - ax * rz;
+        const cz = ax * ry - ay * rx;
+        r.set(
+            rx * c + cx * s + ax * dot * (1 - c),
+            ry * c + cy * s + ay * dot * (1 - c),
+            rz * c + cz * s + az * dot * (1 - c),
+        );
+        const len = r.length();
+        if (len > 1e-6) r.divideScalar(len);
 
         out.copy(center);
         this.moveAlong(out, r, arcDist);

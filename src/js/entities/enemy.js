@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { loadGLB } from '../assets.js';
 import { applyMaterialPreset } from '../material-controls.js';
+import { TransformMotion } from '../animation/transform-motion.js';
 
 export class Enemy {
     constructor(surface, position, options = {}) {
@@ -20,11 +21,20 @@ export class Enemy {
         this.contactDamage = CONFIG.enemy.contactDamage * (options.damageScale ?? 1);
         this.modelScale = CONFIG.enemy.modelScale * (options.modelScale ?? 1);
         this.modelLift = CONFIG.enemy.modelLift * (options.modelScale ?? 1);
+        this.radius = (CONFIG.enemy.radius ?? 0.5) * (options.radiusScale ?? options.modelScale ?? 1);
+        this.contactRange = CONFIG.enemy.contactRange + this.radius + (CONFIG.player.radius ?? 0.4);
         this.modelPath = options.modelPath ?? randomFrom(CONFIG.enemy.modelPaths) ?? CONFIG.enemy.modelPath;
+        this.difficultyTier = options.difficultyTier ?? 'standard';
+        this.spawnSource = options.spawnSource ?? null;
+        this.modelTier = options.modelTier ?? null;
         this.alive = true;
+        this._deathStarted = false;
         this.mesh = null;
+        this.motion = new TransformMotion();
 
         this._tangent = new THREE.Vector3();
+        this._hitDir = new THREE.Vector3();
+        this.hitSparks = null;
     }
 
     async init(parent) {
@@ -37,10 +47,11 @@ export class Enemy {
 
     update(dt, player) {
         if (!this.alive) return;
+        this.motion.update(dt);
 
         const arcDist = this.surface.arcDistance(this.position, player.position);
 
-        if (arcDist > CONFIG.enemy.contactRange) {
+        if (arcDist > this.contactRange) {
             // chase — tangent toward player
             this.surface.tangentTo(this.position, player.position, this._tangent);
             if (this._tangent.lengthSq() > 1e-8) {
@@ -49,7 +60,9 @@ export class Enemy {
             }
         } else {
             // touching player
-            player.takeDamage(this.contactDamage * dt);
+            _hitDir.subVectors(player.position, this.position);
+            this.surface.projectToTangent(player.position, _hitDir, _hitDir);
+            player.takeDamage(this.contactDamage * dt, _hitDir);
             // still face player
             this.surface.tangentTo(this.position, player.position, this.forward);
         }
@@ -57,23 +70,50 @@ export class Enemy {
         if (this.mesh) this._orientMesh();
     }
 
-    damage(amount) {
+    damage(amount, sourcePosition = null) {
         if (!this.alive) return;
+        this._setHitDirection(sourcePosition);
+        this.motion.shake(this._hitDir, Math.min(1.8, 0.65 + amount / CONFIG.enemy.maxHp));
+        this.hitSparks?.emit(this.position, this._hitDir);
         this.hp -= amount;
         if (this.hp <= 0) this.kill();
     }
 
     kill() {
+        if (this._deathStarted) return;
         this.alive = false;
+        this._deathStarted = true;
+        this.motion.drop(this._hitDir);
+    }
+
+    updateDeath(dt) {
+        if (!this._deathStarted) return true;
+        this.motion.update(dt);
+        if (this.mesh) this._orientMesh();
+        if (!this.motion.isDropDone) return false;
         if (this.mesh && this.mesh.parent) this.mesh.parent.remove(this.mesh);
+        return true;
     }
 
     _orientMesh() {
         this.surface.orient(this.mesh, this.position, this.forward, CONFIG.enemy.modelYawOffset);
+        _up.copy(this.position).normalize();
         if (this.modelLift) {
-            _up.copy(this.position).normalize();
             this.mesh.position.addScaledVector(_up, this.modelLift);
         }
+        this.mesh.scale.setScalar(this.modelScale);
+        this.motion.apply(this.mesh, { up: _up, baseScale: this.modelScale });
+    }
+
+    _setHitDirection(sourcePosition) {
+        if (sourcePosition) {
+            this._hitDir.subVectors(this.position, sourcePosition);
+        } else {
+            this._hitDir.copy(this.forward).multiplyScalar(-1);
+        }
+        this.surface.projectToTangent(this.position, this._hitDir, this._hitDir);
+        if (this._hitDir.lengthSq() < 1e-8) this._hitDir.copy(this.forward).multiplyScalar(-1);
+        this._hitDir.normalize();
     }
 }
 
@@ -83,3 +123,4 @@ function randomFrom(list) {
 }
 
 const _up = new THREE.Vector3();
+const _hitDir = new THREE.Vector3();

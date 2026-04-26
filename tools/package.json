@@ -3,14 +3,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prompts:build":  "node prompt-builder.mjs",
+    "prompts:build": "node prompt-builder.mjs",
     "prompts:sample": "node prompt-builder.mjs --sample",
-    "prompts:dry":    "node prompt-builder.mjs --dry",
-    "pipeline":       "node asset-pipeline.mjs",
-    "pipeline:img":   "node asset-pipeline.mjs --phase 1",
-    "pipeline:glb":   "node asset-pipeline.mjs --phase 2",
+    "prompts:dry": "node prompt-builder.mjs --dry",
+    "pipeline": "node asset-pipeline.mjs",
+    "pipeline:img": "node asset-pipeline.mjs --phase 1",
+    "pipeline:glb": "node asset-pipeline.mjs --phase 2",
     "pipeline:retry": "node asset-pipeline.mjs --retry-failed",
     "pipeline:reset": "node asset-pipeline.mjs --reset",
-    "glb:optimize":   "npx --yes @gltf-transform/cli@4.3.0 optimize"
+    "glb:optimize": "npx --yes @gltf-transform/cli@4.3.0 optimize",
+    "textures:webp": "node convert-textures-webp.mjs"
+  },
+  "dependencies": {
+    "sharp": "^0.34.5"
   }
 }

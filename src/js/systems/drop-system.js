@@ -70,7 +70,8 @@ export class DropSystem {
             const d = this.surface.arcDistance(s.position, player.position);
             const range = CONFIG.drops.pickupRange * (this.statsProgression?.pickupRangeMul() ?? 1);
             if (d < range) {
-                this.skillSystem.grantShardExp(CONFIG.drops.shardExp);
+                const rewardMul = this.tier?.rewardMul ?? 1;
+                this.skillSystem.grantShardExp(CONFIG.drops.shardExp * rewardMul);
                 if (this.homeController) this.homeController.gainOre(s.element, 1);
                 s.startCollect(player.position);
             }

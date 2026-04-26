@@ -17,37 +17,38 @@ const EDGE_PAD = 14;
 const EDGE_PAD_COMPACT = 10;
 
 const ORES = [
-    { key: 'red', label: '적', color: 0xff3f5f },
-    { key: 'yellow', label: '황', color: 0xffd84f },
-    { key: 'green', label: '녹', color: 0x62f59a },
-    { key: 'blue', label: '청', color: 0x33c9ff },
-    { key: 'purple', label: '자', color: 0xb469ff },
+    { key: 'red',    color: 0xff3f5f },
+    { key: 'yellow', color: 0xffd84f },
+    { key: 'green',  color: 0x62f59a },
+    { key: 'blue',   color: 0x33c9ff },
+    { key: 'purple', color: 0xb469ff },
 ];
 
-const CHIP_W = 50;
-const CHIP_H = 26;
-const CHIP_GAP = 4;
-const CHIP_CUT = 6;
-const ORE_ROW_W = CHIP_W * ORES.length + CHIP_GAP * (ORES.length - 1);
+// Ore row: each slot is a thin neon-tinted frame around its colored number.
+// No dots, no labels. Frame style mirrors the `.tag` chip in
+// sandbox/home-panel-style-neon-mobile.html (1px border + low-alpha fill,
+// tinted to the ore color).
+// Each slot fits the worst-case compact format like "999.9k" (6 chars).
+const ORE_SLOT_W = 56;
+const ORE_SLOT_H = 22;
+const ORE_GAP = 6;
+const ORE_FRAME_CUT = 4;            // bevel cut on top-right / bottom-left
+const ORE_ROW_H = ORE_SLOT_H;
+const ORE_ROW_W = ORE_SLOT_W * ORES.length + ORE_GAP * (ORES.length - 1);
 
-const PANEL_W = ORE_ROW_W;
-const PAD_X = 12;
-const PAD_Y = 10;
-const PANEL_CUT = 8;
-const ACCENT_W = 3;
-
+// Mission rows: each row is its own bevel-tag frame (same `.tag` style as
+// the ore slots), no big chassis behind them. Color of the frame matches
+// the row's kind/state so the player reads the type at a glance.
+const MROW_W = ORE_ROW_W;           // align right edge with ore row
+const MROW_H = 22;
+const MROW_GAP = 3;
+const MROW_CUT = 4;
+const MROW_BADGE_W = 32;
+const MROW_BADGE_PAD_X = 8;
+const MROW_TITLE_PAD_L = 4;
+const MROW_COUNT_PAD_R = 8;
+const MROW_INDENT = 8;
 const MAX_ROWS = 4;
-const ROW_H = 20;
-const ROW_GAP = 3;
-
-const BADGE_W = 36;
-const BADGE_H = 14;
-const BAR_W = 56;
-const BAR_H = 4;
-const BAR_CUT = 2;
-const COUNT_W = 42;
-const COUNT_BAR_GAP = 4;
-const STEP_INDENT = 6;
 
 const STACK_GAP = 6;
 
@@ -68,16 +69,12 @@ export class Hud {
         this._mission = this.root.addChild(new Container());
         this._ores = this.root.addChild(new Container());
 
-        this._missionBg = this._mission.addChild(new Graphics());
-        this._missionAccent = this._mission.addChild(new Graphics());
-
         this._rows = [];
         for (let i = 0; i < MAX_ROWS; i++) {
             this._rows.push(this._buildRow(i));
         }
 
         this._buildOres();
-        this._panelRowCount = -1;
 
         uiRoot.onResize((w) => this._layout(w));
     }
@@ -87,9 +84,8 @@ export class Hud {
         c.visible = false;
         void idx;
 
-        const badgeBg = c.addChild(new Graphics());
-        const barBg = c.addChild(new Graphics());
-        const barFg = c.addChild(new Graphics());
+        // Single Graphics for the entire row's tag frame (sandbox `.tag` tone).
+        const frame = c.addChild(new Graphics());
 
         const badge = makeText('', {
             fontFamily: FONT_MONO,
@@ -99,12 +95,12 @@ export class Hud {
             fill: NEON.CYAN_LT,
             stroke: { color: NEON.BG_DK, width: 2 },
         });
-        badge.anchor.set(0.5, 0.5);
+        badge.anchor.set(0, 0.5);
         c.addChild(badge);
 
         const title = makeText('', {
             fontFamily: FONT_UI,
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: '900',
             fill: NEON.WHITE,
             stroke: { color: NEON.BG_DK, width: 3 },
@@ -114,7 +110,7 @@ export class Hud {
 
         const count = makeText('', {
             fontFamily: FONT_MONO,
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: '900',
             letterSpacing: 1,
             fill: NEON.TEXT_DM,
@@ -125,74 +121,52 @@ export class Hud {
 
         return {
             c,
-            badgeBg,
+            frame,
             badge,
             title,
-            barBg,
-            barFg,
             count,
             lastBadge: null,
             lastColor: null,
             lastTitle: null,
             lastTitleColor: null,
             lastCount: null,
-            lastPct: -1,
+            lastIndent: null,
         };
     }
 
     _buildOres() {
-        this._oreBg = this._ores.addChild(new Graphics());
-        this._oreDots = this._ores.addChild(new Graphics());
+        // 5색 자원 슬롯 — 각 슬롯은 같은 색조의 얇은 네온 프레임 안에
+        // 컬러 숫자만 들어간다 (sandbox .tag 스타일).
+        this._oreFrame = this._ores.addChild(new Graphics());
+        this._drawOreFrames();
 
-        this._oreLabels = [];
-        this._oreTexts = ORES.map((ore) => {
-            const label = this._addText(this._ores, ore.label, 0, 0, {
-                fontFamily: FONT_UI,
-                fontSize: 9,
-                fontWeight: '900',
-                fill: ore.color,
-                stroke: { color: NEON.BG_DK, width: 2 },
-            });
-            this._oreLabels.push(label);
-            return this._addText(this._ores, '0', 0, 0, {
+        this._oreTexts = ORES.map((ore, i) => {
+            const t = this._addText(this._ores, '0', 0, 0, {
                 fontFamily: FONT_MONO,
                 fontSize: 13,
                 fontWeight: '900',
-                fill: NEON.WHITE,
-                stroke: { color: NEON.BG_DK, width: 2 },
+                letterSpacing: 0.5,
+                fill: ore.color,
+                stroke: { color: NEON.BG_DK, width: 3 },
             });
+            t.anchor.set(1, 0.5);
+            const slotRight = i * (ORE_SLOT_W + ORE_GAP) + ORE_SLOT_W - 6;
+            t.position.set(slotRight, ORE_SLOT_H / 2);
+            return t;
         });
-
-        this._drawOreChips();
     }
 
-    _drawOreChips() {
-        this._oreBg.clear();
-        this._oreDots.clear();
-
+    _drawOreFrames() {
+        this._oreFrame.clear();
         for (let i = 0; i < ORES.length; i++) {
             const ore = ORES[i];
-            const x = i * (CHIP_W + CHIP_GAP);
+            const x = i * (ORE_SLOT_W + ORE_GAP);
             const y = 0;
-
-            bevel(this._oreBg, x, y, CHIP_W, CHIP_H, CHIP_CUT)
-                .fill({ color: NEON.BG_DK, alpha: 0.72 });
-            bevel(this._oreBg, x, y, CHIP_W, CHIP_H, CHIP_CUT)
-                .stroke({ color: ore.color, alpha: 0.55, width: 1 });
-
-            const dotX = x + 9;
-            const dotY = y + CHIP_H / 2;
-            this._oreDots
-                .circle(dotX, dotY, 4)
-                .fill({ color: ore.color, alpha: 0.98 })
-                .circle(dotX, dotY, 6.5)
-                .stroke({ color: ore.color, alpha: 0.5, width: 1 });
-
-            this._oreLabels[i].anchor.set(0, 0.5);
-            this._oreLabels[i].position.set(x + 16, dotY);
-
-            this._oreTexts[i].anchor.set(1, 0.5);
-            this._oreTexts[i].position.set(x + CHIP_W - 7, dotY);
+            // tinted fill (very low alpha) + 1px border in ore color
+            bevel(this._oreFrame, x, y, ORE_SLOT_W, ORE_SLOT_H, ORE_FRAME_CUT)
+                .fill({ color: ore.color, alpha: 0.07 });
+            bevel(this._oreFrame, x, y, ORE_SLOT_W, ORE_SLOT_H, ORE_FRAME_CUT)
+                .stroke({ color: ore.color, alpha: 0.42, width: 1 });
         }
     }
 
@@ -213,29 +187,9 @@ export class Hud {
         const topY = pad / scale;
 
         this._ores.position.set(rightX, topY);
-        this._mission.position.set(rightX, topY + CHIP_H + STACK_GAP);
+        this._mission.position.set(rightX, topY + ORE_ROW_H + STACK_GAP);
     }
 
-    _drawPanelBackdrop(rowCount) {
-        if (rowCount === this._panelRowCount) return;
-        this._panelRowCount = rowCount;
-        const h = PAD_Y * 2 + rowCount * ROW_H + Math.max(0, rowCount - 1) * ROW_GAP;
-        this._panelH = h;
-
-        this._missionBg.clear();
-        bevel(this._missionBg, 0, 0, PANEL_W, h, PANEL_CUT)
-            .fill({ color: NEON.BG_DK, alpha: 0.72 });
-        bevel(this._missionBg, 0, 0, PANEL_W, h, PANEL_CUT)
-            .stroke({ color: NEON.CYAN, alpha: 0.32, width: 1 });
-        bevel(this._missionBg, 3, 3, PANEL_W - 6, h - 6, Math.max(3, PANEL_CUT - 4))
-            .stroke({ color: NEON.CYAN, alpha: 0.08, width: 1 });
-
-        this._missionAccent.clear();
-        const accentH = Math.min(h - 8, 22);
-        this._missionAccent
-            .rect(0, 4, ACCENT_W, accentH)
-            .fill({ color: NEON.CYAN, alpha: 0.95 });
-    }
 
     update(player, spawner, homeController = null) {
         void player;
@@ -352,8 +306,6 @@ export class Hud {
     }
 
     _renderMissions(items) {
-        this._drawPanelBackdrop(items.length);
-
         for (let i = 0; i < MAX_ROWS; i++) {
             const row = this._rows[i];
             const item = items[i];
@@ -362,93 +314,94 @@ export class Hud {
                 continue;
             }
             row.c.visible = true;
-            row.c.position.set(PAD_X, PAD_Y + i * (ROW_H + ROW_GAP));
+            row.c.position.set(0, i * (MROW_H + MROW_GAP));
             this._configureRow(row, item);
         }
     }
 
     _configureRow(row, item) {
         const color = item.color;
-        const innerW = PANEL_W - PAD_X * 2;
-        const barX = innerW - COUNT_W - COUNT_BAR_GAP - BAR_W;
-        const barY = (ROW_H - BAR_H) / 2;
+        const indent = item.indent ? MROW_INDENT : 0;
         const titleColor = (item.kind === 'main')
             ? NEON.WHITE
             : (color === KIND_COLORS.fail ? NEON.RED
                 : color === KIND_COLORS.done ? NEON.GREEN
                     : NEON.TEXT);
 
-        if (row.lastBadge !== item.badge || row.lastColor !== color) {
-            row.lastBadge = item.badge;
+        if (row.lastColor !== color || row.lastIndent !== indent) {
             row.lastColor = color;
-
-            row.badge.text = item.badge || '';
-            row.badge.style.fill = color;
-
-            row.badgeBg.clear();
-            if (item.badge) {
-                const bx = 0;
-                const by = (ROW_H - BADGE_H) / 2;
-                row.badgeBg
-                    .rect(bx, by, BADGE_W, BADGE_H)
-                    .fill({ color, alpha: 0.08 })
-                    .rect(bx, by, BADGE_W, BADGE_H)
-                    .stroke({ color, alpha: 0.55, width: 1 });
-            }
-            row.badge.position.set(BADGE_W / 2, ROW_H / 2);
-
-            row.barBg.clear();
-            this._traceParallelogram(row.barBg, barX, barY, BAR_W, BAR_H, BAR_CUT)
-                .fill({ color: NEON.BG_DK, alpha: 0.7 });
-            this._traceParallelogram(row.barBg, barX, barY, BAR_W, BAR_H, BAR_CUT)
-                .stroke({ color, alpha: 0.36, width: 1 });
-            row.lastPct = -1;
+            row.lastIndent = indent;
+            // Tag frame in the row's color (same alpha tones as ore frames).
+            row.frame.clear();
+            const fx = indent;
+            const fw = MROW_W - indent;
+            bevel(row.frame, fx, 0, fw, MROW_H, MROW_CUT)
+                .fill({ color, alpha: 0.07 });
+            bevel(row.frame, fx, 0, fw, MROW_H, MROW_CUT)
+                .stroke({ color, alpha: 0.42, width: 1 });
         }
 
-        if (row.lastTitle !== item.title || row.lastTitleColor !== titleColor || row.lastIndent !== item.indent) {
+        if (row.lastBadge !== item.badge || row.lastBadgeColor !== color) {
+            row.lastBadge = item.badge;
+            row.lastBadgeColor = color;
+            row.badge.text = item.badge || '';
+            row.badge.style.fill = color;
+            row.badge.position.set(indent + MROW_BADGE_PAD_X, MROW_H / 2);
+        }
+
+        if (row.lastTitle !== item.title || row.lastTitleColor !== titleColor || row.lastIndent !== indent) {
             row.lastTitle = item.title;
             row.lastTitleColor = titleColor;
-            row.lastIndent = item.indent;
             row.title.text = item.title;
             row.title.style.fill = titleColor;
-            row.title.position.set(BADGE_W + 8 + (item.indent ? STEP_INDENT : 0), ROW_H / 2);
+            row.title.position.set(
+                indent + MROW_BADGE_PAD_X + MROW_BADGE_W + MROW_TITLE_PAD_L,
+                MROW_H / 2,
+            );
         }
 
         if (row.lastCount !== item.count) {
             row.lastCount = item.count;
             row.count.text = item.count || '';
-            row.count.position.set(innerW, ROW_H / 2);
+            row.count.position.set(MROW_W - MROW_COUNT_PAD_R, MROW_H / 2);
         }
         row.count.style.fill = color;
-
-        const pct = Math.max(0, Math.min(1, item.pct ?? 0));
-        if (Math.abs(pct - row.lastPct) > 1e-3) {
-            row.lastPct = pct;
-            row.barFg.clear();
-            if (pct > 0) {
-                const minW = BAR_CUT * 2 + 1;
-                const fillW = Math.max(minW, (BAR_W - 2) * pct);
-                this._traceParallelogram(row.barFg, barX + 1, barY + 1, fillW, BAR_H - 2, Math.max(1, BAR_CUT - 1))
-                    .fill({ color, alpha: 0.95 });
-            }
-        }
-    }
-
-    // Rightward-slanting parallelogram (top-right and bottom-left cut).
-    // Mirrors CSS clip-path: polygon(0 0, 100%-c 0, 100% 100%, c 100%).
-    _traceParallelogram(g, x, y, w, h, cut) {
-        return g
-            .moveTo(x, y)
-            .lineTo(x + w - cut, y)
-            .lineTo(x + w, y + h)
-            .lineTo(x + cut, y + h)
-            .lineTo(x, y);
     }
 
     _setOres(ores = {}) {
         for (let i = 0; i < ORES.length; i++) {
             const ore = ORES[i];
-            this._oreTexts[i].text = String(ores[ore.key] ?? 0);
+            this._oreTexts[i].text = formatCount(ores[ore.key] ?? 0);
         }
     }
+}
+
+/** Compact integer formatting for HUD counters.
+ *  Up to 9999 → raw number. Beyond that, switch to k/M/B/T with three
+ *  significant digits so the slot width never blows up:
+ *      10000   → "10.0k"
+ *      99999   → "99.9k"
+ *      999999  → "999k"
+ *      1234567 → "1.23M"
+ *      1.5e9   → "1.50B"
+ *      9.9e12  → "9.90T"
+ */
+export function formatCount(n) {
+    n = Math.max(0, Math.floor(n || 0));
+    if (n < 10000) return String(n);
+    const units = [
+        { v: 1e12, s: 'T' },
+        { v: 1e9,  s: 'B' },
+        { v: 1e6,  s: 'M' },
+        { v: 1e3,  s: 'k' },
+    ];
+    for (const u of units) {
+        if (n >= u.v) {
+            const x = n / u.v;
+            if (x >= 100) return Math.floor(x) + u.s;
+            if (x >= 10)  return x.toFixed(1) + u.s;
+            return x.toFixed(2) + u.s;
+        }
+    }
+    return String(n);
 }

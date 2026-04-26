@@ -1,5 +1,5 @@
-/* base layout: canvas, HUD text, controls hint, loading screen, joystick.
-   Per-module UI (skill bar, future panels) lives in its own CSS file. */
+/* base layout: canvas, loading screen, joystick.
+   Per-module UI (HUD, skill bar, panels) lives in its own CSS file. */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -17,14 +17,6 @@ body {
 }
 #game-root { position: fixed; inset: 0; }
 #game-canvas { display: block; width: 100%; height: 100%; }
-
-#controls {
-    position: fixed; top: 12px; right: 12px;
-    font-size: 11px; color: #888;
-    text-shadow: 0 1px 2px #000;
-    pointer-events: none;
-    text-align: right;
-}
 
 #loading {
     position: fixed; inset: 0;
